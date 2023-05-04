@@ -20,6 +20,9 @@
                    .WithColumn("[QuantityCombined]").AsInt16().NotNullable()
                    .WithColumn("[QuantityForSale]").AsInt16().Nullable()
                    .WithColumn("[Description]").AsCustom("NVARCHAR(1000)").Nullable();
+
+            Execute.Sql($"ALTER TABLE {TableName} ADD CONSTRAINT [CK_Item_QuantityCombined] CHECK ([QuantityCombined] >= 0)");
+            Execute.Sql($"ALTER TABLE {TableName} ADD CONSTRAINT [CK_Item_QuantityForSale] CHECK ([QuantityForSale] >= 0 AND [QuantityForSale] <= [QuantityCombined])");
         }
     }
 }

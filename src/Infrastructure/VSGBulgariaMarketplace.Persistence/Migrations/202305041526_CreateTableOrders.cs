@@ -18,6 +18,8 @@
                    .WithColumn("[Email]").AsString(30).NotNullable()
                    .WithColumn("[OrderDatetime]").AsDateTime2().NotNullable()
                    .WithColumn("[Status]").AsInt32().NotNullable();
+
+            Execute.Sql($"ALTER TABLE {this.TableName} ADD CONSTRAINT [CK_Order_Quantity] CHECK ([Quantity] >= 0)");
         }
     }
 }
