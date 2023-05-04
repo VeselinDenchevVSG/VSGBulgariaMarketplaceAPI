@@ -5,6 +5,8 @@ VisualStudioVersion = 17.5.33502.453
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VSGBulgariaMarketplace.API", "VSGBulgariaMarketplace.API.csproj", "{5B61E255-0EC0-4F07-A396-473678C41192}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VSGBulgariaMarketplace.Persistence", "..\..\Infrastructure\VSGBulgariaMarketplace.Persistence\VSGBulgariaMarketplace.Persistence.csproj", "{B5F1D0CC-BBC5-43CE-BB3B-618F206DAACD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{5B61E255-0EC0-4F07-A396-473678C41192}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5B61E255-0EC0-4F07-A396-473678C41192}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5B61E255-0EC0-4F07-A396-473678C41192}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B5F1D0CC-BBC5-43CE-BB3B-618F206DAACD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B5F1D0CC-BBC5-43CE-BB3B-618F206DAACD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B5F1D0CC-BBC5-43CE-BB3B-618F206DAACD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B5F1D0CC-BBC5-43CE-BB3B-618F206DAACD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
