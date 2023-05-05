@@ -1,4 +1,4 @@
-﻿namespace VSGBulgariaMarketplace.Persistence.Repositories.Abstraction
+﻿namespace VSGBulgariaMarketplace.Persistence.Repositories
 {
     using Dapper;
 
@@ -8,10 +8,9 @@
     using System.Linq;
     using System.Text;
 
+    using VSGBulgariaMarketplace.Application.Models.Repositories;
     using VSGBulgariaMarketplace.Application.Models.UnitOfWork;
     using VSGBulgariaMarketplace.Domain.Entities;
-
-    using VSGBulgariaMarketplace.Persistence.Repositories.Abstraction.Interfaces;
 
     public abstract class Repository<T, U> : IRepository<T, U> where T : BaseEntity<U>
     {
@@ -32,8 +31,8 @@
             this.unitOfWork = unitOfWork;
             this.tableName = typeof(T).Name + 's';
             this.classPropertiesNames = GetClassPropertiesNames();
-            this.columnNamesString = this.GetColumnsNamesString();
-            this.parameterizedColumnsNamesString = this.GetParameterizedColumnNamesString();
+            this.columnNamesString = GetColumnsNamesString();
+            this.parameterizedColumnsNamesString = GetParameterizedColumnNamesString();
 
             this.updateSkipProperties = new List<string>()
             {
@@ -43,10 +42,10 @@
                 "IsDeleted"
             };
 
-            this.parameterizedColumnsNamesUpdateString = this.GetParameterizedColumnsNamesUpdateString();
+            this.parameterizedColumnsNamesUpdateString = GetParameterizedColumnsNamesUpdateString();
             this.insertSqlCommand = $"INSERT INTO {this.tableName} {this.columnNamesString} " +
                                         $"VALUES {this.parameterizedColumnsNamesString}";
-            this.updateSqlCommand = $"UPDATE {this.tableName} SET {parameterizedColumnsNamesUpdateString} WHERE Id LIKE @Id AND " +
+            this.updateSqlCommand = $"UPDATE {this.tableName} SET {this.parameterizedColumnsNamesUpdateString} WHERE Id LIKE @Id AND " +
                                     $"IsDeleted = 0";
         }
 
@@ -57,7 +56,7 @@
         public T[] GetAll()
         {
             string sql = $"SELECT * FROM {this.tableName} WHERE IsDeleted = 0";
-            T[] entities = this.DbConnection.Query<T>(sql, transaction: this.Transaction).ToArray();
+            T[] entities = DbConnection.Query<T>(sql, transaction: this.Transaction).ToArray();
 
             return entities;
         }
@@ -75,7 +74,7 @@
             entity.CreatedAtUtc = DateTime.UtcNow;
             entity.ModifiedAtUtc = entity.CreatedAtUtc;
 
-            this.DbConnection.Execute(this.insertSqlCommand, entity, transaction: this.Transaction);
+            DbConnection.Execute(insertSqlCommand, entity, transaction: this.Transaction);
         }
 
         public virtual void CreateMany(T[] entities)
@@ -86,7 +85,7 @@
                 entity.ModifiedAtUtc = entity.CreatedAtUtc;
             }
 
-            this.DbConnection.Execute(this.insertSqlCommand, entities, transaction: Transaction);
+            DbConnection.Execute(insertSqlCommand, entities, transaction: this.Transaction);
         }
 
 
@@ -95,22 +94,22 @@
             entity.Id = id;
             entity.ModifiedAtUtc = DateTime.UtcNow;
 
-            string sql = $"UPDATE {this.tableName} SET {parameterizedColumnsNamesUpdateString} WHERE Id LIKE @Id AND IsDeleted = 0";
-            this.DbConnection.Execute(this.updateSqlCommand, entity, transaction: this.Transaction);
+            string sql = $"UPDATE {this.tableName} SET {this.parameterizedColumnsNamesUpdateString} WHERE Id LIKE @Id AND IsDeleted = 0";
+            DbConnection.Execute(updateSqlCommand, entity, transaction: this.Transaction);
         }
 
         public virtual void Delete(U id)
         {
             string sql = $"UPDATE {this.tableName} SET IsDeleted = 1, DeletedAtUtc = GETDATE() WHERE Id = @Id";
-            this.DbConnection.Execute(sql, new { Id = id }, transaction: this.Transaction);
+            DbConnection.Execute(sql, new { Id = id }, transaction: this.Transaction);
         }
 
         public virtual void DeleteMany(U[] ids)
         {
-            string sql = $"UPDATE {this.tableName} SET IsDeleted = 1, DeletedAtUtc = GETDATE() WHERE Id IN @Id";
+            string sql = $"UPDATE {tableName} SET IsDeleted = 1, DeletedAtUtc = GETDATE() WHERE Id IN @Id";
 
 
-            this.DbConnection.Execute(sql, new { Id = ids }, transaction: this.Transaction);
+            DbConnection.Execute(sql, new { Id = ids }, transaction: this.Transaction);
         }
 
         private static string[] GetClassPropertiesNames() => typeof(T).GetProperties().Select(p => p.Name).ToArray(); // Skip the Id
@@ -122,7 +121,7 @@
             this.stringBuilder.Append(string.Join(", @", this.classPropertiesNames));
             this.stringBuilder.Append(')');
 
-            string tableColumnsNames = stringBuilder.ToString();
+            string tableColumnsNames = this.stringBuilder.ToString();
             this.stringBuilder.Clear();
 
             return tableColumnsNames;
@@ -134,7 +133,7 @@
             this.stringBuilder.Append(string.Join(", ", classPropertiesNames));
             this.stringBuilder.Append(')');
 
-            string columnNames = stringBuilder.ToString();
+            string columnNames = this.stringBuilder.ToString();
             this.stringBuilder.Clear();
 
             return columnNames;
@@ -146,9 +145,9 @@
 
             foreach (string propertyName in classPropertiesNames)
             {
-                if (!this.updateSkipProperties.Contains(propertyName))
+                if (!updateSkipProperties.Contains(propertyName))
                 {
-                    this.stringBuilder.Append($"{propertyName}=@{propertyName}, ");
+                    stringBuilder.Append($"{propertyName}=@{propertyName}, ");
                 }
             }
 

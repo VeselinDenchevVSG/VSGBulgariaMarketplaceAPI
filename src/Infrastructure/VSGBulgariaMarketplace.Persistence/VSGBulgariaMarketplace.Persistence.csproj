@@ -19,6 +19,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\Core\VSGBulgariaMarketplace.Application\VSGBulgariaMarketplace.Application.csproj" />
+    <ProjectReference Include="..\..\Core\VSGBulgariaMarketplace.Domain\VSGBulgariaMarketplace.Domain.csproj" />
   </ItemGroup>
 
 </Project>

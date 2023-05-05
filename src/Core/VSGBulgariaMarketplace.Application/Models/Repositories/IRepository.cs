@@ -1,4 +1,4 @@
-﻿namespace VSGBulgariaMarketplace.Persistence.Repositories.Abstraction.Interfaces
+﻿namespace VSGBulgariaMarketplace.Application.Models.Repositories
 {
     using System.Data;
 

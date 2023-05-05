@@ -2,7 +2,7 @@
 {
     using System.Data;
 
-    public interface IUnitOfWork
+    public interface IUnitOfWork : IDisposable
     {
         public IDbConnection DbConnection { get; set; }
 
@@ -13,7 +13,5 @@
         public void Rollback();
 
         void Commit();
-
-        void Dispose();
     }
 }

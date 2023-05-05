@@ -6,4 +6,13 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\VSGBulgariaMarketplace.Domain\VSGBulgariaMarketplace.Domain.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Models\Item\Dtos\" />
+    <Folder Include="Models\Order\Dtos\" />
+  </ItemGroup>
+
 </Project>
