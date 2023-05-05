@@ -4,8 +4,6 @@ using VSGBulgariaMarketplace.Domain.Enums;
 
 public class Item : BaseEntity<int>
 {
-    public int Id { get; set; }
-
     public string Name { get; set; } = null!;
 
     public string? PicturePublicId { get; set; }
@@ -19,14 +17,6 @@ public class Item : BaseEntity<int>
     public short? QuantityForSale { get; set; }
 
     public string? Description { get; set; }
-
-    public DateTime CreatedAtUtc { get; set; }
-
-    public DateTime ModifiedAtUtc { get; set; }
-
-    public DateTime? DeletedAtUtc { get; set; }
-
-    public bool IsDeleted { get; set; }
 
     public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
 }
