@@ -2,7 +2,7 @@
 
 using VSGBulgariaMarketplace.Domain.Enums;
 
-public class Item : BaseEntity
+public class Item : BaseEntity<int>
 {
     public int Id { get; set; }
 

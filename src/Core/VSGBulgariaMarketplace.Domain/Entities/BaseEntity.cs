@@ -2,9 +2,9 @@
 {
     using VSGBulgariaMarketplace.Domain.Interfaces;
 
-    public abstract class BaseEntity : IIdentity<int>, IAuditable
+    public abstract class BaseEntity<T> : IIdentity<T>, IAuditable
     {
-        public int Id { get; set; }
+        public T Id { get; set; }
 
         public DateTime CreatedAtUtc { get; set; }
 
