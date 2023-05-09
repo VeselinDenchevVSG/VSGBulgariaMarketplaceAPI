@@ -71,7 +71,7 @@
             entity.CreatedAtUtc = DateTime.UtcNow;
             entity.ModifiedAtUtc = entity.CreatedAtUtc;
 
-            DbConnection.Execute(this.insertSqlCommand, entity, transaction: this.Transaction);
+            this.DbConnection.Execute(this.insertSqlCommand, entity, transaction: this.Transaction);
         }
 
         public virtual void CreateMany(T[] entities)
@@ -82,7 +82,7 @@
                 entity.ModifiedAtUtc = entity.CreatedAtUtc;
             }
 
-            DbConnection.Execute(this.insertSqlCommand, entities, transaction: this.Transaction);
+            this.DbConnection.Execute(this.insertSqlCommand, entities, transaction: this.Transaction);
         }
 
 
@@ -91,19 +91,19 @@
             entity.Id = id;
             entity.ModifiedAtUtc = DateTime.UtcNow;
 
-            DbConnection.Execute(this.updateSqlCommand, entity, transaction: this.Transaction);
+            this.DbConnection.Execute(this.updateSqlCommand, entity, transaction: this.Transaction);
         }
 
         public virtual void Delete(U id)
         {
             string sql = $"UPDATE {this.tableName} SET IsDeleted = 1, DeletedAtUtc = GETUTCDATE() WHERE Id = @Id";
-            DbConnection.Execute(sql, new { Id = id }, transaction: this.Transaction);
+            this.DbConnection.Execute(sql, new { Id = id }, transaction: this.Transaction);
         }
 
         public virtual void DeleteMany(U[] ids)
         {
             string sql = $"UPDATE {tableName} SET IsDeleted = 1, DeletedAtUtc = GETUTCDATE() WHERE Id IN @Id";
-            DbConnection.Execute(sql, new { Id = ids }, transaction: this.Transaction);
+            this.DbConnection.Execute(sql, new { Id = ids }, transaction: this.Transaction);
         }
 
         private static string[] GetClassPropertiesNames() => typeof(T).GetProperties().Select(p => p.Name).ToArray(); // Skip the Id
