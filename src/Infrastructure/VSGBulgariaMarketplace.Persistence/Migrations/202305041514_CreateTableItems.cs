@@ -12,7 +12,7 @@
         public override void Up()
         {
             Create.Table(this.TableName)
-                   .WithColumn("[Id]").AsInt32().PrimaryKey().Identity()
+                   .WithColumn("[Id]").AsInt32().PrimaryKey()
                    .WithColumn("[Name]").AsCustom("NVARCHAR(150)").NotNullable()
                    .WithColumn("[PicturePublicId]").AsString(50).Nullable()
                    .WithColumn("[Price]").AsCustom("MONEY").NotNullable()
