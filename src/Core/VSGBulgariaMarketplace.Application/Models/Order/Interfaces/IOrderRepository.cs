@@ -5,5 +5,6 @@
 
     public interface IOrderRepository : IRepository<Order, int>
     {
+        public void Finish(int id);
     }
 }
