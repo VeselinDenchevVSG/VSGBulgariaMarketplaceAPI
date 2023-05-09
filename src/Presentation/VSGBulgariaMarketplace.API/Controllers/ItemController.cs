@@ -40,7 +40,7 @@
 
         [HttpPost]
         [Route("add")]
-        public IActionResult Create([FromForm] ManageItemDto itemDto)
+        public IActionResult Create([FromForm] ItemDto itemDto)
         {
             Item item = new Item()
             {
@@ -64,12 +64,10 @@
 
         [HttpPut]
         [Route("update/{id}")]
-        public IActionResult Update([FromRoute] int id, [FromForm] ManageItemDto itemDto)
+        public IActionResult Update([FromRoute] int id, [FromForm] ItemDto itemDto)
         {
             try
             {
-                //brand.Id = brandId;
-
                 Item item = new Item()
                 {
                     Name = itemDto.Name,
@@ -79,8 +77,7 @@
                     QuantityForSale = itemDto.QuantityForSale,
                     Description = itemDto.Description,
                     CreatedAtUtc = DateTime.UtcNow,
-                    ModifiedAtUtc = DateTime.UtcNow,
-                    //Orders = new List<Order>(),
+                    ModifiedAtUtc = DateTime.UtcNow
                 };
                 Enum.TryParse(itemDto.Category, out Category category);
                 item.Category = category;

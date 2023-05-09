@@ -71,7 +71,7 @@
             entity.CreatedAtUtc = DateTime.UtcNow;
             entity.ModifiedAtUtc = entity.CreatedAtUtc;
 
-            DbConnection.Execute(insertSqlCommand, entity, transaction: this.Transaction);
+            DbConnection.Execute(this.insertSqlCommand, entity, transaction: this.Transaction);
         }
 
         public virtual void CreateMany(T[] entities)
@@ -82,7 +82,7 @@
                 entity.ModifiedAtUtc = entity.CreatedAtUtc;
             }
 
-            DbConnection.Execute(insertSqlCommand, entities, transaction: this.Transaction);
+            DbConnection.Execute(this.insertSqlCommand, entities, transaction: this.Transaction);
         }
 
 
@@ -91,7 +91,7 @@
             entity.Id = id;
             entity.ModifiedAtUtc = DateTime.UtcNow;
 
-            DbConnection.Execute(updateSqlCommand, entity, transaction: this.Transaction);
+            DbConnection.Execute(this.updateSqlCommand, entity, transaction: this.Transaction);
         }
 
         public virtual void Delete(U id)
