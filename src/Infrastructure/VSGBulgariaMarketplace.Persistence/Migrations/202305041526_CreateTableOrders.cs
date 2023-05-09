@@ -16,7 +16,6 @@
                    .WithColumn("[ItemId]").AsInt32().ForeignKey("[Items]", "[Id]").NotNullable()
                    .WithColumn("[Quantity]").AsInt16().NotNullable()
                    .WithColumn("[Email]").AsString(30).NotNullable()
-                   .WithColumn("[OrderDatetime]").AsDateTime2().NotNullable()
                    .WithColumn("[Status]").AsInt32().NotNullable()
                    .WithColumn("[CreatedAtUtc]").AsDateTime2().NotNullable().WithDefaultValue(SystemMethods.CurrentUTCDateTime)
                    .WithColumn("[ModifiedAtUtc]").AsDateTime2().NotNullable().WithDefaultValue(SystemMethods.CurrentUTCDateTime)
