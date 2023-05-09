@@ -3,7 +3,6 @@
     using Dapper;
 
     using System;
-    using System.Collections.Generic;
     using System.Data;
     using System.Linq;
     using System.Text;
@@ -24,25 +23,23 @@
         protected string parameterizedColumnsNamesUpdateString;
         protected string insertSqlCommand;
         protected readonly string updateSqlCommand;
-        protected List<string> updateSkipProperties;
+        protected string[] updateSkipProperties;
 
         public Repository(IUnitOfWork unitOfWork)
         {
             this.unitOfWork = unitOfWork;
             this.tableName = typeof(T).Name + 's';
             this.classPropertiesNames = GetClassPropertiesNames();
-            this.columnNamesString = GetColumnsNamesString();
-            this.parameterizedColumnsNamesString = GetParameterizedColumnNamesString();
+            this.columnNamesString = this.GetColumnsNamesString();
+            this.parameterizedColumnsNamesString = this.GetParameterizedColumnNamesString();
 
-            this.updateSkipProperties = new List<string>()
+            this.updateSkipProperties = new string[]
             {
-                "Id",
-                "CreatedAtUtc",
-                "DeletedAtUtc",
-                "IsDeleted"
+                "Id", "CreatedAtUtc"
             };
 
             this.parameterizedColumnsNamesUpdateString = GetParameterizedColumnsNamesUpdateString();
+
             this.insertSqlCommand = $"INSERT INTO {this.tableName} {this.columnNamesString} " +
                                         $"VALUES {this.parameterizedColumnsNamesString}";
             this.updateSqlCommand = $"UPDATE {this.tableName} SET {this.parameterizedColumnsNamesUpdateString} WHERE Id LIKE @Id AND " +
@@ -94,21 +91,18 @@
             entity.Id = id;
             entity.ModifiedAtUtc = DateTime.UtcNow;
 
-            string sql = $"UPDATE {this.tableName} SET {this.parameterizedColumnsNamesUpdateString} WHERE Id LIKE @Id AND IsDeleted = 0";
             DbConnection.Execute(updateSqlCommand, entity, transaction: this.Transaction);
         }
 
         public virtual void Delete(U id)
         {
-            string sql = $"UPDATE {this.tableName} SET IsDeleted = 1, DeletedAtUtc = GETDATE() WHERE Id = @Id";
+            string sql = $"UPDATE {this.tableName} SET IsDeleted = 1, DeletedAtUtc = GETDATEUTC() WHERE Id = @Id";
             DbConnection.Execute(sql, new { Id = id }, transaction: this.Transaction);
         }
 
         public virtual void DeleteMany(U[] ids)
         {
-            string sql = $"UPDATE {tableName} SET IsDeleted = 1, DeletedAtUtc = GETDATE() WHERE Id IN @Id";
-
-
+            string sql = $"UPDATE {tableName} SET IsDeleted = 1, DeletedAtUtc = GETDATEUTC() WHERE Id IN @Id";
             DbConnection.Execute(sql, new { Id = ids }, transaction: this.Transaction);
         }
 
@@ -116,9 +110,17 @@
 
         private string GetParameterizedColumnNamesString()
         {
-            this.stringBuilder = new StringBuilder("(@");
+            this.stringBuilder = new StringBuilder("(");
 
-            this.stringBuilder.Append(string.Join(", @", this.classPropertiesNames));
+            foreach (string propertyName in this.classPropertiesNames)
+            {
+                if (propertyName != "Id")
+                {
+                    this.stringBuilder.Append($"@{propertyName}, ");
+                }
+            }
+
+            this.stringBuilder.Remove(stringBuilder.Length - 2, 2);
             this.stringBuilder.Append(')');
 
             string tableColumnsNames = this.stringBuilder.ToString();
@@ -130,7 +132,16 @@
         private string GetColumnsNamesString()
         {
             this.stringBuilder = new StringBuilder("(");
-            this.stringBuilder.Append(string.Join(", ", classPropertiesNames));
+
+            foreach (string propertyName in this.classPropertiesNames)
+            {
+                if (propertyName != "Id")
+                {
+                    this.stringBuilder.Append($"{propertyName}, ");
+                }
+            }
+
+            this.stringBuilder.Remove(stringBuilder.Length - 2, 2);
             this.stringBuilder.Append(')');
 
             string columnNames = this.stringBuilder.ToString();
@@ -143,7 +154,7 @@
         {
             this.stringBuilder = new StringBuilder();
 
-            foreach (string propertyName in classPropertiesNames)
+            foreach (string propertyName in this.classPropertiesNames)
             {
                 if (!updateSkipProperties.Contains(propertyName))
                 {

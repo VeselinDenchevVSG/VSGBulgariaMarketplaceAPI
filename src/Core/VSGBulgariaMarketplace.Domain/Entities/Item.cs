@@ -18,5 +18,5 @@ public class Item : BaseEntity<int>
 
     public string? Description { get; set; }
 
-    public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
+    //public virtual ICollection<Order> Orders { get; set; } = new List<Order>();
 }
