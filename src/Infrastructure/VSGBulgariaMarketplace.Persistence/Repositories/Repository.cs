@@ -96,13 +96,13 @@
 
         public virtual void Delete(U id)
         {
-            string sql = $"UPDATE {this.tableName} SET IsDeleted = 1, DeletedAtUtc = GETDATEUTC() WHERE Id = @Id";
+            string sql = $"UPDATE {this.tableName} SET IsDeleted = 1, DeletedAtUtc = GETUTCDATE() WHERE Id = @Id";
             DbConnection.Execute(sql, new { Id = id }, transaction: this.Transaction);
         }
 
         public virtual void DeleteMany(U[] ids)
         {
-            string sql = $"UPDATE {tableName} SET IsDeleted = 1, DeletedAtUtc = GETDATEUTC() WHERE Id IN @Id";
+            string sql = $"UPDATE {tableName} SET IsDeleted = 1, DeletedAtUtc = GETUTCDATE() WHERE Id IN @Id";
             DbConnection.Execute(sql, new { Id = ids }, transaction: this.Transaction);
         }
 
