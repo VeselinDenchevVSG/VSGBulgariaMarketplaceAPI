@@ -10,8 +10,6 @@ public class Order : BaseEntity<int>
 
     public string Email { get; set; } = null!;
 
-    public DateTime OrderDatetime { get; set; }
-
     public OrderStatus Status { get; set; }
 
     public virtual Item Item { get; set; } = null!;
