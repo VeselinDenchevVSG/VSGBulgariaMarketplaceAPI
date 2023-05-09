@@ -1,4 +1,4 @@
-﻿namespace VSGBulgariaMarketplace.Application.Models.Item.Dtos
+﻿namespace VSGBulgariaMarketplace.Application.Models.Order.Dtos
 {
     public class OrderDto
     {
