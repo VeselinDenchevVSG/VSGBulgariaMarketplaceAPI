@@ -18,17 +18,17 @@
 
         [HttpGet]
         [Route("marketplace")]
-        public IActionResult GetAllMarketplace()
+        public IActionResult GetMarketplace()
         {
-            MarketplaceItemDto[] items = this.itemService.GetAllMarketplace();
+            MarketplaceItemDto[] items = this.itemService.GetMarketplace();
 
             return Ok(items);
         }
         [HttpGet]
         [Route("inventory")]
-        public IActionResult GetAllInventory()
+        public IActionResult GetInventory()
         {
-            InventoryItemDto[] items = this.itemService.GetAllInventory();
+            InventoryItemDto[] items = this.itemService.GetInventory();
 
             return Ok(items);
         }

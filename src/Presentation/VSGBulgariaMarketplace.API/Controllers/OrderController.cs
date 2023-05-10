@@ -11,17 +11,28 @@
     public class OrderController : ControllerBase
     {
         private IOrderRepository orderRepository;
+        private IOrderService orderService;
 
-        public OrderController(IOrderRepository orderRepository)
+        public OrderController(IOrderRepository orderRepository, IOrderService orderService)
         {
             this.orderRepository = orderRepository;
+            this.orderService = orderService;
         }
 
         [HttpGet]
-        [Route("all")]
-        public IActionResult GetAll()
+        [Route("pending-orders")]
+        public IActionResult GetPendingOrders()
         {
-            Order[] orders = this.orderRepository.GetAll();
+            PendingOrderDto[] orders = this.orderService.GetPendingOrders();
+
+            return Ok(orders);
+        }
+
+        [HttpGet]
+        [Route("orders/{userId}")]
+        public IActionResult GetUserOrders([FromRoute]string userId)
+        {
+            UserOrderDto[] orders = this.orderService.GetUserOrders(userId);
 
             return Ok(orders);
         }
@@ -55,13 +66,13 @@
             return Ok($"Order with id {order.Id} is successfully added!");
         }
 
-        [HttpPut]
+        [HttpPatch]
         [Route("finish/{id}")]
         public IActionResult Finish([FromRoute] int id)
         {
             try
             {
-                this.orderRepository.Finish(id);
+                this.orderService.Finish(id);
 
                 return Ok($"Order with id = {id} is finished");
             }
@@ -72,14 +83,14 @@
         }
 
         [HttpDelete]
-        [Route("delete/{id}")]
-        public IActionResult Delete([FromRoute] int id)
+        [Route("decline/{id}")]
+        public IActionResult Decline([FromRoute] int id)
         {
             try
             {
-                this.orderRepository.Delete(id);
+                this.orderService.Decline(id);
 
-                return Ok("Order has been successfully deleted!");
+                return Ok("Order has been declined!");
 
             }
             catch (ArgumentException ae)

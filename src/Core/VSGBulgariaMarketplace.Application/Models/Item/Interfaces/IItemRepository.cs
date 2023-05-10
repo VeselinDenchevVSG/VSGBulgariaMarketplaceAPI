@@ -5,5 +5,8 @@
 
     public interface IItemRepository : IRepository<Item, int>
     {
+        public Item[] GetMarketplace();
+
+        public Item[] GetInventory();
     }
 }

@@ -4,9 +4,9 @@
 
     public interface IItemService
     {
-        public MarketplaceItemDto[] GetAllMarketplace();
+        public MarketplaceItemDto[] GetMarketplace();
 
-        public InventoryItemDto[] GetAllInventory();
+        public InventoryItemDto[] GetInventory();
 
         public ItemDetailsDto GetById(int id);
 

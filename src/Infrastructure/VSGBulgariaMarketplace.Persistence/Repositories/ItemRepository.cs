@@ -15,10 +15,27 @@
                                         "Description, CreatedAtUtc, ModifiedAtUtc, DeletedAtUtc, IsDeleted)";
             base.SetUpRepository();
         }
+        
+        public Item[] GetMarketplace()
+        {
+            string sql = $"SELECT Id, PicturePublicId, Price, Category, QuantityForSale FROM {this.tableName} WHERE IsDeleted = 0";
+            Item[] marketplace = DbConnection.Query<Item>(sql, transaction: this.Transaction).ToArray();
+
+            return marketplace;
+        }
+
+        public Item[] GetInventory()
+        {
+            string sql = $"SELECT Id, Name, Category, QuantityForSale, QuantityCombined FROM {this.tableName} WHERE IsDeleted = 0";
+            Item[] inventory = DbConnection.Query<Item>(sql, transaction: this.Transaction).ToArray();
+
+            return inventory;
+        }
 
         public override void Update(int code, Item item)
         {
-            string sql = $"UPDATE {this.tableName} SET {this.parameterizedColumnsNamesUpdateString} WHERE Id = @OldId AND IsDeleted = 0";
+            string sql =    $"UPDATE {this.tableName} SET {this.parameterizedColumnsNamesUpdateString} WHERE Id = @OldId AND " +
+                            $"IsDeleted = 0";
             bool hasBeenUpdated = Convert.ToBoolean(
                 DbConnection.Execute(sql, new 
                 {

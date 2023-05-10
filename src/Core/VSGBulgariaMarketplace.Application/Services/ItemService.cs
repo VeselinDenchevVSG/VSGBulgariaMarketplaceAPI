@@ -14,17 +14,17 @@
         {
         }
 
-        public MarketplaceItemDto[] GetAllMarketplace()
+        public MarketplaceItemDto[] GetMarketplace()
         {
-            Item[] items = this.repository.GetAll();
+            Item[] items = this.repository.GetMarketplace();
             MarketplaceItemDto[] itemDtos = base.mapper.Map<MarketplaceItemDto[]>(items);
 
             return itemDtos;
         }
 
-        public InventoryItemDto[] GetAllInventory()
+        public InventoryItemDto[] GetInventory()
         {
-            Item[] items = this.repository.GetAll();
+            Item[] items = this.repository.GetInventory();
             InventoryItemDto[] itemDtos = base.mapper.Map<InventoryItemDto[]>(items);
 
             return itemDtos;
