@@ -11,5 +11,7 @@
         public void Create(ManageItemDto createItemDto);
 
         public void Update(int id, ManageItemDto updateItemDto);
+
+        public void Delete(int id);
     }
 }

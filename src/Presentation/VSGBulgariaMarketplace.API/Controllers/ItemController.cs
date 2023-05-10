@@ -11,12 +11,10 @@
     [ApiController]
     public class ItemController : ControllerBase
     {
-        private IItemRepository itemRepository;
         private IItemService itemService;
 
-        public ItemController(IItemRepository itemRepository, IItemService itemService)
+        public ItemController(IItemRepository itemRepository)
         {
-            this.itemRepository = itemRepository;
             this.itemService = itemService;
         }
 
@@ -79,7 +77,7 @@
         {
             try
             {
-                this.itemRepository.Delete(id);
+                this.itemService.Delete(id);
 
                 return Ok("Item has been successfully deleted!");
 

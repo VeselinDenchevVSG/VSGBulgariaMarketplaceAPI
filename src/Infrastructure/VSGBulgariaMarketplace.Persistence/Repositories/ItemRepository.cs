@@ -13,13 +13,7 @@
         {
             base.columnNamesString = "(Id, Name, PicturePublicId, Price, Category, QuantityCombined, QuantityForSale, " +
                                         "Description, CreatedAtUtc, ModifiedAtUtc, DeletedAtUtc, IsDeleted)";
-            base.parameterizedColumnsNamesString = GetParameterizedColumnNamesString(base.columnNamesString);
-            base.parameterizedColumnsNamesUpdateString = base.parameterizedColumnsNamesString
-                                                                .Replace("(", string.Empty)
-                                                                .Replace(" CreatedAtUtc = @CreatedAtUtc,", string.Empty)
-                                                                .Replace(" DeletedAtUtc = @DeletedAtUtc,", string.Empty)
-                                                                .Replace(", IsDeleted = @IsDeleted", string.Empty)
-                                                                .Replace(")", string.Empty);
+            base.SetUpRepository();
         }
 
         public override void Update(int code, Item item)

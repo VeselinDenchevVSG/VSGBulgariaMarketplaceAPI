@@ -44,5 +44,7 @@
             Item item = this.mapper.Map<ManageItemDto, Item>(updateItemDto);
             this.repository.Update(id, item);
         }
+
+        public void Delete(int id) => this.repository.Delete(id);
     }
 }

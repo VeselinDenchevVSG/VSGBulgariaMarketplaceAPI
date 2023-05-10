@@ -145,6 +145,23 @@
             return tableColumnsNames;
         }
 
+        protected void SetParameterizedColumnNamesUpdateString()
+        {
+            this.parameterizedColumnsNamesUpdateString = this.parameterizedColumnsNamesString
+                                                    .Replace("(", string.Empty)
+                                                    .Replace(" CreatedAtUtc = @CreatedAtUtc,", string.Empty)
+                                                    .Replace(" DeletedAtUtc = @DeletedAtUtc,", string.Empty)
+                                                    .Replace(", IsDeleted = @IsDeleted", string.Empty)
+                                                    .Replace(")", string.Empty);
+        }
+
+        protected void SetUpRepository(bool hasUpdate = true)
+        {
+            this.parameterizedColumnsNamesString = GetParameterizedColumnNamesString(this.columnNamesString);
+            this.SetParameterizedColumnNamesUpdateString();
+
+        }
+
         //private string GetColumnsNamesString()
         //{
         //    this.stringBuilder = new StringBuilder("(");
