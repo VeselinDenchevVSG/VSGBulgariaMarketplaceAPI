@@ -12,9 +12,6 @@
         public ItemService(IItemRepository itemRepository, IMemoryCache memoryCache, IMapper mapper)
             : base(itemRepository, memoryCache, mapper)
         {
-            this.repository = itemRepository;
-            this.memoryCache = memoryCache;
-            this.mapper = mapper;
         }
 
         public MarketplaceItemDto[] GetAllMarketplace()
