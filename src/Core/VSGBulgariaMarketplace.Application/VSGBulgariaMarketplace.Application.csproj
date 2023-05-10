@@ -7,11 +7,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\VSGBulgariaMarketplace.Domain\VSGBulgariaMarketplace.Domain.csproj" />
+    <PackageReference Include="AutoMapper" Version="12.0.1" />
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Models\Order\Dtos\" />
+    <ProjectReference Include="..\VSGBulgariaMarketplace.Domain\VSGBulgariaMarketplace.Domain.csproj" />
   </ItemGroup>
 
 </Project>

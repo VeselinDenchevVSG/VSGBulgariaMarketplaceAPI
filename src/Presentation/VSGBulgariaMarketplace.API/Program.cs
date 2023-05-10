@@ -1,3 +1,4 @@
+using VSGBulgariaMarketplace.Application.Helpers.Configurations;
 using VSGBulgariaMarketplace.Persistence.Configurations;
 using VSGBulgariaMarketplace.Persistence.Migrations;
 
@@ -13,8 +14,11 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddApplicationLayerConfiguration();
 builder.Services.AddRepositoriesConfiguration();
 builder.Services.AddMigrationsConfiguration();
+
+builder.Services.AddMemoryCache();
 
 var app = builder.Build();
 

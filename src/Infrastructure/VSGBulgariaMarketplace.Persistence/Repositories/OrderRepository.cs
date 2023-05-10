@@ -17,8 +17,8 @@
 
             this.parameterizedColumnsNamesString = base.parameterizedColumnsNamesString.Replace("@Item, ", string.Empty);
 
-            base.insertSqlCommand = $"INSERT INTO Orders {this.columnNamesString} " +
-                                    $"VALUES {base.parameterizedColumnsNamesString} ";
+            //base.insertSqlCommand = $"INSERT INTO Orders {this.columnNamesString} " +
+            //                        $"VALUES {base.parameterizedColumnsNamesString} ";
         }
 
         public void Finish(int id)

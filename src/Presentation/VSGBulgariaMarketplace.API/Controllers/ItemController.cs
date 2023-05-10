@@ -12,17 +12,19 @@
     public class ItemController : ControllerBase
     {
         private IItemRepository itemRepository;
+        private IItemService itemService;
 
-        public ItemController(IItemRepository itemRepository)
+        public ItemController(IItemRepository itemRepository, IItemService itemService)
         {
             this.itemRepository = itemRepository;
+            this.itemService = itemService;
         }
 
         [HttpGet]
         [Route("all")]
         public IActionResult GetAll()
         {
-            Item[] items = this.itemRepository.GetAll();
+            GridItemDto[] items = this.itemService.GetAll();
 
             return Ok(items);
         }
@@ -31,7 +33,7 @@
         [Route("{id}")]
         public IActionResult GetById([FromRoute] int id)
         {
-            Item item = this.itemRepository.GetById(id);
+            ItemDetailsDto item = this.itemService.GetById(id);
 
             if (item is null) return NotFound("Item doesn't exist!");
 
@@ -40,51 +42,30 @@
 
         [HttpPost]
         [Route("add")]
-        public IActionResult Create([FromForm] ItemDto itemDto)
-        {
-            Item item = new Item()
-            {
-                Name = itemDto.Name,
-                PicturePublicId = itemDto.PicturePublicId,
-                Price = itemDto.Price,
-                QuantityCombined = itemDto.QuantityCombined,
-                QuantityForSale = itemDto.QuantityForSale,
-                Description = itemDto.Description,
-                CreatedAtUtc = DateTime.UtcNow,
-                ModifiedAtUtc = DateTime.UtcNow,
-                //Orders = new List<Order>(),
-            };
-            Enum.TryParse(itemDto.Category, out Category category);
-            item.Category = category;
-
-            this.itemRepository.Create(item);
-
-            return Ok($"Brand {item.Name} is successfully added!");
-        }
-
-        [HttpPut]
-        [Route("update/{id}")]
-        public IActionResult Update([FromRoute] int id, [FromForm] ItemDto itemDto)
+        public IActionResult Create([FromForm] ManageItemDto itemDto)
         {
             try
             {
-                Item item = new Item()
-                {
-                    Name = itemDto.Name,
-                    PicturePublicId = itemDto.PicturePublicId,
-                    Price = itemDto.Price,
-                    QuantityCombined = itemDto.QuantityCombined,
-                    QuantityForSale = itemDto.QuantityForSale,
-                    Description = itemDto.Description,
-                    CreatedAtUtc = DateTime.UtcNow,
-                    ModifiedAtUtc = DateTime.UtcNow
-                };
-                Enum.TryParse(itemDto.Category, out Category category);
-                item.Category = category;
+                this.itemService.Create(itemDto);
 
-                this.itemRepository.Update(id, item);
+                return Ok($"Brand {itemDto.Name} is successfully added!");
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
 
-                return Ok(item);
+        }
+
+        [HttpPut]
+        [Route("update/{code}")]
+        public IActionResult Update([FromRoute] int code, [FromForm] ManageItemDto itemDto)
+        {
+            try
+            {
+                this.itemService.Update(code, itemDto);
+
+                return Ok();
             }
             catch (ArgumentException ae)
             {

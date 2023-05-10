@@ -1,8 +1,7 @@
 ﻿namespace VSGBulgariaMarketplace.API.Controllers
 {
     using Microsoft.AspNetCore.Mvc;
-
-    using VSGBulgariaMarketplace.Application.Models.Item.Dtos;
+    using VSGBulgariaMarketplace.Application.Models.Order.Dtos;
     using VSGBulgariaMarketplace.Application.Models.Order.Interfaces;
     using VSGBulgariaMarketplace.Domain.Entities;
     using VSGBulgariaMarketplace.Domain.Enums;

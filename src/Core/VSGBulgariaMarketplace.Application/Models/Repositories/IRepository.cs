@@ -14,12 +14,12 @@
 
         void Create(T entity);
 
-        void CreateMany(T[] entities);
+        //void CreateMany(T[] entities);
 
         void Update(U id, T entity);
 
         void Delete(U id);
 
-        void DeleteMany(U[] ids);
+        //void DeleteMany(U[] ids);
     }
 }
