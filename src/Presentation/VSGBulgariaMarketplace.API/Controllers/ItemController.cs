@@ -4,8 +4,6 @@
 
     using VSGBulgariaMarketplace.Application.Models.Item.Dtos;
     using VSGBulgariaMarketplace.Application.Models.Item.Interfaces;
-    using VSGBulgariaMarketplace.Domain.Entities;
-    using VSGBulgariaMarketplace.Domain.Enums;
 
     [Route("api/[controller]")]
     [ApiController]
