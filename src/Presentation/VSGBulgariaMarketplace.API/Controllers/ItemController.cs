@@ -11,16 +11,24 @@
     {
         private IItemService itemService;
 
-        public ItemController(IItemRepository itemRepository)
+        public ItemController(IItemService itemService)
         {
             this.itemService = itemService;
         }
 
         [HttpGet]
-        [Route("all")]
-        public IActionResult GetAll()
+        [Route("marketplace")]
+        public IActionResult GetAllMarketplace()
         {
-            GridItemDto[] items = this.itemService.GetAll();
+            MarketplaceItemDto[] items = this.itemService.GetAllMarketplace();
+
+            return Ok(items);
+        }
+        [HttpGet]
+        [Route("inventory")]
+        public IActionResult GetAllInventory()
+        {
+            InventoryItemDto[] items = this.itemService.GetAllInventory();
 
             return Ok(items);
         }

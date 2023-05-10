@@ -4,7 +4,9 @@
 
     public interface IItemService
     {
-        public GridItemDto[] GetAll();
+        public MarketplaceItemDto[] GetAllMarketplace();
+
+        public InventoryItemDto[] GetAllInventory();
 
         public ItemDetailsDto GetById(int id);
 

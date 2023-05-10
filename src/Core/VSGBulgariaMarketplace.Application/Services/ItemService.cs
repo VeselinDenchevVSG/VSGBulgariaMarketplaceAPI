@@ -17,10 +17,18 @@
             this.mapper = mapper;
         }
 
-        public GridItemDto[] GetAll()
+        public MarketplaceItemDto[] GetAllMarketplace()
         {
             Item[] items = this.repository.GetAll();
-            GridItemDto[] itemDtos = this.mapper.Map<GridItemDto[]>(items);
+            MarketplaceItemDto[] itemDtos = this.mapper.Map<MarketplaceItemDto[]>(items);
+
+            return itemDtos;
+        }
+
+        public InventoryItemDto[] GetAllInventory()
+        {
+            Item[] items = this.repository.GetAll();
+            InventoryItemDto[] itemDtos = this.mapper.Map<InventoryItemDto[]>(items);
 
             return itemDtos;
         }
