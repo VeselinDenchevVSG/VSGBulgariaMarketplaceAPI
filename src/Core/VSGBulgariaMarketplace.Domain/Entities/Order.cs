@@ -13,4 +13,6 @@ public class Order : BaseEntity<int>
     public OrderStatus Status { get; set; }
 
     public virtual Item Item { get; set; } = null!;
+
+    public decimal Price => this.Item.Price * this.Quantity;
 }

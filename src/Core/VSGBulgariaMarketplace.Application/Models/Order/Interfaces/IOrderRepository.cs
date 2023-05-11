@@ -5,6 +5,12 @@
 
     public interface IOrderRepository : IRepository<Order, int>
     {
+        public Order[] GetPendingOrders();
+
+        public Order[] GetUserOrders(string userId);
+
+        public Order GetOrderItemIdAndQuantity(int id);
+
         public void Finish(int id);
     }
 }

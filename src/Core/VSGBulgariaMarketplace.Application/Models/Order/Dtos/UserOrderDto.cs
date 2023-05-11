@@ -1,12 +1,14 @@
 ﻿namespace VSGBulgariaMarketplace.Application.Models.Order.Dtos
 {
-    public class OrderDto
+    public class UserOrderDto
     {
-        public int ItemId { get; set; }
+        public string ItemName { get; set; }
 
         public short Quantity { get; set; }
 
-        public string Email { get; set; } = null!;
+        public decimal Price { get; set; }
+
+        public DateTime OrderDate { get; set; }
 
         public string Status { get; set; }
     }

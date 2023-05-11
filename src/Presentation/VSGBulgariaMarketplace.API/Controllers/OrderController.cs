@@ -3,19 +3,15 @@
     using Microsoft.AspNetCore.Mvc;
     using VSGBulgariaMarketplace.Application.Models.Order.Dtos;
     using VSGBulgariaMarketplace.Application.Models.Order.Interfaces;
-    using VSGBulgariaMarketplace.Domain.Entities;
-    using VSGBulgariaMarketplace.Domain.Enums;
 
     [Route("api/[controller]")]
     [ApiController]
     public class OrderController : ControllerBase
     {
-        private IOrderRepository orderRepository;
         private IOrderService orderService;
 
-        public OrderController(IOrderRepository orderRepository, IOrderService orderService)
+        public OrderController(IOrderService orderService)
         {
-            this.orderRepository = orderRepository;
             this.orderService = orderService;
         }
 
@@ -37,33 +33,22 @@
             return Ok(orders);
         }
 
-        [HttpGet]
-        [Route("{id}")]
-        public IActionResult GetById([FromRoute] int id)
-        {
-            Order order = this.orderRepository.GetById(id);
-
-            if (order is null) return NotFound("Order doesn't exist!");
-
-            return Ok(order);
-        }
-
         [HttpPost]
-        [Route("add")]
-        public IActionResult Create([FromForm] OrderDto orderDto)
+        [Route("create")]
+        public IActionResult Create([FromForm] CreateOrderDto orderDto)
         {
-            Order order = new Order()
+            try
             {
-                ItemId = orderDto.ItemId,
-                Quantity = orderDto.Quantity,
-                Email = orderDto.Email,
-            };
-            Enum.TryParse(orderDto.Status, out OrderStatus status);
-            order.Status = status;
+                this.orderService.Create(orderDto);
 
-            this.orderRepository.Create(order);
+                return Ok($"Order was successfully created!");
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
 
-            return Ok($"Order with id {order.Id} is successfully added!");
+
         }
 
         [HttpPatch]
