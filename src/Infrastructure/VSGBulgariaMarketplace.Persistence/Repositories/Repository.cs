@@ -47,18 +47,6 @@
             this.DbConnection.Execute(sql, entity, transaction: this.Transaction);
         }
 
-        public virtual void Update(U id, T entity)
-        {
-            entity.ModifiedAtUtc = DateTime.UtcNow;
-
-            string sql = $"UPDATE {this.tableName} SET {this.parameterizedColumnsNamesUpdateString} WHERE Id = @OldId AND IsDeleted = 0";
-            bool hasBeenUpdated = Convert.ToBoolean(this.DbConnection.Execute(sql, entity, transaction: this.Transaction));
-            if (!hasBeenUpdated)
-            {
-                throw new ArgumentException($"{typeof(T)} with id = {id} doesn't exist!");
-            }
-        }
-
         public virtual void Delete(U id)
         {
             string sql = $"UPDATE {this.tableName} SET IsDeleted = 1, DeletedAtUtc = GETUTCDATE() WHERE Id = @Id";

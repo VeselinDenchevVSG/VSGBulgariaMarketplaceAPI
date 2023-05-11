@@ -8,5 +8,9 @@
         public Item[] GetMarketplace();
 
         public Item[] GetInventory();
+
+        public void Update(int id, Item item);
+
+        public void BuyItem(int id, short quantity);
     }
 }

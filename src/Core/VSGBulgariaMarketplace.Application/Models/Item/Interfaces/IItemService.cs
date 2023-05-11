@@ -8,7 +8,7 @@
 
         public InventoryItemDto[] GetInventory();
 
-        public ItemDetailsDto GetById(int id);
+        public ItemDetailsDto GetByCode(int id);
 
         public void Create(ManageItemDto createItemDto);
 

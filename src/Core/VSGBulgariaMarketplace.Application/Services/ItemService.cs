@@ -30,9 +30,9 @@
             return itemDtos;
         }
 
-        public ItemDetailsDto GetById(int id)
+        public ItemDetailsDto GetByCode(int code)
         {
-            Item item = this.repository.GetById(id);
+            Item item = this.repository.GetById(code);
             ItemDetailsDto itemDto = base.mapper.Map<Item, ItemDetailsDto>(item);
 
             return itemDto;
@@ -44,10 +44,10 @@
             this.repository.Create(item);
         }
 
-        public void Update(int id, ManageItemDto updateItemDto) 
+        public void Update(int code, ManageItemDto updateItemDto) 
         {
             Item item = base.mapper.Map<ManageItemDto, Item>(updateItemDto);
-            this.repository.Update(id, item);
+            this.repository.Update(code, item);
         }
 
         public void Delete(int id) => base.repository.Delete(id);

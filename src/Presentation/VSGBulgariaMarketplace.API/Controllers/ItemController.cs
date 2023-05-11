@@ -34,10 +34,10 @@
         }
 
         [HttpGet]
-        [Route("{id}")]
-        public IActionResult GetById([FromRoute] int id)
+        [Route("{code}")]
+        public IActionResult GetByCode([FromRoute] int code)
         {
-            ItemDetailsDto item = this.itemService.GetById(id);
+            ItemDetailsDto item = this.itemService.GetByCode(code);
 
             if (item is null) return NotFound("Item doesn't exist!");
 
@@ -78,12 +78,12 @@
         }
 
         [HttpDelete]
-        [Route("delete/{id}")]
-        public IActionResult Delete([FromRoute] int id)
+        [Route("delete/{code}")]
+        public IActionResult Delete([FromRoute] int code)
         {
             try
             {
-                this.itemService.Delete(id);
+                this.itemService.Delete(code);
 
                 return Ok("Item has been successfully deleted!");
 
