@@ -18,11 +18,18 @@
         protected string columnNamesString;
         protected string parameterizedColumnsNamesString;
         protected string parameterizedColumnsNamesUpdateString;
+        protected List<string> updateStringSkipProperties;
 
         public Repository(IUnitOfWork unitOfWork)
         {
             this.unitOfWork = unitOfWork;
             this.tableName = typeof(T).Name + 's';
+            this.updateStringSkipProperties = new List<string>()
+            {
+                "CreatedAtUtc",
+                "DeletedAtUtc",
+                "IsDeleted"
+            };
         }
 
         public IDbConnection DbConnection => this.unitOfWork.DbConnection;
@@ -50,11 +57,11 @@
             }
         }
 
-        protected static string GetParameterizedColumnNamesString(string columnNamesString)
+        protected string GetParameterizedColumnNamesString()
         {
             StringBuilder stringBuilder = new StringBuilder("(");
 
-            string[] parameters = columnNamesString.Replace("(", string.Empty)
+            string[] parameters = this.columnNamesString.Replace("(", string.Empty)
                                                     .Replace(")", string.Empty)
                                                     .Split(", ");
 
@@ -71,20 +78,33 @@
             return tableColumnsNames;
         }
 
-        protected void SetParameterizedColumnNamesUpdateString()
+        protected string GetParameterizedColumnNamesUpdateString()
         {
-            this.parameterizedColumnsNamesUpdateString = this.parameterizedColumnsNamesString
-                                                    .Replace("(", string.Empty)
-                                                    .Replace(" @CreatedAtUtc,", string.Empty)
-                                                    .Replace(" @DeletedAtUtc,", string.Empty)
-                                                    .Replace(", @IsDeleted", string.Empty)
-                                                    .Replace(")", string.Empty);
+            StringBuilder stringBuilder = new StringBuilder();
+
+            string[] parameters = this.columnNamesString.Replace("(", string.Empty)
+                                                    .Replace(")", string.Empty)
+                                                    .Split(", ");
+
+            foreach (string propertyName in parameters)
+            {
+                if (!updateStringSkipProperties.Contains(propertyName))
+                {
+                    stringBuilder.Append($"{propertyName} = @{propertyName}, ");
+                }
+            }
+
+            stringBuilder.Remove(stringBuilder.Length - 2, 2);
+
+            string tableColumnsNames = stringBuilder.ToString();
+
+            return tableColumnsNames;
         }
 
         protected void SetUpRepository(bool hasUpdate = true)
         {
-            this.parameterizedColumnsNamesString = GetParameterizedColumnNamesString(this.columnNamesString);
-            this.SetParameterizedColumnNamesUpdateString();
+            this.parameterizedColumnsNamesString = this.GetParameterizedColumnNamesString();
+            this.parameterizedColumnsNamesUpdateString = this.GetParameterizedColumnNamesUpdateString();
         }
     }
 }

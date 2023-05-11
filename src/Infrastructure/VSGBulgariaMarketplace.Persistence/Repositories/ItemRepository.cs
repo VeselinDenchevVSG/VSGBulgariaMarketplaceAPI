@@ -66,8 +66,7 @@
 
         public void Update(int code, Item item)
         {
-            string sql =    $"UPDATE {this.tableName} SET {this.parameterizedColumnsNamesUpdateString} WHERE Id = @OldId AND " +
-                            $"IsDeleted = 0";
+            string sql =    $"UPDATE Items SET {this.parameterizedColumnsNamesUpdateString} WHERE Id = @OldId";
             bool hasBeenUpdated = Convert.ToBoolean(
                 base.DbConnection.Execute(sql, new 
                 {
