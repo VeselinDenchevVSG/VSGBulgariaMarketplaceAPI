@@ -2,6 +2,8 @@
 {
     using FluentMigrator;
 
+    using System.Data;
+
     using VSGBulgariaMarketplace.Persistence.Migrations.Abstraction;
 
     [Migration(202305041526)]
@@ -13,7 +15,7 @@
         {
             Create.Table(this.TableName)
                    .WithColumn("[Id]").AsInt32().PrimaryKey().Identity()
-                   .WithColumn("[ItemId]").AsInt32().ForeignKey("[Items]", "[Id]").NotNullable()
+                   .WithColumn("[ItemId]").AsInt32().ForeignKey("[Items]", "[Id]").OnUpdate(Rule.Cascade).NotNullable()
                    .WithColumn("[Quantity]").AsInt16().NotNullable()
                    .WithColumn("[Email]").AsString(30).NotNullable()
                    .WithColumn("[Status]").AsInt32().NotNullable()
