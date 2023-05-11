@@ -8,11 +8,7 @@
     {
         public IDbTransaction Transaction { get; }
 
-        T GetById(U id);
-
         void Create(T entity);
-
-        void Update(U id, T entity);
 
         void Delete(U id);
     }

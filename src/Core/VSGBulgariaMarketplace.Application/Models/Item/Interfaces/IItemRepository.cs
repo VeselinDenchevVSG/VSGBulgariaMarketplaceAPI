@@ -9,6 +9,10 @@
 
         public Item[] GetInventory();
 
+        public Item GetByCode(int code);
+
+        public Item GetQuantityForSaleAndPriceByCode(int code);
+
         public void Update(int id, Item item);
 
         public void BuyItem(int id, short quantity);

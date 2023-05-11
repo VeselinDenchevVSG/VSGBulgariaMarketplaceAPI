@@ -29,14 +29,6 @@
 
         public IDbTransaction Transaction => this.unitOfWork.Transaction;
 
-        public virtual T GetById(U id)
-        {
-            string sql = $"SELECT * FROM {this.tableName} WHERE Id = @Id AND IsDeleted = 0";
-            T entity = this.DbConnection.QueryFirstOrDefault<T>(sql, new { Id = id }, transaction: this.Transaction);
-
-            return entity;
-        }
-
         public virtual void Create(T entity)
         {
             entity.CreatedAtUtc = DateTime.UtcNow;
@@ -68,7 +60,7 @@
 
             foreach (string propertyName in parameters)
             {
-                stringBuilder.Append($"{propertyName} = @{propertyName}, ");
+                stringBuilder.Append($"@{propertyName}, ");
             }
 
             stringBuilder.Remove(stringBuilder.Length - 2, 2);
@@ -83,9 +75,9 @@
         {
             this.parameterizedColumnsNamesUpdateString = this.parameterizedColumnsNamesString
                                                     .Replace("(", string.Empty)
-                                                    .Replace(" CreatedAtUtc = @CreatedAtUtc,", string.Empty)
-                                                    .Replace(" DeletedAtUtc = @DeletedAtUtc,", string.Empty)
-                                                    .Replace(", IsDeleted = @IsDeleted", string.Empty)
+                                                    .Replace(" @CreatedAtUtc,", string.Empty)
+                                                    .Replace(" @DeletedAtUtc,", string.Empty)
+                                                    .Replace(", @IsDeleted", string.Empty)
                                                     .Replace(")", string.Empty);
         }
 

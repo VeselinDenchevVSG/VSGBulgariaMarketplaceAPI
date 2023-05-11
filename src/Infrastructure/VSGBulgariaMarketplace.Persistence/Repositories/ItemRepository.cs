@@ -32,6 +32,23 @@
             return inventory;
         }
 
+        public Item GetByCode(int code)
+        {
+            string sql = "SELECT PicturePublicId, Name, Price, Category, QuantityForSale, Description FROM Items " +
+                            "WHERE Id = @Code";
+            Item item = base.DbConnection.QueryFirstOrDefault<Item>(sql, new { Code = code }, transaction: this.Transaction);
+
+            return item;
+        }
+
+        public Item GetQuantityForSaleAndPriceByCode(int code) 
+        {
+            string sql = "SELECT QuantityForSale, Price FROM Items WHERE Id = @Code";
+            Item item = base.DbConnection.QueryFirstOrDefault<Item>(sql, new { Code = code }, transaction: this.Transaction);
+
+            return item;
+        }
+
         public void BuyItem(int id, short quantity)
         {
             string getItemQuantityForSaleSql = "SELECT QuantityForSale FROM Items WHERE Id = @Id AND IsDeleted = 0";
@@ -43,8 +60,8 @@
                 throw new ArgumentOutOfRangeException("Not enough item quantity in stock!");
             }
 
-            string buyItemSql = $"UPDATE Items SET QuantityForSale -= @QuantitySold, QuantityCombined -= @QuantitySold";
-            this.DbConnection.Execute(buyItemSql, new { QuantitySold = quantity }, transaction: this.Transaction);
+            string buyItemSql = $"UPDATE Items SET QuantityForSale -= @QuantitySold, QuantityCombined -= @QuantitySold WHERE Id = @Id";
+            this.DbConnection.Execute(buyItemSql, new { Id = id, QuantitySold = quantity }, transaction: this.Transaction);
         }
 
         public void Update(int code, Item item)

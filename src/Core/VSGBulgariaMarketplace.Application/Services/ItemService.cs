@@ -32,7 +32,7 @@
 
         public ItemDetailsDto GetByCode(int code)
         {
-            Item item = this.repository.GetById(code);
+            Item item = this.repository.GetByCode(code);
             ItemDetailsDto itemDto = base.mapper.Map<Item, ItemDetailsDto>(item);
 
             return itemDto;
