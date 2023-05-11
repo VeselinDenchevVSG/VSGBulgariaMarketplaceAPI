@@ -22,7 +22,7 @@
             services.AddScoped<IItemService, ItemService>();
             services.AddScoped<IOrderService, OrderService>();
 
-            services.AddSingleton<ICacheService, CacheService>();
+            services.AddSingleton<IMemoryCacheAdapter, MemoryCacheAdapter>();
 
             return services;
         }

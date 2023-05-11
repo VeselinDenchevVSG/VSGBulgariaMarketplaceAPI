@@ -1,6 +1,8 @@
 ﻿namespace VSGBulgariaMarketplace.Application.Services.HelpServices.Interfaces
 {
-    public interface ICacheService
+    using Microsoft.Extensions.Caching.Memory;
+
+    public interface IMemoryCacheAdapter : IMemoryCache
     {
         void Set(string key, object value);
 

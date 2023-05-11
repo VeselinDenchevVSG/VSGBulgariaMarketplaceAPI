@@ -3,7 +3,6 @@
     using AutoMapper;
 
     using VSGBulgariaMarketplace.Application.Models.Repositories;
-    using VSGBulgariaMarketplace.Application.Services.HelpServices;
     using VSGBulgariaMarketplace.Application.Services.HelpServices.Interfaces;
     using VSGBulgariaMarketplace.Domain.Entities;
 
@@ -11,13 +10,13 @@
                                             where U : BaseEntity<int>
     {
         protected T repository;
-        protected ICacheService cacheService;
+        protected IMemoryCacheAdapter cacheAdapter;
         protected IMapper mapper;
 
-        public BaseService(T repository, ICacheService cacheService, IMapper mapper)
+        public BaseService(T repository, IMemoryCacheAdapter cacheAdapter, IMapper mapper)
         {
             this.repository = repository;
-            this.cacheService = cacheService;
+            this.cacheAdapter = cacheAdapter;
             this.mapper = mapper;
         }
     }
