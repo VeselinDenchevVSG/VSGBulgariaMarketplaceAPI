@@ -52,7 +52,7 @@
             {
                 this.itemService.Create(itemDto);
 
-                return Ok($"Brand {itemDto.Name} is successfully added!");
+                return Ok($"Item {itemDto.Name} is successfully added!");
             }
             catch (Exception e)
             {
