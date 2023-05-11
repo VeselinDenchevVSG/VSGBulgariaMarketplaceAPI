@@ -35,7 +35,7 @@
         public Item GetByCode(int code)
         {
             string sql = "SELECT PicturePublicId, Name, Price, Category, QuantityForSale, Description FROM Items " +
-                            "WHERE Id = @Code";
+                            "WHERE Id = @Code AND IsDeleted = 0";
             Item item = base.DbConnection.QueryFirstOrDefault<Item>(sql, new { Code = code }, transaction: this.Transaction);
 
             return item;
@@ -43,7 +43,7 @@
 
         public Item GetQuantityForSaleAndPriceByCode(int code) 
         {
-            string sql = "SELECT QuantityForSale, Price FROM Items WHERE Id = @Code";
+            string sql = "SELECT QuantityForSale, Price FROM Items WHERE Id = @Code AND IsDeleted = 0";
             Item item = base.DbConnection.QueryFirstOrDefault<Item>(sql, new { Code = code }, transaction: this.Transaction);
 
             return item;
