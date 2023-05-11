@@ -64,6 +64,11 @@
 
         public void Create(ManageItemDto createItemDto)
         {
+            if (createItemDto.QuantityForSale > createItemDto.QuantityCombined)
+            {
+                throw new ArgumentOutOfRangeException("Quantity for sale should be less or equal than quantity combined!");
+            }
+
             base.cacheAdapter.Remove(MARKETPLACE_CACHE_KEY);
             base.cacheAdapter.Remove(INVENTORY_CACHE_KEY);
 
@@ -73,6 +78,11 @@
 
         public void Update(int code, ManageItemDto updateItemDto) 
         {
+            if (updateItemDto.QuantityForSale > updateItemDto.QuantityCombined)
+            {
+                throw new ArgumentOutOfRangeException("Quantity for sale should be less or equal than quantity combined!");
+            }
+
             base.cacheAdapter.Clear();
 
             Item item = base.mapper.Map<ManageItemDto, Item>(updateItemDto);

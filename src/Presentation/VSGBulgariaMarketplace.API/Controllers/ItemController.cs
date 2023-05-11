@@ -54,9 +54,9 @@
 
                 return Ok($"Item {itemDto.Name} is successfully added!");
             }
-            catch (Exception e)
+            catch (ArgumentException ae)
             {
-                return BadRequest(e.Message);
+                return BadRequest(ae.Message);
             }
 
         }

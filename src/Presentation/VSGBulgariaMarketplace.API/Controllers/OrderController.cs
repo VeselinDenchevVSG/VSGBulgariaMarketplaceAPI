@@ -43,9 +43,9 @@
 
                 return Ok($"Order was successfully created!");
             }
-            catch (Exception e)
+            catch (ArgumentException ae)
             {
-                return BadRequest(e.Message);
+                return BadRequest(ae.Message);
             }
 
 
