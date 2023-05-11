@@ -7,6 +7,8 @@
     using VSGBulgariaMarketplace.Application.Models.Item.Interfaces;
     using VSGBulgariaMarketplace.Application.Models.Order.Interfaces;
     using VSGBulgariaMarketplace.Application.Services;
+    using VSGBulgariaMarketplace.Application.Services.HelpServices;
+    using VSGBulgariaMarketplace.Application.Services.HelpServices.Interfaces;
 
     public static class ApplicationLayerConfiguration
     {
@@ -19,6 +21,8 @@
 
             services.AddScoped<IItemService, ItemService>();
             services.AddScoped<IOrderService, OrderService>();
+
+            services.AddSingleton<ICacheService, CacheService>();
 
             return services;
         }

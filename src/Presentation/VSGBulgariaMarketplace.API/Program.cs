@@ -18,8 +18,6 @@ builder.Services.AddApplicationLayerConfiguration();
 builder.Services.AddRepositoriesConfiguration();
 builder.Services.AddMigrationsConfiguration();
 
-builder.Services.AddMemoryCache();
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
