@@ -1,8 +1,8 @@
-﻿namespace VSGBulgariaMarketplace.Application.Services.HelpServices
+﻿namespace VSGBulgariaMarketplace.Application.Services.HelpServices.Cache
 {
     using Microsoft.Extensions.Caching.Memory;
 
-    using VSGBulgariaMarketplace.Application.Services.HelpServices.Interfaces;
+    using VSGBulgariaMarketplace.Application.Services.HelpServices.Cache.Interfaces;
 
     public class MemoryCacheAdapter : IMemoryCacheAdapter
     {

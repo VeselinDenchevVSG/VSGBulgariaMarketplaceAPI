@@ -1,4 +1,4 @@
-﻿namespace VSGBulgariaMarketplace.Application.Services.HelpServices.Interfaces
+﻿namespace VSGBulgariaMarketplace.Application.Services.HelpServices.Cache.Interfaces
 {
     using Microsoft.Extensions.Caching.Memory;
 
