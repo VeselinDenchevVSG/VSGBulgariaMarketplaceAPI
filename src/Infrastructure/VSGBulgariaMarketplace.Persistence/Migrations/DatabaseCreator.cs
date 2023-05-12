@@ -7,15 +7,18 @@
 
     public static class DatabaseCreator
     {
+        private static readonly string defaultConnection = Environment.GetEnvironmentVariable("DEFAULT_CONNECTION_STRING");
+        private static readonly string masterDbConnection = Environment.GetEnvironmentVariable("MASTER_DB_CONNECTION_STRING");
+
         public static void Create(IConfiguration configuration)
         {
-            var evaluationConnectionString = new SqlConnectionStringBuilder(configuration.GetConnectionString("DefaultConnection"));
-            string dbName = evaluationConnectionString.InitialCatalog;
+            SqlConnectionStringBuilder defaultConnectionStringBuilder = new SqlConnectionStringBuilder(defaultConnection);
+            string dbName = defaultConnectionStringBuilder.InitialCatalog;
 
-            var parameters = new DynamicParameters();
+            DynamicParameters parameters = new DynamicParameters();
             parameters.Add("name", dbName);
 
-            using var connection = new SqlConnection(configuration.GetConnectionString("MasterDbConnection"));
+            using SqlConnection connection = new SqlConnection(masterDbConnection);
             var records = connection.Query("SELECT * FROM sys.databases WHERE name = @name",
                  parameters);
 
