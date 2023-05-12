@@ -4,8 +4,6 @@
     {
         public int Code { get; set; }
 
-        public string PicturePublicId { get; set; }
-
         public string Name { get; set; }
 
         public decimal Price { get; set; }
