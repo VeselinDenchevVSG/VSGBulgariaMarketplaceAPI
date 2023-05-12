@@ -1,11 +1,16 @@
+using DotNetEnv;
+
 using VSGBulgariaMarketplace.Application.Helpers.Configurations;
 using VSGBulgariaMarketplace.Persistence.Configurations;
 using VSGBulgariaMarketplace.Persistence.Migrations;
 
 var builder = WebApplication.CreateBuilder(args);
 
+Env.Load(Directory.GetCurrentDirectory() +"\\.env"); // Load enviromental variables
+
 builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-                     .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true);
+                     .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true)
+                     .AddEnvironmentVariables();
 
 // Add services to the container.
 
