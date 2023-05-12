@@ -14,7 +14,7 @@
             Create.Table(this.TableName)
                    .WithColumn("[Id]").AsInt32().PrimaryKey()
                    .WithColumn("[Name]").AsCustom("NVARCHAR(150)").NotNullable()
-                   .WithColumn("[PicturePublicId]").AsString(50).Nullable()
+                   .WithColumn("[PicturePublicId]").AsString(20).Nullable()
                    .WithColumn("[Price]").AsCustom("MONEY").NotNullable()
                    .WithColumn("[Category]").AsInt32().NotNullable()
                    .WithColumn("[QuantityCombined]").AsInt16().NotNullable()
