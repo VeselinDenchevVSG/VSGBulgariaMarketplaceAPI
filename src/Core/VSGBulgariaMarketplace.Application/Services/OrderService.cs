@@ -5,7 +5,7 @@
     using VSGBulgariaMarketplace.Application.Models.Item.Interfaces;
     using VSGBulgariaMarketplace.Application.Models.Order.Dtos;
     using VSGBulgariaMarketplace.Application.Models.Order.Interfaces;
-    using VSGBulgariaMarketplace.Application.Services.HelpServices.Interfaces;
+    using VSGBulgariaMarketplace.Application.Services.HelpServices.Cache.Interfaces;
     using VSGBulgariaMarketplace.Domain.Entities;
 
     public class OrderService : BaseService<IOrderRepository, Order>, IOrderService

@@ -3,7 +3,7 @@
     using AutoMapper;
 
     using VSGBulgariaMarketplace.Application.Models.Repositories;
-    using VSGBulgariaMarketplace.Application.Services.HelpServices.Interfaces;
+    using VSGBulgariaMarketplace.Application.Services.HelpServices.Cache.Interfaces;
     using VSGBulgariaMarketplace.Domain.Entities;
 
     public abstract class BaseService<T, U> where T : IRepository<U, int>
