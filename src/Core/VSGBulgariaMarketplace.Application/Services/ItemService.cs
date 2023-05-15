@@ -4,6 +4,9 @@
 
     using Microsoft.AspNetCore.Http;
 
+    using System.ComponentModel.DataAnnotations;
+
+    using VSGBulgariaMarketplace.Application.Helpers.Validators;
     using VSGBulgariaMarketplace.Application.Models.Item.Dtos;
     using VSGBulgariaMarketplace.Application.Models.Item.Interfaces;
     using VSGBulgariaMarketplace.Application.Services.HelpServices.Cache.Interfaces;
@@ -70,22 +73,34 @@
 
         public async Task CreateAsync(ManageItemDto createItemDto, IFormFile? imageFile)
         {
-            if (createItemDto.QuantityForSale > createItemDto.QuantityCombined)
+            ImageFileValidator imageFileValidator = new ImageFileValidator();
+            var validationResult = imageFileValidator.Validate(imageFile);
+            if (validationResult.IsValid)
             {
-                throw new ArgumentOutOfRangeException("Quantity for sale should be less or equal than quantity combined!");
+                if (createItemDto.QuantityForSale > createItemDto.QuantityCombined)
+                {
+                    throw new ArgumentOutOfRangeException("Quantity for sale should be less or equal than quantity combined!");
+                }
+
+                base.cacheAdapter.Remove(MARKETPLACE_CACHE_KEY);
+                base.cacheAdapter.Remove(INVENTORY_CACHE_KEY);
+
+                Item item = base.mapper.Map<ManageItemDto, Item>(createItemDto);
+
+                if (imageFile is not null)
+                {
+                    item.PicturePublicId = await this.imageService.UploadAsync(imageFile);
+                }
+
+                this.repository.Create(item);
             }
-
-            base.cacheAdapter.Remove(MARKETPLACE_CACHE_KEY);
-            base.cacheAdapter.Remove(INVENTORY_CACHE_KEY);
-
-            Item item = base.mapper.Map<ManageItemDto, Item>(createItemDto);
-
-            if (imageFile is not null)
+            else
             {
-                item.PicturePublicId = await this.imageService.UploadAsync(imageFile);
+                foreach (var error in validationResult.Errors)
+                {
+                    throw new ValidationException(string.Join(", ", error.ErrorMessage));
+                }
             }
-
-            this.repository.Create(item);
         }
 
         public async Task UpdateAsync(int code, ManageItemDto updateItemDto, IFormFile? imageFile) 

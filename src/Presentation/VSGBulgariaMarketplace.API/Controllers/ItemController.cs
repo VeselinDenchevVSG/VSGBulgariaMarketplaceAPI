@@ -1,9 +1,13 @@
 ﻿namespace VSGBulgariaMarketplace.API.Controllers
 {
+    using FluentValidation.AspNetCore;
+
     using Microsoft.AspNetCore.Mvc;
 
     using VSGBulgariaMarketplace.Application.Models.Item.Dtos;
     using VSGBulgariaMarketplace.Application.Models.Item.Interfaces;
+
+    using VSGBulgariaMarketplace.Application.Helpers.Validators;
 
     [Route("api/[controller]")]
     [ApiController]
@@ -46,6 +50,7 @@
 
         [HttpPost]
         [Route("create")]
+        
         public async Task<IActionResult> CreateAsync([FromForm] ManageItemDto itemDto, IFormFile? imageFile)
         {
             try
@@ -58,7 +63,6 @@
             {
                 return BadRequest(ae.Message);
             }
-
         }
 
         [HttpPut]

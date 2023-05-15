@@ -1,5 +1,7 @@
 ﻿namespace VSGBulgariaMarketplace.Application.Helpers.Configurations
 {
+    using FluentValidation.AspNetCore;
+
     using Microsoft.Extensions.DependencyInjection;
 
     using System.Reflection;
@@ -16,8 +18,16 @@
     {
         public static IServiceCollection AddApplicationLayerConfiguration(this IServiceCollection services)
         {
-            //services.AddControllers()
-            //    .AddFluentValidation(validator => validator.RegisterValidatorsFromAssemblyContaining<AnswerDtoValidator>());
+            services.AddControllers()
+                    .AddFluentValidation(options =>
+                    {
+                        // Validate child properties and root collection elements
+                        options.ImplicitlyValidateChildProperties = true;
+                        options.ImplicitlyValidateRootCollectionElements = true;
+
+                        // Automatic registration of validators in assembly
+                        options.RegisterValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+                    });
 
             services.AddAutoMapper(Assembly.GetExecutingAssembly());
 
