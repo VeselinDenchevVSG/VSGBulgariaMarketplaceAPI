@@ -45,12 +45,12 @@
         }
 
         [HttpPost]
-        [Route("add")]
-        public IActionResult Create([FromForm] ManageItemDto itemDto)
+        [Route("create")]
+        public async Task<IActionResult> CreateAsync([FromForm] ManageItemDto itemDto, IFormFile? imageFile)
         {
             try
             {
-                this.itemService.Create(itemDto);
+                await this.itemService.CreateAsync(itemDto, imageFile);
 
                 return Ok($"Item {itemDto.Name} is successfully added!");
             }
@@ -63,11 +63,11 @@
 
         [HttpPut]
         [Route("update/{code}")]
-        public IActionResult Update([FromRoute] int code, [FromForm] ManageItemDto itemDto)
+        public async Task<IActionResult> UpdateAsync([FromRoute] int code, [FromForm] ManageItemDto itemDto, IFormFile? imageFile)
         {
             try
             {
-                this.itemService.Update(code, itemDto);
+                await this.itemService.UpdateAsync(code, itemDto, imageFile);
 
                 return Ok();
             }

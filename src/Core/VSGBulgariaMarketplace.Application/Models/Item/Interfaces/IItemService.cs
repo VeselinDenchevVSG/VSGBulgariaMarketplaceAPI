@@ -1,5 +1,7 @@
 ﻿namespace VSGBulgariaMarketplace.Application.Models.Item.Interfaces
 {
+    using Microsoft.AspNetCore.Http;
+
     using VSGBulgariaMarketplace.Application.Models.Item.Dtos;
 
     public interface IItemService
@@ -10,9 +12,9 @@
 
         public ItemDetailsDto GetByCode(int id);
 
-        public void Create(ManageItemDto createItemDto);
+        public Task CreateAsync(ManageItemDto createItemDto, IFormFile imageFile);
 
-        public void Update(int id, ManageItemDto updateItemDto);
+        public Task UpdateAsync(int code, ManageItemDto updateItemDto, IFormFile imageFile);
 
         public void Delete(int id);
     }

@@ -8,6 +8,8 @@
 
     public class ItemRepository : Repository<Item, int>, IItemRepository
     {
+        private const string CLOUDINARY_IMAGE_FOLDER = "VSG_Marketplace/";
+
         public ItemRepository(IUnitOfWork unitOfWork)
             : base(unitOfWork)
         {
@@ -20,6 +22,14 @@
         {
             string sql = $"SELECT Id, PicturePublicId, Price, Category, QuantityForSale FROM Items WHERE IsDeleted = 0";
             Item[] marketplace = base.DbConnection.Query<Item>(sql, transaction: this.Transaction).ToArray();
+
+            foreach (Item item in marketplace)
+            {
+                if (item.PicturePublicId is not null)
+                {
+                    item.PicturePublicId = item.PicturePublicId.Insert(0, CLOUDINARY_IMAGE_FOLDER);
+                }
+            }
 
             return marketplace;
         }
@@ -37,6 +47,11 @@
             string sql = "SELECT PicturePublicId, Name, Price, Category, QuantityForSale, Description FROM Items " +
                             "WHERE Id = @Code AND IsDeleted = 0";
             Item item = base.DbConnection.QueryFirstOrDefault<Item>(sql, new { Code = code }, transaction: this.Transaction);
+
+            if (item.PicturePublicId is not null)
+            {
+                item.PicturePublicId = item.PicturePublicId.Insert(0, CLOUDINARY_IMAGE_FOLDER);
+            }
 
             return item;
         }
@@ -66,7 +81,7 @@
 
         public void Update(int code, Item item)
         {
-            string sql =    $"UPDATE Items SET {this.parameterizedColumnsNamesUpdateString} WHERE Id = @OldId";
+            string sql = $"UPDATE Items SET {this.parameterizedColumnsNamesUpdateString} WHERE Id = @OldId";
             bool hasBeenUpdated = Convert.ToBoolean(
                 base.DbConnection.Execute(sql, new 
                 {
@@ -86,6 +101,19 @@
             {
                 throw new ArgumentException($"Item with code = {code} doesn't exist!");
             }
+        }
+
+        public string GetItemPicturePublicId(int code)
+        {
+            string sql = "SELECT PicturePublicId FROM Items WHERE Id = @Code";
+            string itemPicturePublicId = this.DbConnection.ExecuteScalar<string>(sql, new { Code = code }, this.Transaction);
+
+            if (itemPicturePublicId is not null)
+            {
+                itemPicturePublicId = CLOUDINARY_IMAGE_FOLDER + itemPicturePublicId;
+            }
+
+            return itemPicturePublicId;
         }
     }
 }

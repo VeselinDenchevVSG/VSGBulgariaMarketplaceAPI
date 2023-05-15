@@ -2,9 +2,12 @@
 {
     using AutoMapper;
 
+    using Microsoft.AspNetCore.Http;
+
     using VSGBulgariaMarketplace.Application.Models.Item.Dtos;
     using VSGBulgariaMarketplace.Application.Models.Item.Interfaces;
-    using VSGBulgariaMarketplace.Application.Services.HelpServices.Interfaces;
+    using VSGBulgariaMarketplace.Application.Services.HelpServices.Cache.Interfaces;
+    using VSGBulgariaMarketplace.Application.Services.HelpServices.Image.Interfaces;
     using VSGBulgariaMarketplace.Domain.Entities;
 
     public class ItemService : BaseService<IItemRepository, Item>, IItemService
@@ -13,9 +16,12 @@
         internal const string INVENTORY_CACHE_KEY = "inventory";
         internal const string ITEM_CACHE_KEY_TEMPLATE = "item-{0}";
 
-        public ItemService(IItemRepository itemRepository, IMemoryCacheAdapter cacheAdapter, IMapper mapper)
+        private IImageCloudService imageService;
+
+        public ItemService(IItemRepository itemRepository, IImageCloudService imageService, IMemoryCacheAdapter cacheAdapter, IMapper mapper)
             : base(itemRepository, cacheAdapter, mapper)
         {
+            this.imageService = imageService;
         }
 
         public MarketplaceItemDto[] GetMarketplace()
@@ -62,7 +68,7 @@
             return itemDto;
         }
 
-        public void Create(ManageItemDto createItemDto)
+        public async Task CreateAsync(ManageItemDto createItemDto, IFormFile? imageFile)
         {
             if (createItemDto.QuantityForSale > createItemDto.QuantityCombined)
             {
@@ -73,10 +79,16 @@
             base.cacheAdapter.Remove(INVENTORY_CACHE_KEY);
 
             Item item = base.mapper.Map<ManageItemDto, Item>(createItemDto);
+
+            if (imageFile is not null)
+            {
+                item.PicturePublicId = await this.imageService.UploadAsync(imageFile);
+            }
+
             this.repository.Create(item);
         }
 
-        public void Update(int code, ManageItemDto updateItemDto) 
+        public async Task UpdateAsync(int code, ManageItemDto updateItemDto, IFormFile? imageFile) 
         {
             if (updateItemDto.QuantityForSale > updateItemDto.QuantityCombined)
             {
@@ -87,7 +99,40 @@
 
             Item item = base.mapper.Map<ManageItemDto, Item>(updateItemDto);
 
-            this.repository.Update(code, item);
+            string itemPicturePublicId = this.GetItemPicturePublicId(code);
+            if (itemPicturePublicId is null)
+            {
+                if (imageFile is not null)
+                {
+                    item.PicturePublicId = await this.imageService.UploadAsync(imageFile);
+                }
+            }
+            else
+            {
+                if (imageFile is null)
+                {
+                    await this.imageService.DeleteAsync(itemPicturePublicId);
+                }
+                else
+                {
+                    await this.imageService.UpdateAsync(itemPicturePublicId, imageFile);
+                }
+            }
+
+            try
+            {
+                this.repository.Update(code, item);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+
+                if (item.PicturePublicId is null)
+                {
+                    await this.imageService.DeleteAsync(item.PicturePublicId);
+                }
+            }
+
         }
 
         public void Delete(int code)
@@ -97,6 +142,11 @@
             base.cacheAdapter.Remove(string.Format(ITEM_CACHE_KEY_TEMPLATE, code));
 
             base.repository.Delete(code);
-        }    
+
+            string itemPicturePublicId = this.GetItemPicturePublicId(code);
+            this.imageService.DeleteAsync(itemPicturePublicId);
+        }
+        
+        private string GetItemPicturePublicId(int code) => this.repository.GetItemPicturePublicId(code);
     }
 }

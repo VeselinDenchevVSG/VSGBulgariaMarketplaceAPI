@@ -16,5 +16,7 @@
         public void Update(int id, Item item);
 
         public void BuyItem(int id, short quantity);
+
+        public string GetItemPicturePublicId(int code);
     }
 }
