@@ -7,8 +7,10 @@
     using VSGBulgariaMarketplace.Application.Models.Item.Interfaces;
     using VSGBulgariaMarketplace.Application.Models.Order.Interfaces;
     using VSGBulgariaMarketplace.Application.Services;
-    using VSGBulgariaMarketplace.Application.Services.HelpServices;
-    using VSGBulgariaMarketplace.Application.Services.HelpServices.Interfaces;
+    using VSGBulgariaMarketplace.Application.Services.HelpServices.Cache;
+    using VSGBulgariaMarketplace.Application.Services.HelpServices.Cache.Interfaces;
+    using VSGBulgariaMarketplace.Application.Services.HelpServices.Image;
+    using VSGBulgariaMarketplace.Application.Services.HelpServices.Image.Interfaces;
 
     public static class ApplicationLayerConfiguration
     {
@@ -21,6 +23,7 @@
 
             services.AddScoped<IItemService, ItemService>();
             services.AddScoped<IOrderService, OrderService>();
+            services.AddScoped<IImageCloudService, ImageCloudinaryService>();
 
             services.AddSingleton<IMemoryCacheAdapter, MemoryCacheAdapter>();
 
