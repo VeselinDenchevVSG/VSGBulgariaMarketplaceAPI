@@ -29,7 +29,7 @@
             MarketplaceItemDto[] itemDtos = base.cacheAdapter.Get<MarketplaceItemDto[]>(MARKETPLACE_CACHE_KEY);
             if (itemDtos is null)
             {
-                Item[] items = this.repository.GetMarketplace();
+                Item[] items = base.repository.GetMarketplace();
                 itemDtos = base.mapper.Map<MarketplaceItemDto[]>(items);
 
                 base.cacheAdapter.Set(MARKETPLACE_CACHE_KEY, itemDtos);
@@ -43,7 +43,7 @@
             InventoryItemDto[] itemDtos = base.cacheAdapter.Get<InventoryItemDto[]>(INVENTORY_CACHE_KEY);
             if (itemDtos is null)
             {
-                Item[] items = this.repository.GetInventory();
+                Item[] items = base.repository.GetInventory();
                 itemDtos = base.mapper.Map<InventoryItemDto[]>(items);
 
                 base.cacheAdapter.Set(INVENTORY_CACHE_KEY, itemDtos);
@@ -59,7 +59,7 @@
             ItemDetailsDto itemDto = base.cacheAdapter.Get<ItemDetailsDto>(itemCacheKey);
             if (itemDto is null)
             {
-                Item item = this.repository.GetByCode(code);
+                Item item = base.repository.GetByCode(code);
                 itemDto = base.mapper.Map<Item, ItemDetailsDto>(item);
 
                 base.cacheAdapter.Set(itemCacheKey, itemDto);
