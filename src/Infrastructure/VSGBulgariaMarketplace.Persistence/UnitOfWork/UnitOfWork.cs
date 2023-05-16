@@ -9,9 +9,9 @@
 
     public class UnitOfWork : IUnitOfWork
     {
-        public UnitOfWork(IConfiguration configuration)
+        public UnitOfWork()
         {
-            this.DbConnection = new SqlConnection(configuration.GetConnectionString("DefaultConnection"));
+            this.DbConnection = new SqlConnection(Environment.GetEnvironmentVariable("DEFAULT_CONNECTION_STRING"));
             this.DbConnection.Open();
         }
 
