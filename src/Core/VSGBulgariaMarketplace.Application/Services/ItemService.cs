@@ -2,6 +2,8 @@
 {
     using AutoMapper;
 
+    using FluentValidation;
+
     using Microsoft.AspNetCore.Http;
 
     using System.ComponentModel.DataAnnotations;
@@ -73,44 +75,38 @@
 
         public async Task CreateAsync(ManageItemDto createItemDto, IFormFile? imageFile)
         {
-            ImageFileValidator imageFileValidator = new ImageFileValidator();
-            var validationResult = imageFileValidator.Validate(imageFile);
-            if (validationResult.IsValid)
+            if (imageFile is not null)
             {
-                if (createItemDto.QuantityForSale > createItemDto.QuantityCombined)
-                {
-                    throw new ArgumentOutOfRangeException("Quantity for sale should be less or equal than quantity combined!");
-                }
-
-                base.cacheAdapter.Remove(MARKETPLACE_CACHE_KEY);
-                base.cacheAdapter.Remove(INVENTORY_CACHE_KEY);
-
-                Item item = base.mapper.Map<ManageItemDto, Item>(createItemDto);
-
-                if (imageFile is not null)
-                {
-                    item.PicturePublicId = await this.imageService.UploadAsync(imageFile);
-                }
-
-                this.repository.Create(item);
+                ImageFileValidator imageFileValidator = new ImageFileValidator();
+                imageFileValidator.ValidateAndThrow(imageFile);
             }
-            else
-            {
-                foreach (var error in validationResult.Errors)
-                {
-                    throw new ValidationException(string.Join(", ", error.ErrorMessage));
-                }
-            }
-        }
 
-        public async Task UpdateAsync(int code, ManageItemDto updateItemDto, IFormFile? imageFile) 
-        {
-            if (updateItemDto.QuantityForSale > updateItemDto.QuantityCombined)
+            if (createItemDto.QuantityForSale > createItemDto.QuantityCombined)
             {
                 throw new ArgumentOutOfRangeException("Quantity for sale should be less or equal than quantity combined!");
             }
 
-            base.cacheAdapter.Clear();
+            base.cacheAdapter.Remove(MARKETPLACE_CACHE_KEY);
+            base.cacheAdapter.Remove(INVENTORY_CACHE_KEY);
+
+            Item item = base.mapper.Map<ManageItemDto, Item>(createItemDto);
+
+            if (imageFile is not null)
+            {
+                item.PicturePublicId = await this.imageService.UploadAsync(imageFile);
+            }
+
+            this.repository.Create(item);
+
+        }
+
+        public async Task UpdateAsync(int code, ManageItemDto updateItemDto, IFormFile? imageFile) 
+        {
+            if (imageFile is not null)
+            {
+                ImageFileValidator imageFileValidator = new ImageFileValidator();
+                imageFileValidator.ValidateAndThrow(imageFile);
+            }
 
             Item item = base.mapper.Map<ManageItemDto, Item>(updateItemDto);
 
@@ -134,21 +130,12 @@
                 }
             }
 
-            try
-            {
-                this.repository.Update(code, item);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.Message);
+            this.repository.Update(code, item);
 
-                if (item.PicturePublicId is null)
-                {
-                    await this.imageService.DeleteAsync(item.PicturePublicId);
-                }
-            }
 
+            base.cacheAdapter.Clear();
         }
+
 
         public void Delete(int code)
         {

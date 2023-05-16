@@ -76,37 +76,38 @@
             }
 
             string buyItemSql = $"UPDATE Items SET QuantityForSale -= @QuantitySold, QuantityCombined -= @QuantitySold WHERE Id = @Id";
-            this.DbConnection.Execute(buyItemSql, new { Id = id, QuantitySold = quantity }, transaction: this.Transaction);
+            base.DbConnection.Execute(buyItemSql, new { Id = id, QuantitySold = quantity }, transaction: this.Transaction);
         }
 
         public void Update(int code, Item item)
         {
             string sql = $"UPDATE Items SET {this.parameterizedColumnsNamesUpdateString} WHERE Id = @OldId";
-            bool hasBeenUpdated = Convert.ToBoolean(
-                base.DbConnection.Execute(sql, new 
-                {
-                    Id = item.Id,
-                    Name = item.Name,
-                    PicturePublicId = item.PicturePublicId,
-                    Price = item.Price,
-                    Category = item.Category,
-                    QuantityCombined = item.QuantityCombined,
-                    QuantityForSale = item.QuantityForSale,
-                    Description = item.Description,
-                    ModifiedAtUtc = DateTime.UtcNow,
-                    OldId = code
-                }, transaction: this.Transaction)
-            );
-            if (!hasBeenUpdated)
+            base.DbConnection.Execute(sql, new 
             {
-                throw new ArgumentException($"Item with code = {code} doesn't exist!");
-            }
+                Id = item.Id,
+                Name = item.Name,
+                PicturePublicId = item.PicturePublicId,
+                Price = item.Price,
+                Category = item.Category,
+                QuantityCombined = item.QuantityCombined,
+                QuantityForSale = item.QuantityForSale,
+                Description = item.Description,
+                ModifiedAtUtc = DateTime.UtcNow,
+                OldId = code
+            }, transaction: this.Transaction);
         }
 
         public string GetItemPicturePublicId(int code)
         {
             string sql = "SELECT PicturePublicId FROM Items WHERE Id = @Code";
-            string itemPicturePublicId = this.DbConnection.ExecuteScalar<string>(sql, new { Code = code }, this.Transaction);
+            var result = this.DbConnection.Query<string>(sql, new { Code = code }, this.Transaction);
+
+            if (result.Count() == 0)
+            {
+                throw new ArgumentException($"Item with code = {code} doesn't exist!");
+            }
+
+            string itemPicturePublicId = result.FirstOrDefault();
 
             if (itemPicturePublicId is not null)
             {
