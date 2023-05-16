@@ -6,9 +6,8 @@
 
     using Microsoft.AspNetCore.Http;
 
-    using System.ComponentModel.DataAnnotations;
-
     using VSGBulgariaMarketplace.Application.Helpers.Validators;
+    using VSGBulgariaMarketplace.Application.Models.Exceptions;
     using VSGBulgariaMarketplace.Application.Models.Item.Dtos;
     using VSGBulgariaMarketplace.Application.Models.Item.Interfaces;
     using VSGBulgariaMarketplace.Application.Services.HelpServices.Cache.Interfaces;
@@ -65,6 +64,9 @@
             if (itemDto is null)
             {
                 Item item = base.repository.GetByCode(code);
+
+                if (item is null) throw new NotFoundException($"Item with code {code} doesn't exist!");
+
                 itemDto = base.mapper.Map<Item, ItemDetailsDto>(item);
 
                 base.cacheAdapter.Set(itemCacheKey, itemDto);
@@ -131,7 +133,6 @@
             }
 
             this.repository.Update(code, item);
-
 
             base.cacheAdapter.Clear();
         }

@@ -53,49 +53,27 @@
         
         public async Task<IActionResult> CreateAsync([FromForm] ManageItemDto itemDto, IFormFile? imageFile)
         {
-            try
-            {
-                await this.itemService.CreateAsync(itemDto, imageFile);
+            await this.itemService.CreateAsync(itemDto, imageFile);
 
-                return Ok($"Item {itemDto.Name} is successfully added!");
-            }
-            catch (ArgumentException ae)
-            {
-                return BadRequest(ae.Message);
-            }
+            return Ok($"Item {itemDto.Name} is successfully created!");
         }
 
         [HttpPut]
         [Route("update/{code}")]
         public async Task<IActionResult> UpdateAsync([FromRoute] int code, [FromForm] ManageItemDto itemDto, IFormFile? imageFile)
         {
-            try
-            {
-                await this.itemService.UpdateAsync(code, itemDto, imageFile);
+            await this.itemService.UpdateAsync(code, itemDto, imageFile);
 
-                return Ok();
-            }
-            catch (ArgumentException ae)
-            {
-                return NotFound(ae.Message);
-            }
+            return Ok();
         }
 
         [HttpDelete]
         [Route("delete/{code}")]
         public IActionResult Delete([FromRoute] int code)
         {
-            try
-            {
-                this.itemService.Delete(code);
+            this.itemService.Delete(code);
 
-                return Ok("Item has been successfully deleted!");
-
-            }
-            catch (ArgumentException ae)
-            {
-                return NotFound(ae.Message);
-            }
+            return Ok("Item has been successfully deleted!");
         }
     }
 }

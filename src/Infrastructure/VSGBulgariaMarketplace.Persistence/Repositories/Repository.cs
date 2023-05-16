@@ -2,10 +2,13 @@
 {
     using Dapper;
 
+    using Microsoft.Data.SqlClient;
+
     using System;
     using System.Data;
     using System.Text;
 
+    using VSGBulgariaMarketplace.Application.Models.Exceptions;
     using VSGBulgariaMarketplace.Application.Models.Repositories;
     using VSGBulgariaMarketplace.Application.Models.UnitOfWork;
     using VSGBulgariaMarketplace.Domain.Entities;
@@ -14,6 +17,7 @@
     {
         protected readonly IUnitOfWork unitOfWork;
 
+        protected string entityName;
         protected string tableName;
         protected string columnNamesString;
         protected string parameterizedColumnsNamesString;
@@ -23,7 +27,8 @@
         public Repository(IUnitOfWork unitOfWork)
         {
             this.unitOfWork = unitOfWork;
-            this.tableName = typeof(T).Name + 's';
+            this.entityName = typeof(T).Name;
+            this.tableName = this.entityName + 's';
             this.updateStringSkipProperties = new List<string>()
             {
                 "CreatedAtUtc",
@@ -43,7 +48,15 @@
 
             string sql = $"INSERT INTO {this.tableName} {this.columnNamesString} " +
                             $"VALUES {this.parameterizedColumnsNamesString}";
-            this.DbConnection.Execute(sql, entity, transaction: this.Transaction);
+
+            try
+            {
+                this.DbConnection.Execute(sql, entity, transaction: this.Transaction);
+            }
+            catch (SqlException se) when (se.Number == 2627)
+            {
+                this.ThrowPrimaryKeyViolationException(entity.Id);
+            }
         }
 
         public virtual void Delete(U id)
@@ -53,7 +66,7 @@
                 Convert.ToBoolean(this.DbConnection.Execute(sql, new { Id = id }, transaction: this.Transaction));
             if (!hasBeenDeleted)
             {
-                throw new ArgumentException($"{typeof(T)} with id = {id} doesn't exist!");
+                throw new NotFoundException($"{typeof(T)} with id = {id} doesn't exist!");
             }
         }
 
@@ -105,6 +118,22 @@
         {
             this.parameterizedColumnsNamesString = this.GetParameterizedColumnNamesString();
             this.parameterizedColumnsNamesUpdateString = this.GetParameterizedColumnNamesUpdateString();
+        }
+
+        protected void ThrowPrimaryKeyViolationException(U id)
+        {
+            string primaryKeyName = null;
+
+            if (this.entityName != "Item")
+            {
+                primaryKeyName = "id";
+            }
+            else
+            {
+                primaryKeyName = "code";
+            }
+
+            throw new PrimaryKeyViolationException($"{this.entityName} with {primaryKeyName} {id} already exists!");
         }
     }
 }

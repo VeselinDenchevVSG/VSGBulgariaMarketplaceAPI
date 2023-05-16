@@ -37,51 +37,27 @@
         [Route("create")]
         public IActionResult Create([FromForm] CreateOrderDto orderDto)
         {
-            try
-            {
-                this.orderService.Create(orderDto);
+            this.orderService.Create(orderDto);
 
-                return Ok($"Order was successfully created!");
-            }
-            catch (ArgumentException ae)
-            {
-                return BadRequest(ae.Message);
-            }
-
-
+            return Ok($"Order was successfully created!");
         }
 
         [HttpPatch]
         [Route("finish/{id}")]
         public IActionResult Finish([FromRoute] int id)
         {
-            try
-            {
-                this.orderService.Finish(id);
+            this.orderService.Finish(id);
 
-                return Ok($"Order with id = {id} is finished");
-            }
-            catch (ArgumentException ae)
-            {
-                return NotFound(ae.Message);
-            }
+            return Ok($"Order with id = {id} is finished");
         }
 
         [HttpDelete]
         [Route("decline/{id}")]
         public IActionResult Decline([FromRoute] int id)
         {
-            try
-            {
-                this.orderService.Decline(id);
+            this.orderService.Decline(id);
 
-                return Ok("Order has been declined!");
-
-            }
-            catch (ArgumentException ae)
-            {
-                return NotFound(ae.Message);
-            }
+            return Ok("Order has been declined!");
         }
     }
 }

@@ -2,6 +2,9 @@
 {
     using Dapper;
 
+    using Microsoft.Data.SqlClient;
+
+    using VSGBulgariaMarketplace.Application.Models.Exceptions;
     using VSGBulgariaMarketplace.Application.Models.Item.Interfaces;
     using VSGBulgariaMarketplace.Application.Models.UnitOfWork;
     using VSGBulgariaMarketplace.Domain.Entities;
@@ -48,7 +51,7 @@
                             "WHERE Id = @Code AND IsDeleted = 0";
             Item item = base.DbConnection.QueryFirstOrDefault<Item>(sql, new { Code = code }, transaction: this.Transaction);
 
-            if (item.PicturePublicId is not null)
+            if (item?.PicturePublicId is not null)
             {
                 item.PicturePublicId = item.PicturePublicId.Insert(0, CLOUDINARY_IMAGE_FOLDER);
             }
@@ -82,19 +85,27 @@
         public void Update(int code, Item item)
         {
             string sql = $"UPDATE Items SET {this.parameterizedColumnsNamesUpdateString} WHERE Id = @OldId";
-            base.DbConnection.Execute(sql, new 
+
+            try
             {
-                Id = item.Id,
-                Name = item.Name,
-                PicturePublicId = item.PicturePublicId,
-                Price = item.Price,
-                Category = item.Category,
-                QuantityCombined = item.QuantityCombined,
-                QuantityForSale = item.QuantityForSale,
-                Description = item.Description,
-                ModifiedAtUtc = DateTime.UtcNow,
-                OldId = code
-            }, transaction: this.Transaction);
+                base.DbConnection.Execute(sql, new
+                {
+                    Id = item.Id,
+                    Name = item.Name,
+                    PicturePublicId = item.PicturePublicId,
+                    Price = item.Price,
+                    Category = item.Category,
+                    QuantityCombined = item.QuantityCombined,
+                    QuantityForSale = item.QuantityForSale,
+                    Description = item.Description,
+                    ModifiedAtUtc = DateTime.UtcNow,
+                    OldId = code
+                }, transaction: this.Transaction);
+            }
+            catch (SqlException se) when (se.Number == 2627)
+            {
+                base.ThrowPrimaryKeyViolationException(code);
+            }
         }
 
         public string GetItemPicturePublicId(int code)
@@ -104,7 +115,7 @@
 
             if (result.Count() == 0)
             {
-                throw new ArgumentException($"Item with code = {code} doesn't exist!");
+                throw new NotFoundException($"Item with code = {code} doesn't exist!");
             }
 
             string itemPicturePublicId = result.FirstOrDefault();

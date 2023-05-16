@@ -1,6 +1,7 @@
 using DotNetEnv;
 
 using VSGBulgariaMarketplace.Application.Helpers.Configurations;
+using VSGBulgariaMarketplace.Application.Helpers.Middlewares;
 using VSGBulgariaMarketplace.Persistence.Configurations;
 using VSGBulgariaMarketplace.Persistence.Migrations;
 
@@ -11,8 +12,6 @@ Env.Load(Directory.GetCurrentDirectory() +"\\.env"); // Load enviromental variab
 builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                      .AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true, reloadOnChange: true)
                      .AddEnvironmentVariables();
-
-// Add services to the container.
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -40,6 +39,8 @@ app.MigrateUpDatabase();
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.MapControllers();
 
