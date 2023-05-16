@@ -15,7 +15,7 @@
                    .WithColumn("[Id]").AsInt32().PrimaryKey().Identity()
                    .WithColumn("[Level]").AsString(11).NotNullable()
                    .WithColumn("[CallSite]").AsString(int.MaxValue).NotNullable()
-                   .WithColumn("[Type]").AsString(50).NotNullable()
+                   .WithColumn("[Type]").AsString(int.MaxValue).NotNullable()
                    .WithColumn("[Message]").AsString(int.MaxValue).NotNullable()
                    .WithColumn("[StackTrace]").AsString(int.MaxValue).NotNullable()
                    .WithColumn("[InnerException]").AsString(int.MaxValue).NotNullable()
