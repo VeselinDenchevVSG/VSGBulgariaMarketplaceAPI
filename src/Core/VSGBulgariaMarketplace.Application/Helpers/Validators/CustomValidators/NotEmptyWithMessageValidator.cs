@@ -4,7 +4,7 @@
 
     internal static class NotEmptyWithMessageValidator
     {
-        private const string NOT_EMPTY_MESSAGE = " {PropertyName} can't be empty!";
+        private const string NOT_EMPTY_MESSAGE = "{PropertyName.ToLower()} can't be empty!";
 
         public static IRuleBuilderOptions<T, string> NotEmptyWithMessage<T, TElement, TEntity>(this IRuleBuilder<T, string> ruleBuilder, string message = NOT_EMPTY_MESSAGE)
         {
@@ -46,6 +46,6 @@
             return ruleBuilder.NotEmpty().WithMessage(message);
         }
 
-        private static string FormatNotEmptyMessage(Type type) => type.Name + NOT_EMPTY_MESSAGE;
+        private static string FormatNotEmptyMessage(Type type) => $"{type.Name} {NOT_EMPTY_MESSAGE}";
     }
 }
