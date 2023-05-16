@@ -33,14 +33,19 @@
             catch (Exception e)
             {
                 unitOfWork.Rollback();
-                this.logger.LogError(e, e.Message);
+
+                //if (e.GetType() != typeof(PrimaryKeyViolationException))
+                //{
+                    this.logger.LogError(e, e.Message);
+                //}
+
                 await ExceptionHandler(e, httpContext);
             }
         }
 
         private async Task ExceptionHandler(Exception exception, HttpContext httpContext)
         {
-            List<ErrorModel> errors = this.GenerateErrors(exception, httpContext);
+            List<ErrorModel> errors = this.GenerateErrors(exception);
 
             var errorResponce = JsonSerializer.Serialize(errors);
             httpContext.Response.ContentType = "application/json";
@@ -48,14 +53,14 @@
             await httpContext.Response.WriteAsync(errorResponce);
         }
 
-        private List<ErrorModel> GenerateErrors(Exception exception, HttpContext httpContext)
+        private List<ErrorModel> GenerateErrors(Exception exception)
         {
             List<ErrorModel> errors = new List<ErrorModel>();
 
             switch (exception)
             {
                 case HttpException httpException:
-                    errors.Add(new ErrorModel { Code = (int)httpException.StatusCode, ErrorMessage = httpException.Message });
+                    errors.Add(new ErrorModel { Code = (int) httpException.StatusCode, ErrorMessage = httpException.Message });
                     break;
 
                 case ValidationException validationException:

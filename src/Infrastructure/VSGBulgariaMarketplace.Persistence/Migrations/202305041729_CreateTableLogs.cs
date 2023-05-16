@@ -20,7 +20,7 @@
                    .WithColumn("[StackTrace]").AsString(int.MaxValue).NotNullable()
                    .WithColumn("[InnerException]").AsString(int.MaxValue).NotNullable()
                    .WithColumn("[AdditionalInfo]").AsString(int.MaxValue).NotNullable()
-                   .WithColumn("[LoggedOnDate]").AsCustom("DATETIME2(7)").NotNullable();
+                   .WithColumn("[LoggedOnDatetimeUtc]").AsCustom("DATETIME2(7)").NotNullable().WithDefaultValue(DateTime.UtcNow);
         }
     }
 }

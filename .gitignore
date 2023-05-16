@@ -478,3 +478,4 @@ $RECYCLE.BIN/
 
 # Enviromental variables
 .env
+src/Presentation/VSGBulgariaMarketplace.API/internalLog.txt
