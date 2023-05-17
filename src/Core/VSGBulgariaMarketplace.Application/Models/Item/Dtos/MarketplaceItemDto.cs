@@ -1,12 +1,12 @@
 ﻿namespace VSGBulgariaMarketplace.Application.Models.Item.Dtos
 {
-    using Newtonsoft.Json;
+    using System.Text.Json.Serialization;
 
     public class MarketplaceItemDto
     {
         public int Code { get; set; }
 
-        [JsonProperty("ImageURL")]
+        [JsonPropertyName("imageURL")]
         public string ImageUrl { get; set; }
 
         public decimal Price { get; set; }
