@@ -44,7 +44,7 @@
 
                 return order;
             },
-            splitOn: "ItemId", transaction: this.Transaction).ToArray();
+            splitOn: "ItemId", transaction: base.Transaction).ToArray();
 
             return userOrders;
         }
@@ -52,7 +52,7 @@
         public Order GetOrderItemIdAndQuantity(int id)
         {
             string sql = "SELECT ItemId, Quantity FROM Orders WHERE Id = @Id AND IsDeleted = 0";
-            Order order = base.DbConnection.QueryFirstOrDefault<Order>(sql, new { Id = id }, transaction: this.Transaction);
+            Order order = base.DbConnection.QueryFirstOrDefault<Order>(sql, new { Id = id }, transaction: base.Transaction);
 
             return order;
         }
@@ -60,7 +60,7 @@
         public void Finish(int id)
         {
             string sql = "UPDATE Orders SET Status = 1 WHERE Id = @Id";
-            base.DbConnection.Execute(sql, new { Id = id }, transaction: this.Transaction);
+            base.DbConnection.Execute(sql, new { Id = id }, transaction: base.Transaction);
         }
     }
 }

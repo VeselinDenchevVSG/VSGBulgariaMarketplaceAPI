@@ -24,7 +24,7 @@
         public Item[] GetMarketplace()
         {
             string sql = $"SELECT Id, PicturePublicId, Price, Category, QuantityForSale FROM Items WHERE IsDeleted = 0";
-            Item[] marketplace = base.DbConnection.Query<Item>(sql, transaction: this.Transaction).ToArray();
+            Item[] marketplace = base.DbConnection.Query<Item>(sql, transaction: base.Transaction).ToArray();
 
             foreach (Item item in marketplace)
             {
@@ -49,7 +49,7 @@
         {
             string sql = "SELECT PicturePublicId, Name, Price, Category, QuantityForSale, Description FROM Items " +
                             "WHERE Id = @Code AND IsDeleted = 0";
-            Item item = base.DbConnection.QueryFirstOrDefault<Item>(sql, new { Code = code }, transaction: this.Transaction);
+            Item item = base.DbConnection.QueryFirstOrDefault<Item>(sql, new { Code = code }, transaction: base.Transaction);
 
             if (item?.PicturePublicId is not null)
             {
@@ -62,7 +62,7 @@
         public Item GetQuantityForSaleAndPriceByCode(int code) 
         {
             string sql = "SELECT QuantityForSale, Price FROM Items WHERE Id = @Code AND IsDeleted = 0";
-            Item item = base.DbConnection.QueryFirstOrDefault<Item>(sql, new { Code = code }, transaction: this.Transaction);
+            Item item = base.DbConnection.QueryFirstOrDefault<Item>(sql, new { Code = code }, transaction: base.Transaction);
 
             return item;
         }
@@ -70,7 +70,7 @@
         public void BuyItem(int id, short quantity)
         {
             string getItemQuantityForSaleSql = "SELECT QuantityForSale FROM Items WHERE Id = @Id AND IsDeleted = 0";
-            string result = base.DbConnection.ExecuteScalar(getItemQuantityForSaleSql, new { Id = id }).ToString();
+            string result = base.DbConnection.ExecuteScalar(getItemQuantityForSaleSql, new { Id = id }, transaction: base.Transaction).ToString();
             short quantityForSale = short.Parse(result);
 
             if (quantity > quantityForSale)
@@ -79,7 +79,7 @@
             }
 
             string buyItemSql = $"UPDATE Items SET QuantityForSale -= @QuantitySold, QuantityCombined -= @QuantitySold WHERE Id = @Id";
-            base.DbConnection.Execute(buyItemSql, new { Id = id, QuantitySold = quantity }, transaction: this.Transaction);
+            base.DbConnection.Execute(buyItemSql, new { Id = id, QuantitySold = quantity }, transaction: base.Transaction);
         }
 
         public void Update(int code, Item item)
@@ -111,7 +111,7 @@
         public string GetItemPicturePublicId(int code)
         {
             string sql = "SELECT PicturePublicId FROM Items WHERE Id = @Code";
-            var result = this.DbConnection.Query<string>(sql, new { Code = code }, this.Transaction);
+            var result = this.DbConnection.Query<string>(sql, new { Code = code }, base.Transaction);
 
             if (result.Count() == 0)
             {
