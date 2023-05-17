@@ -4,7 +4,7 @@
 
     using VSGBulgariaMarketplace.Persistence.Migrations.Abstraction;
 
-    [Migration(202305041514)]
+    [Migration(202305171123)]
     public class CreateTableItems : CreateTableMigration
     {
         protected override string TableName => "[Items]";
@@ -14,7 +14,7 @@
             Create.Table(this.TableName)
                    .WithColumn("[Id]").AsInt32().PrimaryKey()
                    .WithColumn("[Name]").AsCustom("NVARCHAR(150)").NotNullable()
-                   .WithColumn("[PicturePublicId]").AsString(20).Nullable()
+                   .WithColumn("[ImagePublicId]").AsString(20).ForeignKey("[CloudinaryImages]", "[Id]").Nullable()
                    .WithColumn("[Price]").AsCustom("MONEY").NotNullable()
                    .WithColumn("[Category]").AsInt32().NotNullable()
                    .WithColumn("[QuantityCombined]").AsInt16().NotNullable()

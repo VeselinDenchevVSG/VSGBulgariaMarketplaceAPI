@@ -1,29 +1,40 @@
-﻿namespace VSGBulgariaMarketplace.Application.Services.HelpServices.Image
+﻿namespace VSGBulgariaMarketplace.Application.Services
 {
+    using AutoMapper;
+
     using CloudinaryDotNet;
     using CloudinaryDotNet.Actions;
 
     using Microsoft.AspNetCore.Http;
+    using Microsoft.Data.SqlClient;
 
     using System;
     using System.Threading.Tasks;
 
-    using VSGBulgariaMarketplace.Application.Services.HelpServices.Image.Interfaces;
+    using VSGBulgariaMarketplace.Application.Models.Image.Interfaces;
+    using VSGBulgariaMarketplace.Domain.Entities;
 
-    public class ImageCloudinaryService : IImageCloudService
+    public class CloudinaryImageService : ICloudImageService
     {
+        private IImageRepository imageRepository;
+        private IMapper mapper;
+
         private Account cloudinaryAccount;
         private Cloudinary cloudinary;
 
-        public ImageCloudinaryService()
+        public CloudinaryImageService(IImageRepository imageRepository, IMapper mapper)
         {
+            this.imageRepository = imageRepository;
+            this.mapper = mapper;
+
+            // Set Cloudinary account
             string cloudinaryUrl = Environment.GetEnvironmentVariable("CLOUDINARY_CLOUD");
             string cloudinaryApiKey = Environment.GetEnvironmentVariable("CLOUDINARY_API_KEY");
             string cloudinaryApiSecret = Environment.GetEnvironmentVariable("CLOUDINARY_API_SECRET");
 
-            this.cloudinaryAccount = new Account(cloudinaryUrl, cloudinaryApiKey, cloudinaryApiSecret);
-            this.cloudinary = new Cloudinary(this.cloudinaryAccount);
-            this.cloudinary.Api.Secure = true;
+            cloudinaryAccount = new Account(cloudinaryUrl, cloudinaryApiKey, cloudinaryApiSecret);
+            cloudinary = new Cloudinary(cloudinaryAccount);
+            cloudinary.Api.Secure = true;
         }
 
         public async Task<bool> ExistsAsync(string publicId)
@@ -38,9 +49,9 @@
 
         public async Task<string> UploadAsync(IFormFile imageFile)
         {
-            using Stream stream = this.ConvertIFormFileToStream(imageFile);
+            using Stream stream = ConvertIFormFileToStream(imageFile);
 
-            string uniqueFileName = this.GenerateUniqueFileName();
+            string uniqueFileName = GenerateUniqueFileName();
 
             var uploadParams = new ImageUploadParams()
             {
@@ -48,24 +59,33 @@
                 Folder = "VSG_Marketplace"
             };
             ImageUploadResult uploadResult = await cloudinary.UploadAsync(uploadParams);
-            if (uploadResult.Error == null)
-            {
-                Console.WriteLine("File updated successfully: " + uploadResult.SecureUrl);
-            }
-            else throw new InvalidOperationException("Failed to upload file: " + uploadResult.Error.Message);
+            if (uploadResult.Error != null) throw new InvalidOperationException("Failed to upload file: " + uploadResult.Error.Message);
 
-            return uploadResult.PublicId.Split('/').TakeLast(1).First();
+            CloudinaryImage image = mapper.Map<ImageUploadResult, CloudinaryImage>(uploadResult);
+
+            try
+            {
+                this.imageRepository.Create(image);
+            }
+            catch (SqlException se)
+            {
+                await DeleteAsync(uploadResult.PublicId);
+
+                throw se;
+            }
+
+            return image.Id;
         }
 
         public async Task UpdateAsync(string publicId, IFormFile newimageFile)
         {
             publicId = publicId.Replace("%2F", "/");
 
-            bool exists = await this.ExistsAsync(publicId);
+            bool exists = await ExistsAsync(publicId);
             if (exists)
             {
-                using Stream stream = this.ConvertIFormFileToStream(newimageFile);
-                string uniqueFileName = this.GenerateUniqueFileName();
+                using Stream stream = ConvertIFormFileToStream(newimageFile);
+                string uniqueFileName = GenerateUniqueFileName();
 
                 var uploadParams = new ImageUploadParams()
                 {
@@ -75,6 +95,9 @@
                 };
 
                 ImageUploadResult uploadResult = await cloudinary.UploadAsync(uploadParams);
+
+                CloudinaryImage image = mapper.Map<ImageUploadResult, CloudinaryImage>(uploadResult);
+                imageRepository.Update(publicId, image.SecureUrl);
 
                 if (uploadResult.Error == null)
                 {
@@ -91,10 +114,9 @@
             var deletionParams = new DeletionParams(publicId);
             var deletionResult = await cloudinary.DestroyAsync(deletionParams);
 
-            if (deletionResult.Result == "not found")
-            {
-                throw new FileNotFoundException("Image not found!");
-            }
+            if (deletionResult.Result == "not found") throw new FileNotFoundException("Image not found!");
+
+            imageRepository.Delete(publicId);
         }
 
         private Stream ConvertIFormFileToStream(IFormFile file)

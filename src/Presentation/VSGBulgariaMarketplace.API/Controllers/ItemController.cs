@@ -1,15 +1,11 @@
 ﻿namespace VSGBulgariaMarketplace.API.Controllers
 {
-    using FluentValidation.AspNetCore;
-
     using Microsoft.AspNetCore.Mvc;
 
     using VSGBulgariaMarketplace.Application.Models.Item.Dtos;
     using VSGBulgariaMarketplace.Application.Models.Item.Interfaces;
 
-    using VSGBulgariaMarketplace.Application.Helpers.Validators;
-
-    [Route("api/[controller]")]
+    //[Route("api/[controller]")]
     [ApiController]
     public class ItemController : ControllerBase
     {

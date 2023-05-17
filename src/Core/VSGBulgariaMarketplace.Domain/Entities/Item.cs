@@ -6,7 +6,9 @@ public class Item : BaseEntity<int>
 {
     public string Name { get; set; } = null!;
 
-    public string? PicturePublicId { get; set; }
+    public string? ImagePublicId { get; set; }
+
+    public CloudinaryImage? Image { get; set; }
 
     public decimal Price { get; set; }
 

@@ -8,10 +8,10 @@
 
     using VSGBulgariaMarketplace.Application.Helpers.Validators;
     using VSGBulgariaMarketplace.Application.Models.Exceptions;
+    using VSGBulgariaMarketplace.Application.Models.Image.Interfaces;
     using VSGBulgariaMarketplace.Application.Models.Item.Dtos;
     using VSGBulgariaMarketplace.Application.Models.Item.Interfaces;
     using VSGBulgariaMarketplace.Application.Services.HelpServices.Cache.Interfaces;
-    using VSGBulgariaMarketplace.Application.Services.HelpServices.Image.Interfaces;
     using VSGBulgariaMarketplace.Domain.Entities;
 
     public class ItemService : BaseService<IItemRepository, Item>, IItemService
@@ -20,9 +20,9 @@
         internal const string INVENTORY_CACHE_KEY = "inventory";
         internal const string ITEM_CACHE_KEY_TEMPLATE = "item-{0}";
 
-        private IImageCloudService imageService;
+        private ICloudImageService imageService;
 
-        public ItemService(IItemRepository itemRepository, IImageCloudService imageService, IMemoryCacheAdapter cacheAdapter, IMapper mapper)
+        public ItemService(IItemRepository itemRepository, ICloudImageService imageService, IMemoryCacheAdapter cacheAdapter, IMapper mapper)
             : base(itemRepository, cacheAdapter, mapper)
         {
             this.imageService = imageService;
@@ -95,7 +95,7 @@
 
             if (imageFile is not null)
             {
-                item.PicturePublicId = await this.imageService.UploadAsync(imageFile);
+                item.ImagePublicId = await this.imageService.UploadAsync(imageFile);
             }
 
             this.repository.Create(item);
@@ -117,7 +117,7 @@
             {
                 if (imageFile is not null)
                 {
-                    item.PicturePublicId = await this.imageService.UploadAsync(imageFile);
+                    item.ImagePublicId = await this.imageService.UploadAsync(imageFile);
                 }
             }
             else

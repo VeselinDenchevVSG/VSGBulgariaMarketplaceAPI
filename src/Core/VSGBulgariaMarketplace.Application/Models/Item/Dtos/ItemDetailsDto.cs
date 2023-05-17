@@ -2,7 +2,7 @@
 {
     public class ItemDetailsDto
     {
-        public string PicturePublicId { get; set; }
+        public string ImageUrl { get; set; }
 
         public string Name { get; set; }
 

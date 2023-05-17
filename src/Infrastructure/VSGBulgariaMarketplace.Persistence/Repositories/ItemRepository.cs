@@ -16,21 +16,29 @@
         public ItemRepository(IUnitOfWork unitOfWork)
             : base(unitOfWork)
         {
-            base.columnNamesString = "(Id, Name, PicturePublicId, Price, Category, QuantityCombined, QuantityForSale, " +
+            base.columnNamesString = "(Id, Name, ImagePublicId, Price, Category, QuantityCombined, QuantityForSale, " +
                                         "Description, CreatedAtUtc, ModifiedAtUtc, DeletedAtUtc, IsDeleted)";
             base.SetUpRepository();
         }
         
         public Item[] GetMarketplace()
         {
-            string sql = $"SELECT Id, PicturePublicId, Price, Category, QuantityForSale FROM Items WHERE IsDeleted = 0";
-            Item[] marketplace = base.DbConnection.Query<Item>(sql, transaction: base.Transaction).ToArray();
+            string sql =    $"SELECT i.Id, i.Price, i.Category, i.QuantityForSale, i.ImagePublicId, ci.Id AS CloudinaryImageId, ci.SecureUrl FROM Items AS i " +
+                            $"JOIN CloudinaryImages AS ci " +
+                            $"ON i.ImagePublicId = ci.Id " +
+                            $"WHERE i.IsDeleted = 0 AND ci.IsDeleted = 0";
+            Item[] marketplace = base.DbConnection.Query<Item, CloudinaryImage, Item>(sql, (item, image) =>
+            {
+                item.Image = image;
+
+                return item;
+            }, splitOn: "CloudinaryImageId", transaction: base.Transaction).ToArray();
 
             foreach (Item item in marketplace)
             {
-                if (item.PicturePublicId is not null)
+                if (item.ImagePublicId is not null)
                 {
-                    item.PicturePublicId = item.PicturePublicId.Insert(0, CLOUDINARY_IMAGE_FOLDER);
+                    item.ImagePublicId = item.ImagePublicId.Insert(0, CLOUDINARY_IMAGE_FOLDER);
                 }
             }
 
@@ -47,13 +55,20 @@
 
         public Item GetByCode(int code)
         {
-            string sql = "SELECT PicturePublicId, Name, Price, Category, QuantityForSale, Description FROM Items " +
-                            "WHERE Id = @Code AND IsDeleted = 0";
-            Item item = base.DbConnection.QueryFirstOrDefault<Item>(sql, new { Code = code }, transaction: base.Transaction);
-
-            if (item?.PicturePublicId is not null)
+            string sql =    "SELECT i.Name, i.Price, i.Category, i.QuantityForSale, i.Description, i.ImagePublicId, ci.Id AS CloudinaryImageId, ci.SecureUrl FROM Items AS i " +
+                            "JOIN CloudinaryImages AS ci " +
+                            "ON i.ImagePublicId = ci.Id " +
+                            "WHERE i.Id = @Code AND i.IsDeleted = 0 AND ci.IsDeleted = 0";
+            Item item = base.DbConnection.Query<Item, CloudinaryImage, Item>(sql, (item, image) =>
             {
-                item.PicturePublicId = item.PicturePublicId.Insert(0, CLOUDINARY_IMAGE_FOLDER);
+                item.Image = image;
+
+                return item;
+            }, new { Code = code }, splitOn: "CloudinaryImageId", transaction: base.Transaction).FirstOrDefault();
+
+            if (item?.ImagePublicId is not null)
+            {
+                item.ImagePublicId = item.ImagePublicId.Insert(0, CLOUDINARY_IMAGE_FOLDER);
             }
 
             return item;
@@ -92,7 +107,7 @@
                 {
                     Id = item.Id,
                     Name = item.Name,
-                    PicturePublicId = item.PicturePublicId,
+                    ImagePublicId = item.ImagePublicId,
                     Price = item.Price,
                     Category = item.Category,
                     QuantityCombined = item.QuantityCombined,
@@ -110,7 +125,7 @@
 
         public string GetItemPicturePublicId(int code)
         {
-            string sql = "SELECT PicturePublicId FROM Items WHERE Id = @Code";
+            string sql = "SELECT ImagePublicId FROM Items WHERE Id = @Code";
             var result = this.DbConnection.Query<string>(sql, new { Code = code }, base.Transaction);
 
             if (result.Count() == 0)

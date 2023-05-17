@@ -6,7 +6,7 @@
 
     using VSGBulgariaMarketplace.Persistence.Migrations.Abstraction;
 
-    [Migration(202305041526)]
+    [Migration(202305171124)]
     public class CreateTableOrders : CreateTableMigration
     {
         protected override string TableName => "[Orders]";

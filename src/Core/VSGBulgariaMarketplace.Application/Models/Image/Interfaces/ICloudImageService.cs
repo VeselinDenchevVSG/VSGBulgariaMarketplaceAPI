@@ -1,8 +1,8 @@
-﻿namespace VSGBulgariaMarketplace.Application.Services.HelpServices.Image.Interfaces
+﻿namespace VSGBulgariaMarketplace.Application.Models.Image.Interfaces
 {
     using Microsoft.AspNetCore.Http;
 
-    public interface IImageCloudService
+    public interface ICloudImageService
     {
         public Task<bool> ExistsAsync(string publicId);
 

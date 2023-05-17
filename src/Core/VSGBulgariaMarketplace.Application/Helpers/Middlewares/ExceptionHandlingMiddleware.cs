@@ -34,10 +34,10 @@
             {
                 unitOfWork.Rollback();
 
-                //if (e.GetType() != typeof(PrimaryKeyViolationException))
-                //{
+                if (e.GetType() != typeof(PrimaryKeyViolationException))
+                {
                     this.logger.LogError(e, e.Message);
-                //}
+                }
 
                 await ExceptionHandler(e, httpContext);
             }
