@@ -60,16 +60,19 @@
             Order order = base.mapper.Map<CreateOrderDto, Order>(orderDto);
 
             Item item = this.itemRepository.GetQuantityForSaleAndPriceByCode(orderDto.ItemCode);
-
-            bool isEnoughQuantity = orderDto.Quantity <= item.QuantityForSale;
-            if (isEnoughQuantity)
+            if (item is null) throw new ArgumentException($"item with code {orderDto.ItemCode} doesn't exist!");
+            else
             {
-                order.Item = item;
-                order.Email = "vdenchev@vsgbg.com";
+                bool isEnoughQuantity = orderDto.Quantity <= item.QuantityForSale;
+                if (isEnoughQuantity)
+                {
+                    order.Item = item;
+                    order.Email = "vdenchev@vsgbg.com";
 
-                base.repository.Create(order);
+                    base.repository.Create(order);
+                }
+                else throw new ArgumentOutOfRangeException("Not enough item quantity for sale!");
             }
-            else throw new ArgumentOutOfRangeException("Not enough item quantity for sale!");
         }
 
         public void Finish(int id)
