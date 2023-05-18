@@ -1,0 +1,52 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.33502.453
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSGBulgariaMarketplace.API", "src\Presentation\VSGBulgariaMarketplace.API\VSGBulgariaMarketplace.API.csproj", "{3435850D-FFBD-495C-92DC-22B462A33481}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSGBulgariaMarketplace.Persistence", "src\Infrastructure\VSGBulgariaMarketplace.Persistence\VSGBulgariaMarketplace.Persistence.csproj", "{32AED7DC-8FC8-4647-AD79-2A8A19509BCC}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSGBulgariaMarketplace.Domain", "src\Core\VSGBulgariaMarketplace.Domain\VSGBulgariaMarketplace.Domain.csproj", "{76EB1050-2C41-42DE-8F5F-D4206C03227D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSGBulgariaMarketplace.Application", "src\Core\VSGBulgariaMarketplace.Application\VSGBulgariaMarketplace.Application.csproj", "{98EE8647-192A-4618-9235-3EC32AA075AF}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test", "Test\Test.csproj", "{35D8A02E-6B1B-4D4D-92CF-EB3DEE0264BD}"
+	ProjectSection(ProjectDependencies) = postProject
+		{98EE8647-192A-4618-9235-3EC32AA075AF} = {98EE8647-192A-4618-9235-3EC32AA075AF}
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{3435850D-FFBD-495C-92DC-22B462A33481}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3435850D-FFBD-495C-92DC-22B462A33481}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3435850D-FFBD-495C-92DC-22B462A33481}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3435850D-FFBD-495C-92DC-22B462A33481}.Release|Any CPU.Build.0 = Release|Any CPU
+		{32AED7DC-8FC8-4647-AD79-2A8A19509BCC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{32AED7DC-8FC8-4647-AD79-2A8A19509BCC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{32AED7DC-8FC8-4647-AD79-2A8A19509BCC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{32AED7DC-8FC8-4647-AD79-2A8A19509BCC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{76EB1050-2C41-42DE-8F5F-D4206C03227D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{76EB1050-2C41-42DE-8F5F-D4206C03227D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{76EB1050-2C41-42DE-8F5F-D4206C03227D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{76EB1050-2C41-42DE-8F5F-D4206C03227D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{98EE8647-192A-4618-9235-3EC32AA075AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{98EE8647-192A-4618-9235-3EC32AA075AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{98EE8647-192A-4618-9235-3EC32AA075AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{98EE8647-192A-4618-9235-3EC32AA075AF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{35D8A02E-6B1B-4D4D-92CF-EB3DEE0264BD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{35D8A02E-6B1B-4D4D-92CF-EB3DEE0264BD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{35D8A02E-6B1B-4D4D-92CF-EB3DEE0264BD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{35D8A02E-6B1B-4D4D-92CF-EB3DEE0264BD}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {70F2CCB2-914C-4738-B574-9DD87C8F9CF3}
+	EndGlobalSection
+EndGlobal
