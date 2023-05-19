@@ -16,7 +16,7 @@ namespace Test
 
         public class ItemMappingTests
         {
-            private readonly Mapper mapper;
+            private readonly IMapper mapper;
 
             private Item item;
 
