@@ -26,7 +26,7 @@
             string sql =    $"SELECT i.Id, i.Price, i.Category, i.QuantityForSale, i.ImagePublicId, ci.Id AS CloudinaryImageId, ci.SecureUrl FROM Items AS i " +
                             $"JOIN CloudinaryImages AS ci " +
                             $"ON i.ImagePublicId = ci.Id " +
-                            $"WHERE i.IsDeleted = 0 AND ci.IsDeleted = 0";
+                            $"WHERE i.IsDeleted = 0 AND ci.IsDeleted = 0 AND i.QuantityForSale IS NOT NULL";
             Item[] marketplace = base.DbConnection.Query<Item, CloudinaryImage, Item>(sql, (item, image) =>
             {
                 item.Image = image;
@@ -58,7 +58,7 @@
             string sql =    "SELECT i.Name, i.Price, i.Category, i.QuantityForSale, i.Description, i.ImagePublicId, ci.Id AS CloudinaryImageId, ci.SecureUrl FROM Items AS i " +
                             "JOIN CloudinaryImages AS ci " +
                             "ON i.ImagePublicId = ci.Id " +
-                            "WHERE i.Id = @Code AND i.IsDeleted = 0 AND ci.IsDeleted = 0";
+                            "WHERE i.Id = @Code AND i.IsDeleted = 0 AND ci.IsDeleted = 0 AND i.QuantityForSale IS NOT NULL";
             Item item = base.DbConnection.Query<Item, CloudinaryImage, Item>(sql, (item, image) =>
             {
                 item.Image = image;
