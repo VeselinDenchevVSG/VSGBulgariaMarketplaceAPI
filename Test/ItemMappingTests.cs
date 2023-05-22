@@ -16,9 +16,18 @@ namespace Test
 
         public class ItemMappingTests
         {
-            private readonly IMapper mapper;
+            private const int ITEM_CODE = 1;
+            private const string ITEM_NAME = "Test";
+            private const string ITEM_IMAGE_PUBLIC_ID = "Test";
+            private const string ITEM_IMAGE_URL = "https://shorturl.at/fgwFK";
+            private const decimal ITEM_PRICE = 1.11m;
+            private const short ITEM_QUANTITY_COMBINED = 1;
+            private const short ITEM_QUANTITY_FOR_SALE = 1;
+            private const Category ITEM_CATEGORY = Category.Laptops;
+            private const string ITEM_DESCRIPTION = "Test";
 
-            private Item item;
+            private readonly IMapper mapper;
+            private readonly Item item;
 
             public ItemMappingTests()
             {
@@ -28,24 +37,20 @@ namespace Test
                 });
 
                 this.mapper = new Mapper(configuration);
-            }
 
-            [SetUp]
-            public void Setup()
-            {
-                item = new Item()
+                this.item = new Item()
                 {
-                    Id = 1,
-                    Name = "Test",
+                    Id = ITEM_CODE,
+                    Name = ITEM_NAME,
                     Image = new CloudinaryImage()
                     {
-                        Id = "Test",
-                        SecureUrl = "https://shorturl.at/fgwFK"
+                        Id = ITEM_IMAGE_PUBLIC_ID,
+                        SecureUrl = ITEM_IMAGE_URL
                     },
-                    ImagePublicId = "Test",
-                    Price = 1.11m,
-                    Category = Category.Laptops,
-                    QuantityCombined = 1
+                    ImagePublicId = ITEM_IMAGE_PUBLIC_ID,
+                    Price = ITEM_PRICE,
+                    Category = ITEM_CATEGORY,
+                    QuantityCombined = ITEM_QUANTITY_COMBINED
                 };
             }
 
