@@ -52,22 +52,22 @@ namespace Test
             [Test]
             public void Item_Id_Should_Map_To_Item_Dtos_Code()
             {
-                MarketplaceItemDto marketplaceItemDto = this.mapper.Map<Item, MarketplaceItemDto>(item);
-                ManageItemDto manageItemDto = this.mapper.Map<Item, ManageItemDto>(item);
-                InventoryItemDto inventoryItemDto = this.mapper.Map<Item, InventoryItemDto>(item);
+                MarketplaceItemDto marketplaceItemDto = this.mapper.Map<Item, MarketplaceItemDto>(this.item);
+                ManageItemDto manageItemDto = this.mapper.Map<Item, ManageItemDto>(this.item);
+                InventoryItemDto inventoryItemDto = this.mapper.Map<Item, InventoryItemDto>(this.item);
 
                 using (new AssertionScope())
                 {
-                    marketplaceItemDto.Code.Should().Be(item.Id);
-                    manageItemDto.Code.Should().Be(item.Id);
-                    inventoryItemDto.Code.Should().Be(item.Id);
+                    marketplaceItemDto.Code.Should().Be(this.item.Id);
+                    manageItemDto.Code.Should().Be(this.item.Id);
+                    inventoryItemDto.Code.Should().Be(this.item.Id);
                 }
             }
 
             [Test]
             public void Item_With_QuantityForSale_Equal_To_Null_Should_Map_To_Zero_In_InventoryItemDto()
             {
-                InventoryItemDto itemDto = this.mapper.Map<Item, InventoryItemDto>(item);
+                InventoryItemDto itemDto = this.mapper.Map<Item, InventoryItemDto>(this.item);
 
                 itemDto.QuantityForSale.Should().Be(0);
             }
@@ -75,13 +75,13 @@ namespace Test
             [Test]
             public void Item_Image_SecureUrl_Should_Map_To_Item_Dtos_ImageUrl()
             {
-                MarketplaceItemDto marketplaceItemDto = this.mapper.Map<Item, MarketplaceItemDto>(item);
-                ItemDetailsDto itemDetailsDto = this.mapper.Map<Item, ItemDetailsDto>(item);
+                MarketplaceItemDto marketplaceItemDto = this.mapper.Map<Item, MarketplaceItemDto>(this.item);
+                ItemDetailsDto itemDetailsDto = this.mapper.Map<Item, ItemDetailsDto>(this.item);
 
                 using (new AssertionScope())
                 {
-                    marketplaceItemDto.ImageUrl?.Should().Be(item.Image?.SecureUrl);
-                    itemDetailsDto.ImageUrl?.Should().Be(item.Image?.SecureUrl);
+                    marketplaceItemDto.ImageUrl?.Should().Be(this.item.Image?.SecureUrl);
+                    itemDetailsDto.ImageUrl?.Should().Be(this.item.Image?.SecureUrl);
                 }
             }
         }
