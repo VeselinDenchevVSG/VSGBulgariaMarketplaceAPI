@@ -18,6 +18,14 @@
     public class ItemServiceTests
     {
         private const int ITEM_CODE = 1;
+        private const string ITEM_NAME = "Test";
+        private const string ITEM_IMAGE_PUBLIC_ID = "Test";
+        private const string ITEM_IMAGE_URL = "https://shorturl.at/fgwFK";
+        private const decimal ITEM_PRICE = 1.11m;
+        private const short ITEM_QUANTITY_COMBINED = 1;
+        private const short ITEM_QUANTITY_FOR_SALE = 1;
+        private const Category ITEM_CATEGORY = Category.Laptops;
+        private const string ITEM_DESCRIPTION = "Test";
 
         private readonly Mock<IItemRepository> itemRepository;
         private readonly Mock<ICloudImageService> imageService;
@@ -42,25 +50,25 @@
             this.item = new Item()
             {
                 Id = ITEM_CODE,
-                Name = "Test",
+                Name = ITEM_NAME,
                 Image = new CloudinaryImage()
                 {
-                    Id = "Test",
-                    SecureUrl = "https://shorturl.at/fgwFK"
+                    Id = ITEM_IMAGE_PUBLIC_ID,
+                    SecureUrl = ITEM_IMAGE_URL
                 },
-                ImagePublicId = "Test",
-                Price = 1.11m,
-                Category = Category.Laptops,
-                QuantityCombined = 1
+                ImagePublicId = ITEM_IMAGE_PUBLIC_ID,
+                Price = ITEM_PRICE,
+                Category = ITEM_CATEGORY,
+                QuantityCombined = ITEM_QUANTITY_COMBINED
             };
 
             MarketplaceItemDto marketplaceItemDto = new MarketplaceItemDto()
             {
                 Code = ITEM_CODE,
-                ImageUrl = "https://shorturl.at/fgwFK",
-                Price = 1.11m,
-                Category = "Laptops",
-                QuantityForSale = 1
+                ImageUrl = ITEM_IMAGE_URL,
+                Price = ITEM_PRICE,
+                Category = ITEM_CATEGORY.ToString(),
+                QuantityForSale = ITEM_QUANTITY_FOR_SALE
             };
             this.marketplace = new MarketplaceItemDto[] { marketplaceItemDto };
             this.mapper.Setup(m => m.Map<Item[], MarketplaceItemDto[]>(It.IsAny<Item[]>())).Returns(this.marketplace);
@@ -68,34 +76,34 @@
             InventoryItemDto inventoryItemDto = new InventoryItemDto()
             {
                 Code = ITEM_CODE,
-                Name = "Test",
-                Category = "Laptops",
-                QuantityForSale = 1,
-                QuantityCombined = 1
+                Name = ITEM_NAME,
+                Category = ITEM_CATEGORY.ToString(),
+                QuantityForSale = ITEM_QUANTITY_FOR_SALE,
+                QuantityCombined = ITEM_QUANTITY_COMBINED
             };
             this.inventory = new InventoryItemDto[] { inventoryItemDto };
             this.mapper.Setup(m => m.Map<Item[], InventoryItemDto[]>(It.IsAny<Item[]>())).Returns(this.inventory);
 
             this.itemDetailsDto = new ItemDetailsDto()
             {
-                ImageUrl = "https://shorturl.at/fgwFK",
-                Name = "Test",
-                Price = 1.11m,
-                Category = "Laptops",
-                QuantityForSale = 1,
-                Description = "Test"
+                ImageUrl = ITEM_IMAGE_URL,
+                Name = ITEM_NAME,
+                Price = ITEM_PRICE,
+                Category = ITEM_CATEGORY.ToString(),
+                QuantityForSale = ITEM_QUANTITY_FOR_SALE,
+                Description = ITEM_DESCRIPTION
             };
             this.mapper.Setup(m => m.Map<Item, ItemDetailsDto>(It.IsAny<Item>())).Returns(this.itemDetailsDto);
 
             this.manageItemDto = new ManageItemDto()
             {
                 Code = ITEM_CODE,
-                Name = "Test",
-                Price = 1.11m,
-                Category = "Laptops",
-                QuantityCombined = 1,
-                QuantityForSale = 1,
-                Description = "Test"
+                Name = ITEM_NAME,
+                Price = ITEM_PRICE,
+                Category = ITEM_CATEGORY.ToString(),
+                QuantityCombined = ITEM_QUANTITY_COMBINED,
+                QuantityForSale = ITEM_QUANTITY_FOR_SALE,
+                Description = ITEM_DESCRIPTION
             };
             this.mapper.Setup(m => m.Map<ManageItemDto, Item>(It.IsAny<ManageItemDto>())).Returns(this.item);
             this.mapper.Setup(m => m.Map<Item, ManageItemDto>(It.IsAny<Item>())).Returns(this.manageItemDto);
@@ -117,7 +125,6 @@
             this.memoryCache.Setup(mc => mc.Set(It.IsAny<string>(), It.IsAny<object>()));
             this.memoryCache.Setup(mc => mc.Remove(It.IsAny<string>()));
             this.memoryCache.Setup(mc => mc.Clear());
-            this.memoryCache.Setup(mc => mc.Remove(It.IsAny<string>));
         }
 
         [Test]
