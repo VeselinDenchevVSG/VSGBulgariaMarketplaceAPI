@@ -34,7 +34,7 @@
             if (itemDtos is null)
             {
                 Item[] items = base.repository.GetMarketplace();
-                itemDtos = base.mapper.Map<MarketplaceItemDto[]>(items);
+                itemDtos = base.mapper.Map<Item[], MarketplaceItemDto[]>(items);
 
                 base.cacheAdapter.Set(MARKETPLACE_CACHE_KEY, itemDtos);
             }
@@ -48,7 +48,7 @@
             if (itemDtos is null)
             {
                 Item[] items = base.repository.GetInventory();
-                itemDtos = base.mapper.Map<InventoryItemDto[]>(items);
+                itemDtos = base.mapper.Map<Item[], InventoryItemDto[]>(items);
 
                 base.cacheAdapter.Set(INVENTORY_CACHE_KEY, itemDtos);
             }
@@ -99,7 +99,6 @@
             }
 
             this.repository.Create(item);
-
         }
 
         public async Task UpdateAsync(int code, ManageItemDto updateItemDto, IFormFile? imageFile) 
@@ -136,7 +135,6 @@
 
             base.cacheAdapter.Clear();
         }
-
 
         public void Delete(int code)
         {
