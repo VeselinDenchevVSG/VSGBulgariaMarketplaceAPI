@@ -1,5 +1,8 @@
 using DotNetEnv;
 
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+
 using NLog;
 using NLog.Web;
 
@@ -31,6 +34,36 @@ try
 
     builder.Services.AddMemoryCache();
 
+    builder.Services.AddHttpContextAccessor();
+
+    builder.Services
+        .AddAuthentication(options =>
+        {
+            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        })
+        .AddJwtBearer(options =>
+        {
+            string clientId = Environment.GetEnvironmentVariable("AZURE_AD_CLIENT_ID");
+            string tenantId = Environment.GetEnvironmentVariable("AZURE_AD_TENANT_ID");
+
+            options.Authority = $"https://login.microsoftonline.com/{tenantId}/v2.0";
+            options.TokenValidationParameters = new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidAudience = clientId,
+                ValidateLifetime = true,
+            };
+        });
+
+    builder.Services.AddAuthorization(options =>
+    {
+        string adminGroupId = Environment.GetEnvironmentVariable("AZURE_AD_ADMIN_GROUP_ID");
+
+        options.AddPolicy("Admin", policy => policy.RequireClaim("groups", adminGroupId));
+    });
+
     builder.Logging.ClearProviders();
     builder.Host.UseNLog();
 
@@ -55,6 +88,8 @@ try
     app.MigrateUpDatabase();
 
     app.UseHttpsRedirection();
+
+    app.UseAuthentication();
 
     app.UseAuthorization();
 
