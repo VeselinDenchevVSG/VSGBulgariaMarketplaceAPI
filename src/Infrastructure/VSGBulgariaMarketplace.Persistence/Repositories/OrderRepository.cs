@@ -32,11 +32,11 @@
             return pendingOrders;
         }
 
-        public Order[] GetUserOrders(string userId)
+        public Order[] GetUserOrders(string email)
         {
             string sql = "SELECT o.Quantity, o.CreatedAtUtc, o.Status, o.ItemId AS ItemId, i.Id, i.Name, i.Price FROM Orders AS o " +
                             "JOIN Items AS i ON o.ItemId = i.Id " +
-                            "WHERE o.IsDeleted = 0";
+                            "WHERE o.IsDeleted = 0 AND o.Email = @Email";
             Order[] userOrders = base.DbConnection.Query<Order, Item, Order>(sql, (order, item) =>
             {
                 order.Item = item;
@@ -44,7 +44,7 @@
 
                 return order;
             },
-            splitOn: "ItemId", transaction: base.Transaction).ToArray();
+            new { Email = email }, splitOn: "ItemId", transaction: base.Transaction).ToArray();
 
             return userOrders;
         }

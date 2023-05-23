@@ -1,5 +1,6 @@
 ﻿namespace VSGBulgariaMarketplace.API.Controllers
 {
+    using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
 
     using VSGBulgariaMarketplace.Application.Models.Item.Dtos;
@@ -7,6 +8,7 @@
 
     //[Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class ItemController : ControllerBase
     {
         private IItemService itemService;
@@ -26,6 +28,7 @@
         }
         [HttpGet]
         [Route("inventory")]
+        [Authorize(Policy = "Admin")]
         public IActionResult GetInventory()
         {
             InventoryItemDto[] items = this.itemService.GetInventory();
@@ -46,7 +49,7 @@
 
         [HttpPost]
         [Route("create")]
-        
+        [Authorize(Policy = "Admin")]
         public async Task<IActionResult> CreateAsync([FromForm] ManageItemDto itemDto, IFormFile? imageFile)
         {
             await this.itemService.CreateAsync(itemDto, imageFile);
@@ -56,6 +59,7 @@
 
         [HttpPut]
         [Route("update/{code}")]
+        [Authorize(Policy = "Admin")]
         public async Task<IActionResult> UpdateAsync([FromRoute] int code, [FromForm] ManageItemDto itemDto, IFormFile? imageFile)
         {
             await this.itemService.UpdateAsync(code, itemDto, imageFile);
@@ -65,6 +69,7 @@
 
         [HttpDelete]
         [Route("delete/{code}")]
+        [Authorize(Policy = "Admin")]
         public IActionResult Delete([FromRoute] int code)
         {
             this.itemService.Delete(code);

@@ -7,7 +7,7 @@
     {
         public Order[] GetPendingOrders();
 
-        public Order[] GetUserOrders(string userId);
+        public Order[] GetUserOrders(string email);
 
         public Order GetOrderItemIdAndQuantity(int id);
 

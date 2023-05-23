@@ -1,11 +1,13 @@
 ﻿namespace VSGBulgariaMarketplace.API.Controllers
 {
+    using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
     using VSGBulgariaMarketplace.Application.Models.Order.Dtos;
     using VSGBulgariaMarketplace.Application.Models.Order.Interfaces;
 
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class OrderController : ControllerBase
     {
         private IOrderService orderService;
@@ -17,6 +19,7 @@
 
         [HttpGet]
         [Route("pending-orders")]
+        [Authorize(Policy = "Admin")]
         public IActionResult GetPendingOrders()
         {
             PendingOrderDto[] orders = this.orderService.GetPendingOrders();
@@ -25,10 +28,10 @@
         }
 
         [HttpGet]
-        [Route("orders/{userId}")]
-        public IActionResult GetUserOrders([FromRoute]string userId)
+        [Route("user-orders")]
+        public IActionResult GetUserOrders()
         {
-            UserOrderDto[] orders = this.orderService.GetUserOrders(userId);
+            UserOrderDto[] orders = this.orderService.GetUserOrders();
 
             return Ok(orders);
         }
@@ -44,6 +47,7 @@
 
         [HttpPatch]
         [Route("finish/{id}")]
+        [Authorize(Policy = "Admin")]
         public IActionResult Finish([FromRoute] int id)
         {
             this.orderService.Finish(id);
@@ -53,6 +57,7 @@
 
         [HttpDelete]
         [Route("decline/{id}")]
+        [Authorize(Policy = "Admin")]
         public IActionResult Decline([FromRoute] int id)
         {
             this.orderService.Decline(id);

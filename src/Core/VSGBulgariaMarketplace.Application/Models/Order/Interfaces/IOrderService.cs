@@ -6,7 +6,7 @@
     {
         public PendingOrderDto[] GetPendingOrders();
 
-        public UserOrderDto[] GetUserOrders(string userId);
+        public UserOrderDto[] GetUserOrders();
 
         public void Create(CreateOrderDto orderDto);
 

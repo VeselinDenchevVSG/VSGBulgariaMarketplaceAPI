@@ -1,6 +1,7 @@
 ﻿namespace VSGBulgariaMarketplace.Application.Services
 {
     using AutoMapper;
+    using Microsoft.AspNetCore.Http;
 
     using VSGBulgariaMarketplace.Application.Models.Item.Interfaces;
     using VSGBulgariaMarketplace.Application.Models.Order.Dtos;
@@ -12,14 +13,15 @@
     {
         public const string PENDING_ORDERS_CACHE_KEY = "pending-orders";
         private const string USER_ORDER_CACHE_KEY_TEMPLATE = "orders-user-{0}";
-        private const string FAKE_USER_ID = "1234"; // For debugging purposes I will use fake user id until we implement authentication
 
         private IItemRepository itemRepository;
+        private IHttpContextAccessor httpContextAccessor;
 
-        public OrderService(IOrderRepository repository, IItemRepository itemRepository, IMemoryCacheAdapter cacheAdapter, IMapper mapper) 
+        public OrderService(IOrderRepository repository, IItemRepository itemRepository, IMemoryCacheAdapter cacheAdapter, IMapper mapper, IHttpContextAccessor httpContextAccessor) 
             : base(repository, cacheAdapter, mapper)
         {
             this.itemRepository = itemRepository;
+            this.httpContextAccessor = httpContextAccessor;
         }
 
         public PendingOrderDto[] GetPendingOrders()
@@ -36,14 +38,16 @@
             return pendingOrderDtos;
         }
 
-        public UserOrderDto[] GetUserOrders(string userId)
+        public UserOrderDto[] GetUserOrders()
         {
-            string userOrdersCacheKey = string.Format(USER_ORDER_CACHE_KEY_TEMPLATE, FAKE_USER_ID);
+            string email = this.httpContextAccessor.HttpContext.User.FindFirst(c => c.Type == "preferred_username").Value;
+
+            string userOrdersCacheKey = string.Format(USER_ORDER_CACHE_KEY_TEMPLATE, email);
 
             UserOrderDto[] userOrderDtos = base.cacheAdapter.Get<UserOrderDto[]>(userOrdersCacheKey);
             if (userOrderDtos is null)
             {
-                Order[] userOrders = base.repository.GetUserOrders(userId);
+                Order[] userOrders = base.repository.GetUserOrders(email);
                 userOrderDtos = base.mapper.Map<Order[], UserOrderDto[]>(userOrders);
 
                 base.cacheAdapter.Set(userOrdersCacheKey, userOrderDtos);
@@ -54,8 +58,10 @@
 
         public void Create(CreateOrderDto orderDto)
         {
+            string email = this.httpContextAccessor.HttpContext.User.FindFirst(c => c.Type == "preferred_username").Value;
+
             base.cacheAdapter.Remove(PENDING_ORDERS_CACHE_KEY);
-            base.cacheAdapter.Remove(string.Format(USER_ORDER_CACHE_KEY_TEMPLATE, FAKE_USER_ID));
+            base.cacheAdapter.Remove(string.Format(USER_ORDER_CACHE_KEY_TEMPLATE, email));
 
             Order order = base.mapper.Map<CreateOrderDto, Order>(orderDto);
 
@@ -67,7 +73,7 @@
                 if (isEnoughQuantity)
                 {
                     order.Item = item;
-                    order.Email = "vdenchev@vsgbg.com";
+                    order.Email = email;
 
                     base.repository.Create(order);
                 }
@@ -77,13 +83,15 @@
 
         public void Finish(int id)
         {
+            string email = this.httpContextAccessor.HttpContext.User.FindFirst(c => c.Type == "preferred_username").Value;
+
             Order order = base.repository.GetOrderItemIdAndQuantity(id);
 
             base.cacheAdapter.Remove(ItemService.MARKETPLACE_CACHE_KEY);
             base.cacheAdapter.Remove(ItemService.INVENTORY_CACHE_KEY);
             base.cacheAdapter.Remove(string.Format(ItemService.ITEM_CACHE_KEY_TEMPLATE, order.ItemId));
             base.cacheAdapter.Remove(PENDING_ORDERS_CACHE_KEY);
-            base.cacheAdapter.Remove(string.Format(USER_ORDER_CACHE_KEY_TEMPLATE, FAKE_USER_ID));
+            base.cacheAdapter.Remove(string.Format(USER_ORDER_CACHE_KEY_TEMPLATE, email));
 
             this.itemRepository.BuyItem(order.ItemId, order.Quantity);
 
@@ -92,8 +100,10 @@
 
         public void Decline(int id)
         {
+            string email = this.httpContextAccessor.HttpContext.User.FindFirst(c => c.Type == "preferred_username").Value;
+
             base.cacheAdapter.Remove(PENDING_ORDERS_CACHE_KEY);
-            base.cacheAdapter.Remove(string.Format(USER_ORDER_CACHE_KEY_TEMPLATE, FAKE_USER_ID));
+            base.cacheAdapter.Remove(string.Format(USER_ORDER_CACHE_KEY_TEMPLATE, email));
 
             base.repository.Delete(id);
         }
