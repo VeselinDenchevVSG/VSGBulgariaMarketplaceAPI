@@ -14,7 +14,7 @@
             services
                 .AddFluentMigratorCore()
                 .ConfigureRunner(c => c.AddSqlServer()
-                .WithGlobalConnectionString(Environment.GetEnvironmentVariable("DEFAULT_CONNECTION_STRING"))
+                .WithGlobalConnectionString("DefaultConnection")
                 .ScanIn(Assembly.GetExecutingAssembly()).For.Migrations());
             return services;
         }

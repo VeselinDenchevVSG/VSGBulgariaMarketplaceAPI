@@ -7,6 +7,7 @@
 
     using Microsoft.AspNetCore.Http;
     using Microsoft.Data.SqlClient;
+    using Microsoft.Extensions.Configuration;
 
     using System;
     using System.Threading.Tasks;
@@ -22,15 +23,15 @@
         private Account cloudinaryAccount;
         private Cloudinary cloudinary;
 
-        public CloudinaryImageService(IImageRepository imageRepository, IMapper mapper)
+        public CloudinaryImageService(IImageRepository imageRepository, IMapper mapper, IConfiguration configuration)
         {
             this.imageRepository = imageRepository;
             this.mapper = mapper;
 
             // Set Cloudinary account
-            string cloudinaryUrl = Environment.GetEnvironmentVariable("CLOUDINARY_CLOUD");
-            string cloudinaryApiKey = Environment.GetEnvironmentVariable("CLOUDINARY_API_KEY");
-            string cloudinaryApiSecret = Environment.GetEnvironmentVariable("CLOUDINARY_API_SECRET");
+            string cloudinaryUrl = configuration["Cloudinary:Cloud"];
+            string cloudinaryApiKey = configuration["Cloudinary:ApiKey"];
+            string cloudinaryApiSecret = configuration["Cloudinary:ApiSecret"];
 
             cloudinaryAccount = new Account(cloudinaryUrl, cloudinaryApiKey, cloudinaryApiSecret);
             cloudinary = new Cloudinary(cloudinaryAccount);
