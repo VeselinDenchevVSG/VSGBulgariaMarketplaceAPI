@@ -14,6 +14,7 @@
     using VSGBulgariaMarketplace.Domain.Entities;
     using VSGBulgariaMarketplace.Domain.Enums;
     using VSGBulgariaMarketplace.Application.Services;
+    using VSGBulgariaMarketplace.Application.Models.Exceptions;
 
     public class ItemServiceTests
     {
@@ -24,7 +25,6 @@
         private const decimal ITEM_PRICE = 1.11m;
         private const short ITEM_QUANTITY_COMBINED = 1;
         private const short ITEM_QUANTITY_FOR_SALE = 1;
-        private const Category ITEM_CATEGORY = Category.Laptops;
         private const string ITEM_DESCRIPTION = "Test";
 
         private readonly Mock<IItemRepository> itemRepository;
@@ -58,7 +58,7 @@
                 },
                 ImagePublicId = ITEM_IMAGE_PUBLIC_ID,
                 Price = ITEM_PRICE,
-                Category = ITEM_CATEGORY,
+                Category = Category.Laptops,
                 QuantityCombined = ITEM_QUANTITY_COMBINED
             };
 
@@ -67,7 +67,7 @@
                 Code = ITEM_CODE,
                 ImageUrl = ITEM_IMAGE_URL,
                 Price = ITEM_PRICE,
-                Category = ITEM_CATEGORY.ToString(),
+                Category = Category.Laptops.ToString(),
                 QuantityForSale = ITEM_QUANTITY_FOR_SALE
             };
             this.marketplace = new MarketplaceItemDto[] { marketplaceItemDto };
@@ -77,7 +77,7 @@
             {
                 Code = ITEM_CODE,
                 Name = ITEM_NAME,
-                Category = ITEM_CATEGORY.ToString(),
+                Category = Category.Laptops.ToString(),
                 QuantityForSale = ITEM_QUANTITY_FOR_SALE,
                 QuantityCombined = ITEM_QUANTITY_COMBINED
             };
@@ -89,7 +89,7 @@
                 ImageUrl = ITEM_IMAGE_URL,
                 Name = ITEM_NAME,
                 Price = ITEM_PRICE,
-                Category = ITEM_CATEGORY.ToString(),
+                Category = Category.Laptops.ToString(),
                 QuantityForSale = ITEM_QUANTITY_FOR_SALE,
                 Description = ITEM_DESCRIPTION
             };
@@ -100,7 +100,7 @@
                 Code = ITEM_CODE,
                 Name = ITEM_NAME,
                 Price = ITEM_PRICE,
-                Category = ITEM_CATEGORY.ToString(),
+                Category = Category.Laptops.ToString(),
                 QuantityCombined = ITEM_QUANTITY_COMBINED,
                 QuantityForSale = ITEM_QUANTITY_FOR_SALE,
                 Description = ITEM_DESCRIPTION
@@ -112,7 +112,6 @@
 
             this.itemRepository.Setup(ir => ir.GetMarketplace()).Returns(items);
             this.itemRepository.Setup(ir => ir.GetInventory()).Returns(items);
-            this.itemRepository.Setup(ir => ir.GetByCode(It.IsAny<int>())).Returns(this.item);
             this.itemRepository.Setup(ir => ir.Create(It.IsAny<Item>()));
             this.itemRepository.Setup(ir => ir.Update(It.IsAny<int>(), It.IsAny<Item>()));
             this.itemRepository.Setup(ir => ir.Delete(It.IsAny<int>()));
@@ -131,7 +130,7 @@
         public void GetMarketplace_Should_Return_MarkeplaceItemDtoArray_Mapped_From_Repository()
         {
             // Arrange
-            this.memoryCache.Setup(mc => mc.Get<MarketplaceItemDto[]>(It.IsAny<string>())).Returns((MarketplaceItemDto[])null);
+            this.memoryCache.Setup(mc => mc.Get<MarketplaceItemDto[]>(It.IsAny<string>())).Returns((MarketplaceItemDto[]) null);
 
             // Act
             MarketplaceItemDto[] marketplace = this.itemService.GetMarketplace();
@@ -157,7 +156,7 @@
         public void GetInventory_Should_Return_InventoryItemDtoArray_Mapped_From_Repository()
         {
             // Arrange
-            this.memoryCache.Setup(mc => mc.Get<InventoryItemDto[]>(It.IsAny<string>())).Returns((InventoryItemDto[])null);
+            this.memoryCache.Setup(mc => mc.Get<InventoryItemDto[]>(It.IsAny<string>())).Returns((InventoryItemDto[]) null);
 
             // Act
             InventoryItemDto[] inventory = this.itemService.GetInventory();
@@ -183,7 +182,8 @@
         public void GetItemByCode_Should_Return_ItemDetailsDto_Mapped_From_Repository()
         {
             // Arrange
-            this.memoryCache.Setup(mc => mc.Get<ItemDetailsDto>(It.IsAny<string>())).Returns((ItemDetailsDto)null);
+            this.memoryCache.Setup(mc => mc.Get<ItemDetailsDto>(It.IsAny<string>())).Returns((ItemDetailsDto) null);
+            this.itemRepository.Setup(ir => ir.GetByCode(It.IsAny<int>())).Returns(this.item);
 
             // Act
             ItemDetailsDto itemDetailsDto = this.itemService.GetByCode(ITEM_CODE);
@@ -197,6 +197,7 @@
         {
             // Arrange
             this.memoryCache.Setup(mc => mc.Get<ItemDetailsDto>(It.IsAny<string>())).Returns(this.itemDetailsDto);
+            this.itemRepository.Setup(ir => ir.GetByCode(It.IsAny<int>())).Returns(this.item);
 
             // Act
             ItemDetailsDto itemDetailsDto = this.itemService.GetByCode(ITEM_CODE);
@@ -206,15 +207,68 @@
         }
 
         [Test]
-        public async Task CreateAsyncItem_Should_Not_Throw_Exception()
+        public void GetItemByCode_Should_Throw_NotFoundException()
         {
             // Arrange
+            this.memoryCache.Setup(mc => mc.Get<ItemDetailsDto>(It.IsAny<string>())).Returns((ItemDetailsDto) null);
+            this.itemRepository.Setup(ir => ir.GetByCode(It.IsAny<int>())).Returns((Item) null);
+
+            // Act
+            Action action = () => this.itemService.GetByCode(ITEM_CODE);
+
+            // Assert
+            action.Should().Throw<NotFoundException>();
+        }
+
+        [Test]
+        public async Task CreateAsync_Should_Not_Throw_Exception()
+        {
+            // Arrange
+            this.manageItemDto.QuantityCombined = ITEM_QUANTITY_COMBINED;
 
             // Act
             Func<Task> task = async () => await this.itemService.CreateAsync(this.manageItemDto, null);
 
             // Assert
             await task.Should().NotThrowAsync();
+        }
+
+        [Test]
+        public async Task CreateAsync_Should_Throw_ArgumentOutOfRangeException()
+        {
+            // Arrange
+            this.manageItemDto.QuantityCombined = 0;
+
+            // Act
+            Func<Task> task = async () => await this.itemService.CreateAsync(this.manageItemDto, null);
+
+            // Assert
+            await task.Should().ThrowAsync<ArgumentOutOfRangeException>();
+        }
+
+        [Test]
+        public async Task UpdateAsync_Should_Not_Throw_Exception()
+        {
+            // Arrange
+
+            // Act
+            Func<Task> task = async () => await this.itemService.UpdateAsync(ITEM_CODE, this.manageItemDto, null);
+
+            // Assert
+            await task.Should().NotThrowAsync();
+        }
+
+        [Test]
+        public async Task UpdateAsync_Should_Throw_ArgumentOutOfRangeException()
+        {
+            // Arrange
+            this.manageItemDto.QuantityCombined = 0;
+
+            // Act
+            Func<Task> task = async () => await this.itemService.UpdateAsync(ITEM_CODE, this.manageItemDto, null);
+
+            // Assert
+            await task.Should().ThrowAsync<ArgumentOutOfRangeException>();
         }
 
         [Test]

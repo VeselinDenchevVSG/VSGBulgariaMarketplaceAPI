@@ -22,9 +22,6 @@ namespace Test
             private const string ITEM_IMAGE_URL = "https://shorturl.at/fgwFK";
             private const decimal ITEM_PRICE = 1.11m;
             private const short ITEM_QUANTITY_COMBINED = 1;
-            private const short ITEM_QUANTITY_FOR_SALE = 1;
-            private const Category ITEM_CATEGORY = Category.Laptops;
-            private const string ITEM_DESCRIPTION = "Test";
 
             private readonly IMapper mapper;
             private readonly Item item;
@@ -49,7 +46,7 @@ namespace Test
                     },
                     ImagePublicId = ITEM_IMAGE_PUBLIC_ID,
                     Price = ITEM_PRICE,
-                    Category = ITEM_CATEGORY,
+                    Category = Category.Laptops,
                     QuantityCombined = ITEM_QUANTITY_COMBINED
                 };
             }
