@@ -19,7 +19,7 @@
         }
 
         [HttpGet]
-        [Route("marketplace")]
+        [Route("/")]
         public IActionResult GetMarketplace()
         {
             MarketplaceItemDto[] items = this.itemService.GetMarketplace();
@@ -48,7 +48,7 @@
         }
 
         [HttpPost]
-        [Route("create")]
+        [Route("/inventory/addItem")]
         [Authorize(Policy = "Admin")]
         public async Task<IActionResult> CreateAsync([FromForm] ManageItemDto itemDto, IFormFile? imageFile)
         {
@@ -58,7 +58,7 @@
         }
 
         [HttpPut]
-        [Route("update/{code}")]
+        [Route("/inventory/modify/{code}")]
         [Authorize(Policy = "Admin")]
         public async Task<IActionResult> UpdateAsync([FromRoute] int code, [FromForm] ManageItemDto itemDto, IFormFile? imageFile)
         {
@@ -68,7 +68,7 @@
         }
 
         [HttpDelete]
-        [Route("delete/{code}")]
+        [Route("/deleteItem/{code}")]
         [Authorize(Policy = "Admin")]
         public IActionResult Delete([FromRoute] int code)
         {
