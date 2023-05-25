@@ -117,7 +117,7 @@
                 OrderDate = this.pendingOrder.CreatedAtUtc.ToLocalTime(),
                 Status = OrderStatus.Finished.ToString()
             };
-            UserOrderDto[] userOrders = new UserOrderDto[] { userPendingOrder, userFinishedOrder };
+            this.userOrderDtos = new UserOrderDto[] { userPendingOrder, userFinishedOrder };
 
             List<Claim> claims = new List<Claim>()
             {
