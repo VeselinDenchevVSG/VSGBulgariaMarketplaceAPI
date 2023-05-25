@@ -40,7 +40,7 @@
 
         public UserOrderDto[] GetUserOrders()
         {
-            string email = this.httpContextAccessor.HttpContext.User.FindFirst(c => c.Type == "preferred_username").Value;
+            string email = this.httpContextAccessor.HttpContext.User.FindFirst("preferred_username").Value;
 
             string userOrdersCacheKey = string.Format(USER_ORDER_CACHE_KEY_TEMPLATE, email);
 
