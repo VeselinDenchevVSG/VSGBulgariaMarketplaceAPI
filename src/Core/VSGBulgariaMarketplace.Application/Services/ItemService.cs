@@ -109,6 +109,11 @@
                 imageFileValidator.ValidateAndThrow(imageFile);
             }
 
+            if (updateItemDto.QuantityForSale > updateItemDto.QuantityCombined)
+            {
+                throw new ArgumentOutOfRangeException("Quantity for sale should be less or equal than quantity combined!");
+            }
+
             Item item = base.mapper.Map<ManageItemDto, Item>(updateItemDto);
 
             string itemPicturePublicId = this.GetItemPicturePublicId(code);
