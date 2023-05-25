@@ -1,4 +1,4 @@
-﻿namespace Test
+﻿namespace Test.ItemTests
 {
     using AutoMapper;
     using FluentAssertions;
@@ -130,7 +130,7 @@
         public void GetMarketplace_Should_Return_MarkeplaceItemDtoArray_Mapped_From_Repository()
         {
             // Arrange
-            this.memoryCache.Setup(mc => mc.Get<MarketplaceItemDto[]>(It.IsAny<string>())).Returns((MarketplaceItemDto[]) null);
+            this.memoryCache.Setup(mc => mc.Get<MarketplaceItemDto[]>(It.IsAny<string>())).Returns((MarketplaceItemDto[])null);
 
             // Act
             MarketplaceItemDto[] marketplace = this.itemService.GetMarketplace();
@@ -156,7 +156,7 @@
         public void GetInventory_Should_Return_InventoryItemDtoArray_Mapped_From_Repository()
         {
             // Arrange
-            this.memoryCache.Setup(mc => mc.Get<InventoryItemDto[]>(It.IsAny<string>())).Returns((InventoryItemDto[]) null);
+            this.memoryCache.Setup(mc => mc.Get<InventoryItemDto[]>(It.IsAny<string>())).Returns((InventoryItemDto[])null);
 
             // Act
             InventoryItemDto[] inventory = this.itemService.GetInventory();
@@ -182,7 +182,7 @@
         public void GetItemByCode_Should_Return_ItemDetailsDto_Mapped_From_Repository()
         {
             // Arrange
-            this.memoryCache.Setup(mc => mc.Get<ItemDetailsDto>(It.IsAny<string>())).Returns((ItemDetailsDto) null);
+            this.memoryCache.Setup(mc => mc.Get<ItemDetailsDto>(It.IsAny<string>())).Returns((ItemDetailsDto)null);
             this.itemRepository.Setup(ir => ir.GetByCode(It.IsAny<int>())).Returns(this.item);
 
             // Act
@@ -227,7 +227,7 @@
             this.manageItemDto.QuantityCombined = ITEM_QUANTITY_COMBINED;
 
             // Act
-            Func<Task> task = async () => await this.itemService.CreateAsync(this.manageItemDto, null);
+            Func<Task> task = async () => await itemService.CreateAsync(this.manageItemDto, null);
 
             // Assert
             await task.Should().NotThrowAsync();
@@ -250,6 +250,7 @@
         public async Task UpdateAsync_Should_Not_Throw_Exception()
         {
             // Arrange
+            this.manageItemDto.QuantityCombined = ITEM_QUANTITY_COMBINED;
 
             // Act
             Func<Task> task = async () => await this.itemService.UpdateAsync(ITEM_CODE, this.manageItemDto, null);
@@ -265,7 +266,7 @@
             this.manageItemDto.QuantityCombined = 0;
 
             // Act
-            Func<Task> task = async () => await this.itemService.UpdateAsync(ITEM_CODE, this.manageItemDto, null);
+            Func<Task> task = async () => await itemService.UpdateAsync(ITEM_CODE, this.manageItemDto, null);
 
             // Assert
             await task.Should().ThrowAsync<ArgumentOutOfRangeException>();
@@ -275,9 +276,10 @@
         public async Task UpdateAsyncItem_Should_Not_Throw_Exception()
         {
             // Arrange
+            this.manageItemDto.QuantityCombined = ITEM_QUANTITY_COMBINED;
 
             // Act
-            Func<Task> task = async () => await this.itemService.UpdateAsync(ITEM_CODE, this.manageItemDto, null);
+            Func<Task> task = async () => await itemService.UpdateAsync(ITEM_CODE, this.manageItemDto, null);
 
             // Assert
             await task.Should().NotThrowAsync();

@@ -1,4 +1,4 @@
-﻿namespace Test
+﻿namespace Test.OrderTests
 {
     using AutoMapper;
     using FluentAssertions;
@@ -55,7 +55,7 @@
             this.mapper = new Mock<IMapper>();
             this.httpContextAccessor = new Mock<IHttpContextAccessor>();
             this.httpContext = new Mock<HttpContext>();
-            this.orderService = new OrderService(this.orderRepository.Object, this.itemRepository.Object, this.memoryCache.Object, this.mapper.Object, 
+            this.orderService = new OrderService(this.orderRepository.Object, this.itemRepository.Object, this.memoryCache.Object, this.mapper.Object,
                                                     this.httpContextAccessor.Object);
             this.pendingOrder = new Order()
             {
@@ -81,7 +81,7 @@
                 CreatedAtUtc = DateTime.UtcNow,
             };
 
-            this.finishedOrder = new Order()
+            finishedOrder = new Order()
             {
                 Id = FINISHED_ORDER_ID,
                 ItemId = ORDER_ITEM_CODE,
@@ -91,14 +91,14 @@
                 CreatedAtUtc = DateTime.UtcNow,
             };
 
-            PendingOrderDto pendingOrder = new PendingOrderDto()
+            PendingOrderDto pendingOrderDto = new PendingOrderDto()
             {
                 ItemCode = ORDER_ITEM_CODE,
                 Quantity = ORDER_ITEM_QUANTITY,
                 Price = ORDER_ITEM_PRICE,
                 OrderDate = this.pendingOrder.CreatedAtUtc.ToLocalTime()
             };
-            this.pendingOrderDtos = new PendingOrderDto[] { pendingOrder };
+            this.pendingOrderDtos = new PendingOrderDto[] { pendingOrderDto };
             this.mapper.Setup(m => m.Map<Order[], PendingOrderDto[]>(It.IsAny<Order[]>())).Returns(this.pendingOrderDtos);
 
             UserOrderDto userPendingOrder = new UserOrderDto()
@@ -140,7 +140,7 @@
             this.mapper.Setup(m => m.Map<CreateOrderDto, Order>(It.IsAny<CreateOrderDto>())).Returns(this.pendingOrder);
 
             Order[] pendingOrders = new Order[] { this.pendingOrder };
-            Order[] orders = new Order[] { this.pendingOrder, this.finishedOrder};
+            Order[] orders = new Order[] { this.pendingOrder, finishedOrder };
 
             this.orderRepository.Setup(or => or.GetPendingOrders()).Returns(pendingOrders);
             this.orderRepository.Setup(or => or.GetUserOrders(USER_EMAIL)).Returns(orders);
@@ -156,7 +156,7 @@
         public void GetPendingOrders_Should_Return_PendingOrderDtoArray_Mapped_From_Repository()
         {
             // Arrange
-            this.memoryCache.Setup(mc => mc.Get<PendingOrderDto[]>(It.IsAny<string>())).Returns((PendingOrderDto[]) null);
+            this.memoryCache.Setup(mc => mc.Get<PendingOrderDto[]>(It.IsAny<string>())).Returns((PendingOrderDto[])null);
 
             // Act
             PendingOrderDto[] pendingOrders = this.orderService.GetPendingOrders();
@@ -182,7 +182,7 @@
         public void GetUserOrders_Should_Return_UserOrderDtoArray_Mapped_From_Repository()
         {
             // Arrange
-            this.memoryCache.Setup(mc => mc.Get<UserOrderDto[]>(It.IsAny<string>())).Returns((UserOrderDto[]) null);
+            this.memoryCache.Setup(mc => mc.Get<UserOrderDto[]>(It.IsAny<string>())).Returns((UserOrderDto[])null);
 
             // Act
             UserOrderDto[] userOrders = this.orderService.GetUserOrders();
@@ -209,7 +209,7 @@
         {
             // Arrange
             this.pendingOrder.Item.QuantityForSale = ORDER_ITEM_QUANTITY_COMBINED;
-            this.itemRepository.Setup(ir => ir.GetQuantityForSaleAndPriceByCode(ORDER_ITEM_CODE)).Returns((Item) null);
+            this.itemRepository.Setup(ir => ir.GetQuantityForSaleAndPriceByCode(ORDER_ITEM_CODE)).Returns((Item)null);
 
             // Act
             Action action = () => this.orderService.Create(this.createOrderDto);
@@ -265,7 +265,7 @@
         {
             // Arrange
             this.pendingOrder.Item.QuantityForSale = ORDER_ITEM_QUANTITY_COMBINED;
-            this.itemRepository.Setup(ir => ir.GetQuantityForSaleAndPriceByCode(ORDER_ITEM_CODE)).Returns(this.pendingOrder.Item);
+            itemRepository.Setup(ir => ir.GetQuantityForSaleAndPriceByCode(ORDER_ITEM_CODE)).Returns(this.pendingOrder.Item);
 
             // Act
             Action action = () => this.orderService.Decline(ORDER_ITEM_CODE);
