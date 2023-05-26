@@ -81,7 +81,7 @@
 
                 case SqlException sqlException:
                     ErrorModel errorModel = new ErrorModel { Code = 500 };
-                    errors.Add(new ErrorModel { Code = 500, ErrorMessage = "Database error!" });
+                    errors.Add(new ErrorModel { Code = 500, ErrorMessage = sqlException.Message });
                     break;
 
                 default:
