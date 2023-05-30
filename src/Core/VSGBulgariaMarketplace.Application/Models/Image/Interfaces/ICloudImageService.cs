@@ -11,5 +11,7 @@
         public Task UpdateAsync(string publicId, IFormFile newimageFile);
 
         public Task DeleteAsync(string publicId);
+
+       public string GetImageUrlByItemCode(int itemCode);
     }
 }

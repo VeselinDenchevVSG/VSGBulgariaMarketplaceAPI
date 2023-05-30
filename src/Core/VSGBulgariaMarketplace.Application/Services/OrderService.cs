@@ -1,8 +1,13 @@
 ﻿namespace VSGBulgariaMarketplace.Application.Services
 {
     using AutoMapper;
+
+    using FluentValidation;
+
     using Microsoft.AspNetCore.Http;
 
+    using VSGBulgariaMarketplace.Application.Helpers.Validators;
+    using VSGBulgariaMarketplace.Application.Models.Exceptions;
     using VSGBulgariaMarketplace.Application.Models.Item.Interfaces;
     using VSGBulgariaMarketplace.Application.Models.Order.Dtos;
     using VSGBulgariaMarketplace.Application.Models.Order.Interfaces;
@@ -11,7 +16,7 @@
 
     public class OrderService : BaseService<IOrderRepository, Order>, IOrderService
     {
-        public const string PENDING_ORDERS_CACHE_KEY = "pending-orders";
+        private const string PENDING_ORDERS_CACHE_KEY = "pending-orders";
         private const string USER_ORDER_CACHE_KEY_TEMPLATE = "orders-user-{0}";
 
         private IItemRepository itemRepository;
@@ -63,16 +68,21 @@
             base.cacheAdapter.Remove(PENDING_ORDERS_CACHE_KEY);
             base.cacheAdapter.Remove(string.Format(USER_ORDER_CACHE_KEY_TEMPLATE, email));
 
+            CreateOrderDtoValidator validator = new CreateOrderDtoValidator();
+            validator.ValidateAndThrow(orderDto);
+
             Order order = base.mapper.Map<CreateOrderDto, Order>(orderDto);
 
-            Item item = this.itemRepository.GetQuantityForSaleAndPriceByCode(orderDto.ItemCode);
+            Item item = this.itemRepository.GetOrderItemInfoByCode(orderDto.ItemCode);
             if (item is null) throw new ArgumentException($"item with code {orderDto.ItemCode} doesn't exist!");
             else
             {
                 bool isEnoughQuantity = orderDto.Quantity <= item.QuantityForSale;
                 if (isEnoughQuantity)
                 {
-                    order.Item = item;
+                    order.ItemId = item.Id;
+                    order.ItemName = item.Name;
+                    order.ItemPrice = item.Price;
                     order.Email = email;
 
                     base.repository.Create(order);
@@ -81,11 +91,12 @@
             }
         }
 
-        public void Finish(int id)
+        public void Finish(string id)
         {
-            string email = this.httpContextAccessor.HttpContext.User.FindFirst(c => c.Type == "preferred_username").Value;
-
             Order order = base.repository.GetOrderItemIdAndQuantity(id);
+            if (order is null) throw new NotFoundException($"Order with id {id} doesn't exist!");
+
+            string email = this.httpContextAccessor.HttpContext.User.FindFirst(c => c.Type == "preferred_username").Value;
 
             base.cacheAdapter.Remove(ItemService.MARKETPLACE_CACHE_KEY);
             base.cacheAdapter.Remove(ItemService.INVENTORY_CACHE_KEY);
@@ -93,19 +104,19 @@
             base.cacheAdapter.Remove(PENDING_ORDERS_CACHE_KEY);
             base.cacheAdapter.Remove(string.Format(USER_ORDER_CACHE_KEY_TEMPLATE, email));
 
-            this.itemRepository.BuyItem(order.ItemId, order.Quantity);
+            this.itemRepository.BuyItem(order.ItemCode, order.Quantity);
 
             base.repository.Finish(id);
         }
 
-        public void Decline(int id)
+        public void Decline(string id)
         {
             string email = this.httpContextAccessor.HttpContext.User.FindFirst(c => c.Type == "preferred_username").Value;
 
             base.cacheAdapter.Remove(PENDING_ORDERS_CACHE_KEY);
             base.cacheAdapter.Remove(string.Format(USER_ORDER_CACHE_KEY_TEMPLATE, email));
 
-            base.repository.Delete(id);
+            base.repository.DeleteById(id);
         }
     }
 }

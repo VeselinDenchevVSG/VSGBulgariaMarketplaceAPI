@@ -33,8 +33,8 @@
             string cloudinaryApiKey = configuration["Cloudinary:ApiKey"];
             string cloudinaryApiSecret = configuration["Cloudinary:ApiSecret"];
 
-            cloudinaryAccount = new Account(cloudinaryUrl, cloudinaryApiKey, cloudinaryApiSecret);
-            cloudinary = new Cloudinary(cloudinaryAccount);
+            this.cloudinaryAccount = new Account(cloudinaryUrl, cloudinaryApiKey, cloudinaryApiSecret);
+            this.cloudinary = new Cloudinary(cloudinaryAccount);
             cloudinary.Api.Secure = true;
         }
 
@@ -63,6 +63,7 @@
             if (uploadResult.Error != null) throw new InvalidOperationException("Failed to upload file: " + uploadResult.Error.Message);
 
             CloudinaryImage image = mapper.Map<ImageUploadResult, CloudinaryImage>(uploadResult);
+            image.FileExtension = uploadResult.Format;
 
             try
             {
@@ -96,15 +97,18 @@
                 };
 
                 ImageUploadResult uploadResult = await cloudinary.UploadAsync(uploadParams);
+                if (uploadResult.Error != null) throw new InvalidOperationException("Failed to update file: " + uploadResult.Error.Message);
 
                 CloudinaryImage image = mapper.Map<ImageUploadResult, CloudinaryImage>(uploadResult);
-                imageRepository.Update(publicId, image.SecureUrl);
+                image.FileExtension = uploadResult.Format;
 
-                if (uploadResult.Error == null)
+                publicId = publicId.Split('/')[1];
+
+                string oldFileExtension = this.imageRepository.GetImageFileExtension(publicId);
+                if (oldFileExtension != image.FileExtension)
                 {
-                    Console.WriteLine("File updated successfully: " + uploadResult.SecureUrl);
+                    this.imageRepository.UpdateFileExtension(publicId, image.FileExtension);
                 }
-                else throw new InvalidOperationException("Failed to update file: " + uploadResult.Error.Message);
             }
             else throw new FileNotFoundException("Image not found!");
         }
@@ -117,7 +121,25 @@
 
             if (deletionResult.Result == "not found") throw new FileNotFoundException("Image not found!");
 
-            imageRepository.Delete(publicId);
+            publicId = publicId.Split('/')[1];
+            this.imageRepository.DeleteById(publicId);
+        }
+
+        public string GetImageUrlByItemCode(int itemCode)
+        {
+            CloudinaryImage image = this.imageRepository.GetImagePublicIdAndFileExtensionByItemCode(itemCode);
+            if (image is not null)
+            {
+                if (image.FileExtension is null) throw new FileNotFoundException("Image not found!");
+                else
+                {
+                    string imageUrl = this.cloudinary.Api.UrlImgUp.BuildUrl($"VSG_Marketplace/{image.Id}.{image.FileExtension}");
+
+                    return imageUrl;
+                }
+            }
+
+            return null;
         }
 
         private Stream ConvertIFormFileToStream(IFormFile file)

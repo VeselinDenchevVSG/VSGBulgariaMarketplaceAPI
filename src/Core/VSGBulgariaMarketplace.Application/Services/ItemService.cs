@@ -2,15 +2,13 @@
 {
     using AutoMapper;
 
-    using FluentValidation;
+    using Microsoft.Data.SqlClient;
 
-    using Microsoft.AspNetCore.Http;
-
-    using VSGBulgariaMarketplace.Application.Helpers.Validators;
     using VSGBulgariaMarketplace.Application.Models.Exceptions;
     using VSGBulgariaMarketplace.Application.Models.Image.Interfaces;
     using VSGBulgariaMarketplace.Application.Models.Item.Dtos;
     using VSGBulgariaMarketplace.Application.Models.Item.Interfaces;
+    using VSGBulgariaMarketplace.Application.Models.Order.Interfaces;
     using VSGBulgariaMarketplace.Application.Services.HelpServices.Cache.Interfaces;
     using VSGBulgariaMarketplace.Domain.Entities;
 
@@ -20,11 +18,13 @@
         internal const string INVENTORY_CACHE_KEY = "inventory";
         internal const string ITEM_CACHE_KEY_TEMPLATE = "item-{0}";
 
+        private IOrderRepository orderRepository;
         private ICloudImageService imageService;
 
-        public ItemService(IItemRepository itemRepository, ICloudImageService imageService, IMemoryCacheAdapter cacheAdapter, IMapper mapper)
+        public ItemService(IItemRepository itemRepository, IOrderRepository orderRepository, ICloudImageService imageService, IMemoryCacheAdapter cacheAdapter, IMapper mapper)
             : base(itemRepository, cacheAdapter, mapper)
         {
+            this.orderRepository = orderRepository;
             this.imageService = imageService;
         }
 
@@ -35,6 +35,11 @@
             {
                 Item[] items = base.repository.GetMarketplace();
                 itemDtos = base.mapper.Map<Item[], MarketplaceItemDto[]>(items);
+
+                foreach (MarketplaceItemDto marketplaceItem in itemDtos)
+                {
+                    marketplaceItem.ImageUrl = this.imageService.GetImageUrlByItemCode(marketplaceItem.Code);
+                }
 
                 base.cacheAdapter.Set(MARKETPLACE_CACHE_KEY, itemDtos);
             }
@@ -68,6 +73,7 @@
                 if (item is null) throw new NotFoundException($"Item with code {code} doesn't exist!");
 
                 itemDto = base.mapper.Map<Item, ItemDetailsDto>(item);
+                itemDto.ImageUrl = this.imageService.GetImageUrlByItemCode(code);
 
                 base.cacheAdapter.Set(itemCacheKey, itemDto);
             }
@@ -75,17 +81,11 @@
             return itemDto;
         }
 
-        public async Task CreateAsync(ManageItemDto createItemDto, IFormFile? imageFile)
+        public async Task CreateAsync(ManageItemDto createItemDto)
         {
-            if (imageFile is not null)
-            {
-                ImageFileValidator imageFileValidator = new ImageFileValidator();
-                imageFileValidator.ValidateAndThrow(imageFile);
-            }
-
             if (createItemDto.QuantityForSale > createItemDto.QuantityCombined)
             {
-                throw new ArgumentOutOfRangeException("Quantity for sale should be less or equal than quantity combined!");
+                throw new ArgumentOutOfRangeException("Quantity for sale should be less or equal to quantity combined!");
             }
 
             base.cacheAdapter.Remove(MARKETPLACE_CACHE_KEY);
@@ -93,22 +93,16 @@
 
             Item item = base.mapper.Map<ManageItemDto, Item>(createItemDto);
 
-            if (imageFile is not null)
+            if (createItemDto.ImageFile is not null)
             {
-                item.ImagePublicId = await this.imageService.UploadAsync(imageFile);
+                item.ImagePublicId = await this.imageService.UploadAsync(createItemDto.ImageFile);
             }
 
             this.repository.Create(item);
         }
 
-        public async Task UpdateAsync(int code, ManageItemDto updateItemDto, IFormFile? imageFile) 
+        public async Task UpdateAsync(int code, ManageItemDto updateItemDto) 
         {
-            if (imageFile is not null)
-            {
-                ImageFileValidator imageFileValidator = new ImageFileValidator();
-                imageFileValidator.ValidateAndThrow(imageFile);
-            }
-
             if (updateItemDto.QuantityForSale > updateItemDto.QuantityCombined)
             {
                 throw new ArgumentOutOfRangeException("Quantity for sale should be less or equal than quantity combined!");
@@ -119,38 +113,50 @@
             string itemPicturePublicId = this.GetItemPicturePublicId(code);
             if (itemPicturePublicId is null)
             {
-                if (imageFile is not null)
+                if (updateItemDto.ImageFile is not null)
                 {
-                    item.ImagePublicId = await this.imageService.UploadAsync(imageFile);
+                    item.ImagePublicId = await this.imageService.UploadAsync(updateItemDto.ImageFile);
                 }
             }
             else
             {
-                if (imageFile is null)
+                if (updateItemDto.ImageFile is null)
                 {
                     await this.imageService.DeleteAsync(itemPicturePublicId);
                 }
                 else
                 {
-                    await this.imageService.UpdateAsync(itemPicturePublicId, imageFile);
+                    await this.imageService.UpdateAsync(itemPicturePublicId, updateItemDto.ImageFile);
                 }
             }
 
-            this.repository.Update(code, item);
+            try
+            {
+                this.repository.Update(code, item);
+            }
+            catch (SqlException) when (itemPicturePublicId is not null)
+            {
+
+                await this.imageService.DeleteAsync(itemPicturePublicId);
+            }
 
             base.cacheAdapter.Clear();
         }
 
-        public void Delete(int code)
+        public async Task Delete(int code)
         {
-            base.cacheAdapter.Remove(MARKETPLACE_CACHE_KEY);
-            base.cacheAdapter.Remove(INVENTORY_CACHE_KEY);
-            base.cacheAdapter.Remove(string.Format(ITEM_CACHE_KEY_TEMPLATE, code));
-
-            base.repository.Delete(code);
+            this.orderRepository.DeclineAllPendingOrdersWithDeletedItem(code);
 
             string itemPicturePublicId = this.GetItemPicturePublicId(code);
-            this.imageService.DeleteAsync(itemPicturePublicId);
+
+            base.repository.DeleteByCode(code);
+
+            if (itemPicturePublicId is not null)
+            {
+                await this.imageService.DeleteAsync(itemPicturePublicId);
+            }
+
+            base.cacheAdapter.Clear();
         }
         
         private string GetItemPicturePublicId(int code) => this.repository.GetItemPicturePublicId(code);
