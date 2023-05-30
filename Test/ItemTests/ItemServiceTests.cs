@@ -15,19 +15,23 @@
     using VSGBulgariaMarketplace.Domain.Enums;
     using VSGBulgariaMarketplace.Application.Services;
     using VSGBulgariaMarketplace.Application.Models.Exceptions;
+    using VSGBulgariaMarketplace.Application.Models.Order.Interfaces;
 
     public class ItemServiceTests
     {
+        private const string ITEM_ID = "Test";
         private const int ITEM_CODE = 1;
         private const string ITEM_NAME = "Test";
         private const string ITEM_IMAGE_PUBLIC_ID = "Test";
         private const string ITEM_IMAGE_URL = "https://shorturl.at/fgwFK";
+        private const string ITEM_IMAGE_FILE_EXTENSION = ".test";
         private const decimal ITEM_PRICE = 1.11m;
         private const short ITEM_QUANTITY_COMBINED = 1;
         private const short ITEM_QUANTITY_FOR_SALE = 1;
         private const string ITEM_DESCRIPTION = "Test";
 
         private readonly Mock<IItemRepository> itemRepository;
+        private readonly Mock<IOrderRepository> orderRepository;
         private readonly Mock<ICloudImageService> imageService;
         private readonly Mock<IMemoryCacheAdapter> memoryCache;
         private readonly Mock<IMapper> mapper;
@@ -43,18 +47,20 @@
         public ItemServiceTests()
         {
             this.itemRepository = new Mock<IItemRepository>();
+            this.orderRepository = new Mock<IOrderRepository>();
             this.imageService = new Mock<ICloudImageService>();
             this.memoryCache = new Mock<IMemoryCacheAdapter>();
             this.mapper = new Mock<IMapper>();
-            this.itemService = new ItemService(this.itemRepository.Object, this.imageService.Object, this.memoryCache.Object, this.mapper.Object);
+            this.itemService = new ItemService(this.itemRepository.Object, this.orderRepository.Object, this.imageService.Object, this.memoryCache.Object, this.mapper.Object);
             this.item = new Item()
             {
-                Id = ITEM_CODE,
+                Id = ITEM_ID,
+                Code = ITEM_CODE,
                 Name = ITEM_NAME,
                 Image = new CloudinaryImage()
                 {
                     Id = ITEM_IMAGE_PUBLIC_ID,
-                    SecureUrl = ITEM_IMAGE_URL
+                    FileExtension = ITEM_IMAGE_FILE_EXTENSION
                 },
                 ImagePublicId = ITEM_IMAGE_PUBLIC_ID,
                 Price = ITEM_PRICE,
@@ -114,7 +120,9 @@
             this.itemRepository.Setup(ir => ir.GetInventory()).Returns(items);
             this.itemRepository.Setup(ir => ir.Create(It.IsAny<Item>()));
             this.itemRepository.Setup(ir => ir.Update(It.IsAny<int>(), It.IsAny<Item>()));
-            this.itemRepository.Setup(ir => ir.Delete(It.IsAny<int>()));
+            this.itemRepository.Setup(ir => ir.DeleteById(It.IsAny<string>()));
+
+            this.orderRepository.Setup(or => or.DeclineAllPendingOrdersWithDeletedItem(It.IsAny<int>()));
 
             this.imageService.Setup(s => s.ExistsAsync(It.IsAny<string>())).ReturnsAsync(true);
             this.imageService.Setup(s => s.UploadAsync(It.IsAny<IFormFile>())).ReturnsAsync("https://shorturl.at/fgwFK");
@@ -227,7 +235,7 @@
             this.manageItemDto.QuantityCombined = ITEM_QUANTITY_COMBINED;
 
             // Act
-            Func<Task> task = async () => await itemService.CreateAsync(this.manageItemDto, null);
+            Func<Task> task = async () => await itemService.CreateAsync(this.manageItemDto);
 
             // Assert
             await task.Should().NotThrowAsync();
@@ -240,7 +248,7 @@
             this.manageItemDto.QuantityCombined = 0;
 
             // Act
-            Func<Task> task = async () => await this.itemService.CreateAsync(this.manageItemDto, null);
+            Func<Task> task = async () => await this.itemService.CreateAsync(this.manageItemDto);
 
             // Assert
             await task.Should().ThrowAsync<ArgumentOutOfRangeException>();
@@ -253,7 +261,7 @@
             this.manageItemDto.QuantityCombined = ITEM_QUANTITY_COMBINED;
 
             // Act
-            Func<Task> task = async () => await this.itemService.UpdateAsync(ITEM_CODE, this.manageItemDto, null);
+            Func<Task> task = async () => await this.itemService.UpdateAsync(ITEM_CODE, this.manageItemDto);
 
             // Assert
             await task.Should().NotThrowAsync();
@@ -266,7 +274,7 @@
             this.manageItemDto.QuantityCombined = 0;
 
             // Act
-            Func<Task> task = async () => await itemService.UpdateAsync(ITEM_CODE, this.manageItemDto, null);
+            Func<Task> task = async () => await itemService.UpdateAsync(ITEM_CODE, this.manageItemDto);
 
             // Assert
             await task.Should().ThrowAsync<ArgumentOutOfRangeException>();
@@ -279,7 +287,7 @@
             this.manageItemDto.QuantityCombined = ITEM_QUANTITY_COMBINED;
 
             // Act
-            Func<Task> task = async () => await itemService.UpdateAsync(ITEM_CODE, this.manageItemDto, null);
+            Func<Task> task = async () => await itemService.UpdateAsync(ITEM_CODE, this.manageItemDto);
 
             // Assert
             await task.Should().NotThrowAsync();

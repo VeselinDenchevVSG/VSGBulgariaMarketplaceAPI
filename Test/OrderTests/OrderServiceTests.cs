@@ -19,14 +19,13 @@
 
     public class OrderServiceTests
     {
-        private const int PENDING_ORDER_ID = 1;
-        private const int FINISHED_ORDER_ID = 2;
+        private const string PENDING_ORDER_ID = "Pending";
+        private const string FINISHED_ORDER_ID = "Finished";
+        private const string ORDER_ITEM_ID = "Test";
         private const int ORDER_ITEM_CODE = 1;
         private const short ORDER_ITEM_QUANTITY = 1;
         private const decimal ORDER_ITEM_PRICE = 1.11m;
         private const string ORDER_ITEM_NAME = "Test";
-        private const string ORDER_ITEM_IMAGE_PUBLIC_ID = "Test";
-        private const string ORDER_ITEM_IMAGE_URL = "https://shorturl.at/fgwFK";
         private const short ORDER_ITEM_QUANTITY_COMBINED = 1;
 
         private const string USER_EMAIL = "vdenchev@vsgbg.com";
@@ -46,6 +45,7 @@
 
         private readonly Order pendingOrder;
         private readonly Order finishedOrder;
+        private readonly Item orderItem;
 
         public OrderServiceTests()
         {
@@ -60,35 +60,36 @@
             this.pendingOrder = new Order()
             {
                 Id = PENDING_ORDER_ID,
-                ItemId = ORDER_ITEM_CODE,
-                Item = new Item()
-                {
-                    Id = ORDER_ITEM_CODE,
-                    Name = ORDER_ITEM_NAME,
-                    Image = new CloudinaryImage()
-                    {
-                        Id = ORDER_ITEM_IMAGE_PUBLIC_ID,
-                        SecureUrl = ORDER_ITEM_IMAGE_URL
-                    },
-                    ImagePublicId = ORDER_ITEM_IMAGE_PUBLIC_ID,
-                    Price = ORDER_ITEM_PRICE,
-                    Category = Category.Laptops,
-                    QuantityCombined = ORDER_ITEM_QUANTITY_COMBINED
-                },
+                ItemId = ORDER_ITEM_ID,
+                ItemCode = ORDER_ITEM_CODE,
+                ItemName = ORDER_ITEM_NAME,
+                ItemPrice = ORDER_ITEM_PRICE,
                 Quantity = ORDER_ITEM_QUANTITY,
                 Email = USER_EMAIL,
                 Status = OrderStatus.Pending,
                 CreatedAtUtc = DateTime.UtcNow,
             };
 
-            finishedOrder = new Order()
+            this.finishedOrder = new Order()
             {
                 Id = FINISHED_ORDER_ID,
-                ItemId = ORDER_ITEM_CODE,
+                ItemId = ORDER_ITEM_ID,
+                ItemCode = ORDER_ITEM_CODE,
                 Quantity = ORDER_ITEM_QUANTITY,
                 Email = USER_EMAIL,
                 Status = OrderStatus.Finished,
                 CreatedAtUtc = DateTime.UtcNow,
+            };
+
+            this.orderItem = new Item()
+            {
+                Id = ORDER_ITEM_ID,
+                Code = ORDER_ITEM_CODE,
+                Name = ORDER_ITEM_NAME,
+                Price = ORDER_ITEM_PRICE,
+                Category = Category.Laptops,
+                QuantityCombined = ORDER_ITEM_QUANTITY,
+                QuantityForSale = ORDER_ITEM_QUANTITY
             };
 
             PendingOrderDto pendingOrderDto = new PendingOrderDto()
@@ -146,7 +147,7 @@
             this.orderRepository.Setup(or => or.GetUserOrders(USER_EMAIL)).Returns(orders);
             this.orderRepository.Setup(or => or.GetOrderItemIdAndQuantity(PENDING_ORDER_ID)).Returns(this.pendingOrder);
             this.orderRepository.Setup(or => or.Finish(PENDING_ORDER_ID));
-            this.orderRepository.Setup(or => or.Delete(PENDING_ORDER_ID));
+            this.orderRepository.Setup(or => or.DeleteById(PENDING_ORDER_ID));
 
             this.memoryCache.Setup(mc => mc.Set(It.IsAny<string>(), It.IsAny<object>()));
             this.memoryCache.Setup(mc => mc.Remove(It.IsAny<string>()));
@@ -208,8 +209,8 @@
         public void Create_Should_Throw_ArgumentException()
         {
             // Arrange
-            this.pendingOrder.Item.QuantityForSale = ORDER_ITEM_QUANTITY_COMBINED;
-            this.itemRepository.Setup(ir => ir.GetQuantityForSaleAndPriceByCode(ORDER_ITEM_CODE)).Returns((Item)null);
+            //this.pendingOrder.Item.QuantityForSale = ORDER_ITEM_QUANTITY_COMBINED;
+            this.itemRepository.Setup(ir => ir.GetOrderItemInfoByCode(ORDER_ITEM_CODE)).Returns((Item)null);
 
             // Act
             Action action = () => this.orderService.Create(this.createOrderDto);
@@ -222,8 +223,8 @@
         public void Create_Should_Throw_ArgumentOutOfRangeException()
         {
             // Arrange
-            this.pendingOrder.Item.QuantityForSale = 0;
-            this.itemRepository.Setup(ir => ir.GetQuantityForSaleAndPriceByCode(ORDER_ITEM_CODE)).Returns(this.pendingOrder.Item);
+            this.orderItem.QuantityForSale = 0;
+            this.itemRepository.Setup(ir => ir.GetOrderItemInfoByCode(ORDER_ITEM_CODE)).Returns(this.orderItem);
 
             // Act
             Action action = () => this.orderService.Create(this.createOrderDto);
@@ -236,8 +237,8 @@
         public void Create_Should_Not_Throw_Exception()
         {
             // Arrange
-            this.pendingOrder.Item.QuantityForSale = ORDER_ITEM_QUANTITY_COMBINED;
-            this.itemRepository.Setup(ir => ir.GetQuantityForSaleAndPriceByCode(ORDER_ITEM_CODE)).Returns(this.pendingOrder.Item);
+            this.orderItem.QuantityForSale = ORDER_ITEM_QUANTITY_COMBINED;
+            this.itemRepository.Setup(ir => ir.GetOrderItemInfoByCode(ORDER_ITEM_CODE)).Returns(this.orderItem);
 
             // Act
             Action action = () => this.orderService.Create(this.createOrderDto);
@@ -250,11 +251,11 @@
         public void Finish_Order_Should_Not_Throw_Exception()
         {
             // Arrange
-            this.pendingOrder.Item.QuantityForSale = ORDER_ITEM_QUANTITY_COMBINED;
-            this.itemRepository.Setup(ir => ir.GetQuantityForSaleAndPriceByCode(ORDER_ITEM_CODE)).Returns(this.pendingOrder.Item);
+            this.orderItem.QuantityForSale = ORDER_ITEM_QUANTITY_COMBINED;
+            this.itemRepository.Setup(ir => ir.GetOrderItemInfoByCode(ORDER_ITEM_CODE)).Returns(this.orderItem);
 
             // Act
-            Action action = () => this.orderService.Finish(ORDER_ITEM_CODE);
+            Action action = () => this.orderService.Finish(PENDING_ORDER_ID);
 
             // Assert
             action.Should().NotThrow();
@@ -264,11 +265,11 @@
         public void Decline_Order_Should_Not_Throw_Exception()
         {
             // Arrange
-            this.pendingOrder.Item.QuantityForSale = ORDER_ITEM_QUANTITY_COMBINED;
-            itemRepository.Setup(ir => ir.GetQuantityForSaleAndPriceByCode(ORDER_ITEM_CODE)).Returns(this.pendingOrder.Item);
+            this.orderItem.QuantityForSale = ORDER_ITEM_QUANTITY_COMBINED;
+            itemRepository.Setup(ir => ir.GetOrderItemInfoByCode(ORDER_ITEM_CODE)).Returns(this.orderItem);
 
             // Act
-            Action action = () => this.orderService.Decline(ORDER_ITEM_CODE);
+            Action action = () => this.orderService.Decline(PENDING_ORDER_ID);
 
             // Assert
             action.Should().NotThrow();
