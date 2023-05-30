@@ -31,9 +31,8 @@
             this.tableName = this.entityName + 's';
             this.updateStringSkipProperties = new List<string>()
             {
+                "Id",
                 "CreatedAtUtc",
-                "DeletedAtUtc",
-                "IsDeleted"
             };
         }
 
@@ -59,14 +58,14 @@
             }
         }
 
-        public virtual void Delete(U id)
+        public virtual void DeleteById(U id)
         {
-            string sql = $"UPDATE {this.tableName} SET IsDeleted = 1, DeletedAtUtc = GETUTCDATE() WHERE Id = @Id";
+            string sql = $"DELETE FROM {this.tableName} WHERE Id = @Id";
             bool hasBeenDeleted = 
                 Convert.ToBoolean(this.DbConnection.Execute(sql, new { Id = id }, transaction: this.Transaction));
             if (!hasBeenDeleted)
             {
-                throw new NotFoundException($"{typeof(T)} with id = {id} doesn't exist!");
+                throw new NotFoundException($"{typeof(T).Name} with id {id} doesn't exist!");
             }
         }
 

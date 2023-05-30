@@ -3,7 +3,7 @@
     using VSGBulgariaMarketplace.Application.Models.Repositories;
     using VSGBulgariaMarketplace.Domain.Entities;
 
-    public interface IItemRepository : IRepository<Item, int>
+    public interface IItemRepository : IRepository<Item, string>
     {
         public Item[] GetMarketplace();
 
@@ -11,11 +11,13 @@
 
         public Item GetByCode(int code);
 
-        public Item GetQuantityForSaleAndPriceByCode(int code);
+        public Item GetOrderItemInfoByCode(int code);
 
         public void Update(int id, Item item);
 
-        public void BuyItem(int id, short quantity);
+        public void DeleteByCode(int code);
+
+        public void BuyItem(int code, short quantity);
 
         public string GetItemPicturePublicId(int code);
     }

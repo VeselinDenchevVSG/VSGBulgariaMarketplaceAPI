@@ -48,7 +48,7 @@
         [HttpPatch]
         [Route("finish/{id}")]
         [Authorize(Policy = "Admin")]
-        public IActionResult Finish([FromRoute] int id)
+        public IActionResult Finish([FromRoute] string id)
         {
             this.orderService.Finish(id);
 
@@ -58,7 +58,7 @@
         [HttpDelete]
         [Route("decline/{id}")]
         [Authorize(Policy = "Admin")]
-        public IActionResult Decline([FromRoute] int id)
+        public IActionResult Decline([FromRoute] string id)
         {
             this.orderService.Decline(id);
 

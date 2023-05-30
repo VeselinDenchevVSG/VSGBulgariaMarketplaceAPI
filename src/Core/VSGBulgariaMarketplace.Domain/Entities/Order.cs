@@ -2,9 +2,15 @@
 
 using VSGBulgariaMarketplace.Domain.Enums;
 
-public class Order : BaseEntity<int>
+public class Order : BaseEntity<string>
 {
-    public int ItemId { get; set; }
+    public string ItemId { get; set; } = null!;
+
+    public int ItemCode { get; set; }
+
+    public string ItemName { get; set; } = null!;
+
+    public decimal ItemPrice { get; set; }
 
     public short Quantity { get; set; }
 
@@ -12,7 +18,5 @@ public class Order : BaseEntity<int>
 
     public OrderStatus Status { get; set; }
 
-    public virtual Item Item { get; set; } = null!;
-
-    public decimal Price => this.Item.Price * this.Quantity;
+    public decimal Price => this.ItemPrice * this.Quantity;
 }

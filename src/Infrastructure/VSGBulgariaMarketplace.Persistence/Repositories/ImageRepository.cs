@@ -11,15 +11,36 @@
         public ImageRepository(IUnitOfWork unitOfWork) 
             : base(unitOfWork)
         {
-            base.columnNamesString = "(Id, SecureUrl, CreatedAtUtc, ModifiedAtUtc, DeletedAtUtc, IsDeleted)";
+            base.columnNamesString = "(Id, FileExtension, CreatedAtUtc, ModifiedAtUtc)";
             base.SetUpRepository();
         }
 
-        public void Update(string publicId, string newSecureUrl)
+        public CloudinaryImage GetImagePublicIdAndFileExtensionByItemCode(int itemCode)
         {
-            string sql = $"UPDATE Items SET SecureUrl = @NewSecureUrl WHERE Id = @PublicId";
+            string sql =    $"SELECT ci.FileExtension, ci.Id, i.ImagePublicId AS ImageId FROM CloudinaryImages AS ci " +
+                            $"JOIN Items AS i " +
+                            $"ON ci.Id = i.ImagePublicId " +
+                            $"WHERE i.Code = @ItemCode";
+            CloudinaryImage image = base.DbConnection.Query<CloudinaryImage, Item, CloudinaryImage>(sql, (image, item) =>
+            {
+                return image;
+            }, new { ItemCode = itemCode }, splitOn: "ImageId", transaction: base.Transaction).FirstOrDefault();
 
-            base.DbConnection.Execute(sql, new { PublicId = publicId, NewSecureUrl = newSecureUrl }, transaction: this.Transaction);
+            return image;
+        }
+
+        public string GetImageFileExtension(string publicId)
+        {
+            string sql = "SELECT FileExtension FROM CloudinaryImages WHERE Id = @PublicId";
+            string fileExtension = base.DbConnection.ExecuteScalar<string>(sql, new { PublicId = publicId }, transaction: base.Transaction);
+
+            return fileExtension;
+        }
+
+        public void UpdateFileExtension(string publicId, string newFileExtension)
+        {
+            string sql = $"UPDATE CloudinaryImages SET FileExtension = @NewFileExtension WHERE Id = @PublicId";
+            base.DbConnection.Execute(sql, new { PublicId = publicId, NewFileExtension = newFileExtension }, transaction: this.Transaction);
         }
     }
 }

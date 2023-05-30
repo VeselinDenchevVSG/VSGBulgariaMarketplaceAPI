@@ -5,6 +5,10 @@
 
     public interface IImageRepository : IRepository<CloudinaryImage, string>
     {
-        void Update(string publicId, string newSecureUrl);
+        CloudinaryImage GetImagePublicIdAndFileExtensionByItemCode(int itemCode);
+
+        string GetImageFileExtension(string publicId);
+
+        void UpdateFileExtension(string publicId, string newSecureUrl);
     }
 }

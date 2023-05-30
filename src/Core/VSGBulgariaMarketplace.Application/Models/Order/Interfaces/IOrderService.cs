@@ -10,8 +10,8 @@
 
         public void Create(CreateOrderDto orderDto);
 
-        public void Finish(int id);
+        public void Finish(string id);
 
-        public void Decline(int id);
+        public void Decline(string id);
     }
 }

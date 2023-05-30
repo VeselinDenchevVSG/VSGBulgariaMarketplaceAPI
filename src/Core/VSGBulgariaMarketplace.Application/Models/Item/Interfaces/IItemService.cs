@@ -12,10 +12,10 @@
 
         public ItemDetailsDto GetByCode(int id);
 
-        public Task CreateAsync(ManageItemDto createItemDto, IFormFile imageFile);
+        public Task CreateAsync(ManageItemDto createItemDto);
 
-        public Task UpdateAsync(int code, ManageItemDto updateItemDto, IFormFile imageFile);
+        public Task UpdateAsync(int code, ManageItemDto updateItemDto);
 
-        public void Delete(int id);
+        public Task Delete(int code);
     }
 }

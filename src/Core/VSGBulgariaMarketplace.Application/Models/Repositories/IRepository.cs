@@ -10,6 +10,6 @@
 
         void Create(T entity);
 
-        void Delete(U id);
+        void DeleteById(U id);
     }
 }

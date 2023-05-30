@@ -6,8 +6,8 @@
     using VSGBulgariaMarketplace.Application.Services.HelpServices.Cache.Interfaces;
     using VSGBulgariaMarketplace.Domain.Entities;
 
-    public abstract class BaseService<T, U> where T : IRepository<U, int>
-                                            where U : BaseEntity<int>
+    public abstract class BaseService<T, U> where T : IRepository<U, string>
+                                            where U : BaseEntity<string>
     {
         protected T repository;
         protected IMemoryCacheAdapter cacheAdapter;

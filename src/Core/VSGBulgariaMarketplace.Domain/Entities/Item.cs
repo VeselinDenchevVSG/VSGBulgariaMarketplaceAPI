@@ -2,8 +2,10 @@
 
 using VSGBulgariaMarketplace.Domain.Enums;
 
-public class Item : BaseEntity<int>
+public class Item : BaseEntity<string>
 {
+    public int Code { get; set; }
+
     public string Name { get; set; } = null!;
 
     public string? ImagePublicId { get; set; }

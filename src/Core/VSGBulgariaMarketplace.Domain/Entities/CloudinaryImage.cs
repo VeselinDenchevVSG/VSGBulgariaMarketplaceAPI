@@ -2,6 +2,6 @@
 {
     public class CloudinaryImage : BaseEntity<string>
     {
-        public string SecureUrl { get; init; }
+        public string FileExtension { get; set; } = null!;
     }
 }
