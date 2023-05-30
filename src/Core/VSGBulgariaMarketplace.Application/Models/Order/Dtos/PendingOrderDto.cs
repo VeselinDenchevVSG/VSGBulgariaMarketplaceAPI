@@ -2,6 +2,8 @@
 {
     public class PendingOrderDto
     {
+        public string Id { get; set; }
+
         public int ItemCode { get; set; }
 
         public short Quantity { get; set; }

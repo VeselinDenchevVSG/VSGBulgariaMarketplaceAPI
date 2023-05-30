@@ -33,6 +33,11 @@
                                             .LessThanOrEqualTo(i => i.QuantityCombined).WithMessage("Item quantity for sale must be less than or equal to quantity combined!");
 
             RuleFor(i => i.Description).MaximumLength(1_000);
+
+            When(i => i.ImageFile is not null, () =>
+            {
+                RuleFor(i => i.ImageFile).SetValidator(new ImageFileValidator());
+            });
         }
 
         private bool BeValidCategory(string categoryName) => Enum.TryParse(categoryName, true, out Category category);
