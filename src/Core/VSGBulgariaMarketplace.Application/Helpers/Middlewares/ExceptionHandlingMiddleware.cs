@@ -76,11 +76,14 @@
                     break;
 
                 case PrimaryKeyViolationException primaryKeyViolationException:
-                    errors.Add(new ErrorModel { Code = 500, ErrorMessage = primaryKeyViolationException.Message });
+                    errors.Add(new ErrorModel { Code = 422, ErrorMessage = primaryKeyViolationException.Message });
+                    break;
+
+                case ItemAlreadyExistsException itemAlreadyExistsException:
+                    errors.Add(new ErrorModel { Code = 422, ErrorMessage = itemAlreadyExistsException.Message });
                     break;
 
                 case SqlException sqlException:
-                    ErrorModel errorModel = new ErrorModel { Code = 500 };
                     errors.Add(new ErrorModel { Code = 500, ErrorMessage = sqlException.Message });
                     break;
 
