@@ -93,7 +93,7 @@
                 throw new ArgumentOutOfRangeException("Not enough item quantity in stock!");
             }
 
-            string buyItemSql = $"UPDATE Items SET QuantityForSale -= @QuantitySold, QuantityCombined -= @QuantitySold WHERE Code = @Code";
+            string buyItemSql = $"UPDATE Items SET QuantityForSale -= @QuantitySold, QuantityCombined -= @QuantitySold, ModifiedAtUtc = GETUTCDATE() WHERE Code = @Code";
             base.DbConnection.Execute(buyItemSql, new { Code = code, QuantitySold = quantity }, transaction: base.Transaction);
         }
 

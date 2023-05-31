@@ -39,7 +39,7 @@
 
         public void UpdateImageFileInfo(string publicId, CloudinaryImage image)
         {
-            string sql = $"UPDATE CloudinaryImages SET FileExtension = FileExtension, Version = @Version WHERE Id = @PublicId";
+            string sql = $"UPDATE CloudinaryImages SET FileExtension = FileExtension, Version = @Version, ModifiedAtUtc = GETUTCDATE() WHERE Id = @PublicId";
             base.DbConnection.Execute(sql, new { PublicId = publicId, FileExtension = image.FileExtension, Version = image.Version }, transaction: this.Transaction);
         }
     }

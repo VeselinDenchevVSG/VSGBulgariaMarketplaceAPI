@@ -43,7 +43,7 @@
 
         public void Finish(string id)
         {
-            string sql = "UPDATE Orders SET Status = 1 WHERE Id = @id";
+            string sql = "UPDATE Orders SET Status = 1, ModifiedAtUtc = GETUTCDATE() WHERE Id = @id";
             base.DbConnection.Execute(sql, new { Id = id }, transaction: base.Transaction);
         }
 
