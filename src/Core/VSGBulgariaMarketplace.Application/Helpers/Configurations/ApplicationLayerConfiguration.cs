@@ -11,6 +11,8 @@
     using VSGBulgariaMarketplace.Application.Services;
     using VSGBulgariaMarketplace.Application.Services.HelpServices.Cache;
     using VSGBulgariaMarketplace.Application.Services.HelpServices.Cache.Interfaces;
+    using VSGBulgariaMarketplace.Application.Services.HelpServices.Location;
+    using VSGBulgariaMarketplace.Application.Services.HelpServices.Location.Interfaces;
 
     public static class ApplicationLayerConfiguration
     {
@@ -32,6 +34,7 @@
             services.AddScoped<IItemService, ItemService>();
             services.AddScoped<IOrderService, OrderService>();
             services.AddScoped<ICloudImageService, CloudinaryImageService>();
+            services.AddScoped<ILocationService, LocationService>();
 
             services.AddSingleton<IMemoryCacheAdapter, MemoryCacheAdapter>();
 
