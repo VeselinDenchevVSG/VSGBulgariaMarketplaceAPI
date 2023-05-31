@@ -24,7 +24,6 @@
         private const string ITEM_NAME = "Test";
         private const string ITEM_IMAGE_PUBLIC_ID = "Test";
         private const string ITEM_IMAGE_URL = "https://shorturl.at/fgwFK";
-        private const string ITEM_IMAGE_FILE_EXTENSION = ".test";
         private const decimal ITEM_PRICE = 1.11m;
         private const short ITEM_QUANTITY_COMBINED = 1;
         private const short ITEM_QUANTITY_FOR_SALE = 1;
@@ -42,7 +41,8 @@
         private readonly MarketplaceItemDto[] marketplace;
         private readonly InventoryItemDto[] inventory;
         private readonly ItemDetailsDto itemDetailsDto;
-        private readonly ManageItemDto manageItemDto;
+        private readonly CreateItemDto createItemDto;
+        private readonly UpdateItemDto updateItemDto;
 
         public ItemServiceTests()
         {
@@ -57,11 +57,6 @@
                 Id = ITEM_ID,
                 Code = ITEM_CODE,
                 Name = ITEM_NAME,
-                Image = new CloudinaryImage()
-                {
-                    Id = ITEM_IMAGE_PUBLIC_ID,
-                    FileExtension = ITEM_IMAGE_FILE_EXTENSION
-                },
                 ImagePublicId = ITEM_IMAGE_PUBLIC_ID,
                 Price = ITEM_PRICE,
                 Category = Category.Laptops,
@@ -101,18 +96,31 @@
             };
             this.mapper.Setup(m => m.Map<Item, ItemDetailsDto>(It.IsAny<Item>())).Returns(this.itemDetailsDto);
 
-            this.manageItemDto = new ManageItemDto()
+            this.createItemDto = new CreateItemDto()
             {
                 Code = ITEM_CODE,
                 Name = ITEM_NAME,
                 Price = ITEM_PRICE,
                 Category = Category.Laptops.ToString(),
-                QuantityCombined = ITEM_QUANTITY_COMBINED,
+                Quantity = ITEM_QUANTITY_COMBINED,
                 QuantityForSale = ITEM_QUANTITY_FOR_SALE,
                 Description = ITEM_DESCRIPTION
             };
-            this.mapper.Setup(m => m.Map<ManageItemDto, Item>(It.IsAny<ManageItemDto>())).Returns(this.item);
-            this.mapper.Setup(m => m.Map<Item, ManageItemDto>(It.IsAny<Item>())).Returns(this.manageItemDto);
+            this.mapper.Setup(m => m.Map<CreateItemDto, Item>(It.IsAny<CreateItemDto>())).Returns(this.item);
+            this.mapper.Setup(m => m.Map<Item, CreateItemDto>(It.IsAny<Item>())).Returns(this.createItemDto);
+
+            this.updateItemDto = new UpdateItemDto()
+            {
+                Code = ITEM_CODE,
+                Name = ITEM_NAME,
+                Price = ITEM_PRICE,
+                Category = Category.Laptops.ToString(),
+                Quantity = ITEM_QUANTITY_COMBINED,
+                QuantityForSale = ITEM_QUANTITY_FOR_SALE,
+                Description = ITEM_DESCRIPTION
+            };
+            this.mapper.Setup(m => m.Map<CreateItemDto, Item>(It.IsAny<CreateItemDto>())).Returns(this.item);
+            this.mapper.Setup(m => m.Map<Item, UpdateItemDto>(It.IsAny<Item>())).Returns(this.updateItemDto);
 
             Item[] items = new Item[] { this.item };
 
@@ -232,10 +240,10 @@
         public async Task CreateAsync_Should_Not_Throw_Exception()
         {
             // Arrange
-            this.manageItemDto.QuantityCombined = ITEM_QUANTITY_COMBINED;
+            this.createItemDto.Quantity = ITEM_QUANTITY_COMBINED;
 
             // Act
-            Func<Task> task = async () => await itemService.CreateAsync(this.manageItemDto);
+            Func<Task> task = async () => await itemService.CreateAsync(this.createItemDto);
 
             // Assert
             await task.Should().NotThrowAsync();
@@ -245,10 +253,10 @@
         public async Task CreateAsync_Should_Throw_ArgumentOutOfRangeException()
         {
             // Arrange
-            this.manageItemDto.QuantityCombined = 0;
+            this.createItemDto.Quantity = 0;
 
             // Act
-            Func<Task> task = async () => await this.itemService.CreateAsync(this.manageItemDto);
+            Func<Task> task = async () => await this.itemService.CreateAsync(this.createItemDto);
 
             // Assert
             await task.Should().ThrowAsync<ArgumentOutOfRangeException>();
@@ -258,10 +266,10 @@
         public async Task UpdateAsync_Should_Not_Throw_Exception()
         {
             // Arrange
-            this.manageItemDto.QuantityCombined = ITEM_QUANTITY_COMBINED;
+            this.updateItemDto.Quantity = ITEM_QUANTITY_COMBINED;
 
             // Act
-            Func<Task> task = async () => await this.itemService.UpdateAsync(ITEM_CODE, this.manageItemDto);
+            Func<Task> task = async () => await this.itemService.UpdateAsync(ITEM_CODE, this.updateItemDto);
 
             // Assert
             await task.Should().NotThrowAsync();
@@ -271,10 +279,10 @@
         public async Task UpdateAsync_Should_Throw_ArgumentOutOfRangeException()
         {
             // Arrange
-            this.manageItemDto.QuantityCombined = 0;
+            this.updateItemDto.Quantity = 0;
 
             // Act
-            Func<Task> task = async () => await itemService.UpdateAsync(ITEM_CODE, this.manageItemDto);
+            Func<Task> task = async () => await itemService.UpdateAsync(ITEM_CODE, this.updateItemDto);
 
             // Assert
             await task.Should().ThrowAsync<ArgumentOutOfRangeException>();
@@ -284,10 +292,10 @@
         public async Task UpdateAsyncItem_Should_Not_Throw_Exception()
         {
             // Arrange
-            this.manageItemDto.QuantityCombined = ITEM_QUANTITY_COMBINED;
+            this.updateItemDto.Quantity = ITEM_QUANTITY_COMBINED;
 
             // Act
-            Func<Task> task = async () => await itemService.UpdateAsync(ITEM_CODE, this.manageItemDto);
+            Func<Task> task = async () => await itemService.UpdateAsync(ITEM_CODE, this.updateItemDto);
 
             // Assert
             await task.Should().NotThrowAsync();

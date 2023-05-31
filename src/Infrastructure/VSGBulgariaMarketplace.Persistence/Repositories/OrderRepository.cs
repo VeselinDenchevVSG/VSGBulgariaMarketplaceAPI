@@ -17,7 +17,7 @@
 
         public Order[] GetPendingOrders()
         {
-            string sql =    "SELECT Id, Quantity, CreatedAtUtc, ItemCode, ItemPrice FROM Orders " +
+            string sql = "SELECT Id, ItemCode, Quantity, ItemPrice, Email, CreatedAtUtc FROM Orders " +
                             "WHERE Status = 0";
             Order[] pendingOrders = base.DbConnection.Query<Order>(sql, transaction: this.Transaction).ToArray();
 

@@ -29,7 +29,7 @@
                             $"WHERE i.QuantityForSale IS NOT NULL";
             Item[] marketplace = base.DbConnection.Query<Item, CloudinaryImage, Item>(sql, (item, image) =>
             {
-                item.Image = image;
+                item.ImagePublicId = image.Id;
 
                 return item;
             }, splitOn: "CloudinaryImageId", transaction: base.Transaction).ToArray();
@@ -47,7 +47,7 @@
 
         public Item[] GetInventory()
         {
-            string sql = $"SELECT Code, Name, Category, QuantityForSale, QuantityCombined FROM Items";
+            string sql = $"SELECT Code, Name, Description, Category, QuantityForSale, Price, QuantityCombined, ImagePublicId FROM Items";
             Item[] inventory = base.DbConnection.Query<Item>(sql, transaction: this.Transaction).ToArray();
 
             return inventory;
@@ -56,12 +56,12 @@
         public Item GetByCode(int code)
         {
             string sql =    "SELECT i.Name, i.Price, i.Category, i.QuantityForSale, i.Description, i.ImagePublicId, ci.Id AS CloudinaryImageId FROM Items AS i " +
-                            "JOIN CloudinaryImages AS ci " +
+                            "LEFT JOIN CloudinaryImages AS ci " +
                             "ON i.ImagePublicId = ci.Id " +
                             "WHERE i.Code = @Code AND i.QuantityForSale IS NOT NULL";
             Item item = base.DbConnection.Query<Item, CloudinaryImage, Item>(sql, (item, image) =>
             {
-                item.Image = image;
+                item.ImagePublicId = image.Id;
 
                 return item;
             }, new { Code = code }, splitOn: "CloudinaryImageId", transaction: base.Transaction).FirstOrDefault();

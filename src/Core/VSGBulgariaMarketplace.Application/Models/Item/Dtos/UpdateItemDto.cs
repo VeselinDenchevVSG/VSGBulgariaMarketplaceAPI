@@ -2,7 +2,7 @@
 {
     using Microsoft.AspNetCore.Http;
 
-    public class ManageItemDto
+    public class UpdateItemDto
     {
         public int Code { get; set; }
 
@@ -12,12 +12,14 @@
 
         public string Category { get; set; }
 
-        public short QuantityCombined { get; set; }
+        public short Quantity { get; set; }
 
         public short? QuantityForSale { get; set; }
 
         public string? Description { get; set; }
 
-        public IFormFile? ImageFile { get; set; }
+        public IFormFile? Image { get; set; }
+
+        public bool imageModified { get; set; }
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace VSGBulgariaMarketplace.Application.Helpers.Validators
+﻿namespace VSGBulgariaMarketplace.Application.Helpers.Validators.ItemValidators
 {
     using FluentValidation;
 

@@ -5,8 +5,7 @@
     using FluentValidation;
 
     using Microsoft.AspNetCore.Http;
-
-    using VSGBulgariaMarketplace.Application.Helpers.Validators;
+    using VSGBulgariaMarketplace.Application.Helpers.Validators.Order;
     using VSGBulgariaMarketplace.Application.Models.Exceptions;
     using VSGBulgariaMarketplace.Application.Models.Item.Interfaces;
     using VSGBulgariaMarketplace.Application.Models.Order.Dtos;

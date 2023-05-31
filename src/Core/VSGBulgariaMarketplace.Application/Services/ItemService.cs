@@ -55,6 +55,11 @@
                 Item[] items = base.repository.GetInventory();
                 itemDtos = base.mapper.Map<Item[], InventoryItemDto[]>(items);
 
+                foreach (InventoryItemDto inventoryItem in itemDtos)
+                {
+                    inventoryItem.ImageUrl = this.imageService.GetImageUrlByItemCode(inventoryItem.Code);
+                }
+
                 base.cacheAdapter.Set(INVENTORY_CACHE_KEY, itemDtos);
             }
 
@@ -81,9 +86,9 @@
             return itemDto;
         }
 
-        public async Task CreateAsync(ManageItemDto createItemDto)
+        public async Task CreateAsync(CreateItemDto createItemDto)
         {
-            if (createItemDto.QuantityForSale > createItemDto.QuantityCombined)
+            if (createItemDto.QuantityForSale > createItemDto.Quantity)
             {
                 throw new ArgumentOutOfRangeException("Quantity for sale should be less or equal to quantity combined!");
             }
@@ -91,42 +96,43 @@
             base.cacheAdapter.Remove(MARKETPLACE_CACHE_KEY);
             base.cacheAdapter.Remove(INVENTORY_CACHE_KEY);
 
-            Item item = base.mapper.Map<ManageItemDto, Item>(createItemDto);
+            Item item = base.mapper.Map<CreateItemDto, Item>(createItemDto);
 
-            if (createItemDto.ImageFile is not null)
+            if (createItemDto.Image is not null)
             {
-                item.ImagePublicId = await this.imageService.UploadAsync(createItemDto.ImageFile);
+                item.ImagePublicId = await this.imageService.UploadAsync(createItemDto.Image);
             }
 
             this.repository.Create(item);
         }
 
-        public async Task UpdateAsync(int code, ManageItemDto updateItemDto) 
+        public async Task UpdateAsync(int code, UpdateItemDto updateItemDto) 
         {
-            if (updateItemDto.QuantityForSale > updateItemDto.QuantityCombined)
+            if (updateItemDto.QuantityForSale > updateItemDto.Quantity)
             {
                 throw new ArgumentOutOfRangeException("Quantity for sale should be less or equal than quantity combined!");
             }
 
-            Item item = base.mapper.Map<ManageItemDto, Item>(updateItemDto);
+            Item item = base.mapper.Map<UpdateItemDto, Item>(updateItemDto);
 
-            string itemPicturePublicId = this.GetItemPicturePublicId(code);
-            if (itemPicturePublicId is null)
+            string itemImagePublicId = this.GetItemPicturePublicId(code);
+            if (itemImagePublicId is null)
             {
-                if (updateItemDto.ImageFile is not null)
+                if (updateItemDto.Image is not null)
                 {
-                    item.ImagePublicId = await this.imageService.UploadAsync(updateItemDto.ImageFile);
+                    item.ImagePublicId = await this.imageService.UploadAsync(updateItemDto.Image);
                 }
             }
             else
             {
-                if (updateItemDto.ImageFile is null)
+                if (updateItemDto.Image is null)
                 {
-                    await this.imageService.DeleteAsync(itemPicturePublicId);
+                    await this.imageService.DeleteAsync(itemImagePublicId);
                 }
                 else
                 {
-                    await this.imageService.UpdateAsync(itemPicturePublicId, updateItemDto.ImageFile);
+                    await this.imageService.UpdateAsync(itemImagePublicId, updateItemDto.Image);
+                    item.ImagePublicId = itemImagePublicId;
                 }
             }
 
@@ -134,10 +140,10 @@
             {
                 this.repository.Update(code, item);
             }
-            catch (SqlException) when (itemPicturePublicId is not null)
+            catch (SqlException) when (itemImagePublicId is not null)
             {
 
-                await this.imageService.DeleteAsync(itemPicturePublicId);
+                await this.imageService.DeleteAsync(itemImagePublicId);
             }
 
             base.cacheAdapter.Clear();

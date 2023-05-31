@@ -5,7 +5,7 @@
     using VSGBulgariaMarketplace.Application.Models.Order.Dtos;
     using VSGBulgariaMarketplace.Application.Models.Order.Interfaces;
 
-    [Route("api/[controller]")]
+    //[Route("api/[controller]")]
     [ApiController]
     [Authorize]
     public class OrderController : ControllerBase
@@ -18,7 +18,8 @@
         }
 
         [HttpGet]
-        [Route("pending-orders")]
+        //[Route("pending-orders")]
+        [Route("/pendingorders")]
         [Authorize(Policy = "Admin")]
         public IActionResult GetPendingOrders()
         {
@@ -28,7 +29,8 @@
         }
 
         [HttpGet]
-        [Route("user-orders")]
+        //[Route("user-orders")]
+        [Route("/myorders")]
         public IActionResult GetUserOrders()
         {
             UserOrderDto[] orders = this.orderService.GetUserOrders();
@@ -37,26 +39,30 @@
         }
 
         [HttpPost]
-        [Route("create")]
-        public IActionResult Create([FromForm] CreateOrderDto orderDto)
+        //[Route("create")]
+        [Route("marketplace/buy")]
+        public IActionResult Create([FromBody] CreateOrderDto orderDto)
         {
             this.orderService.Create(orderDto);
 
             return Ok($"Order was successfully created!");
         }
 
-        [HttpPatch]
-        [Route("finish/{id}")]
+        //[HttpPatch]
+        [HttpPut]
+        //[Route("finish/{id}")]
+        [Route("/pendingorders/complete/{code}")]
         [Authorize(Policy = "Admin")]
-        public IActionResult Finish([FromRoute] string id)
+        public IActionResult Finish([FromRoute] string code)
         {
-            this.orderService.Finish(id);
+            this.orderService.Finish(code);
 
-            return Ok($"Order with id = {id} is finished");
+            return Ok($"Order with id {code} is finished");
         }
 
-        [HttpDelete]
-        [Route("decline/{id}")]
+        //[HttpDelete]
+        [HttpPut]
+        [Route("myorders/deleteorder/{code}")]
         [Authorize(Policy = "Admin")]
         public IActionResult Decline([FromRoute] string id)
         {

@@ -37,7 +37,8 @@
         }
 
         [HttpGet]
-        [Route("{code}")]
+        //[Route("{code}")]
+        [Route("marketplace/{code}")]
         public IActionResult GetByCode([FromRoute] int code)
         {
             ItemDetailsDto item = this.itemService.GetByCode(code);
@@ -48,9 +49,10 @@
         }
 
         [HttpPost]
-        [Route("/inventory/addItem")]
+        //[Route("create")]
+        [Route("~/inventory/addItem")]
         [Authorize(Policy = "Admin")]
-        public async Task<IActionResult> CreateAsync([FromForm] ManageItemDto itemDto)
+        public async Task<IActionResult> CreateAsync([FromForm] CreateItemDto itemDto)
         {
             await this.itemService.CreateAsync(itemDto);
 
@@ -58,16 +60,18 @@
         }
 
         [HttpPut]
-        [Route("/inventory/modify/{code}")]
+        //[Route("update/{code}")]
+        [Route("~/inventory/modify/{oldCode}")]
         [Authorize(Policy = "Admin")]
-        public async Task<IActionResult> UpdateAsync([FromRoute] int code, [FromForm] ManageItemDto itemDto)
+        public async Task<IActionResult> UpdateAsync([FromRoute] int oldCode, [FromForm] UpdateItemDto itemDto)
         {
-            await this.itemService.UpdateAsync(code, itemDto);
+            await this.itemService.UpdateAsync(oldCode, itemDto);
 
-            return Ok();
+            return Ok($"Item {itemDto.Name} has been successfully updated!");
         }
 
         [HttpDelete]
+        //[Route("delete/{code}")]
         [Route("/deleteItem/{code}")]
         [Authorize(Policy = "Admin")]
         public async Task<IActionResult> Delete([FromRoute] int code)
