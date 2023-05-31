@@ -20,6 +20,6 @@
 
         public IFormFile? Image { get; set; }
 
-        public bool imageModified { get; set; }
+        public bool ImageChanges { get; set; }
     }
 }

@@ -64,9 +64,9 @@
         [HttpPut]
         [Route("myorders/deleteorder/{code}")]
         [Authorize(Policy = "Admin")]
-        public IActionResult Decline([FromRoute] string id)
+        public IActionResult Decline([FromRoute] string code)
         {
-            this.orderService.Decline(id);
+            this.orderService.Decline(code);
 
             return Ok("Order has been declined!");
         }
