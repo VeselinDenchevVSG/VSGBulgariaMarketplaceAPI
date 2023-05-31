@@ -6,6 +6,7 @@
     using VSGBulgariaMarketplace.Domain.Enums;
     using VSGBulgariaMarketplace.Domain.Entities;
     using VSGBulgariaMarketplace.Application.Helpers.Validators.CustomValidators;
+    using VSGBulgariaMarketplace.Application.Services.HelpServices;
 
     public class CreateItemDtoValidator : AbstractValidator<CreateItemDto>
     {
@@ -40,6 +41,18 @@
             });
         }
 
-        private bool BeValidCategory(string categoryName) => Enum.TryParse(categoryName, true, out Category category);
+        private bool BeValidCategory(string categoryName)
+        {
+            try
+            {
+                EnumService.GetEnumValueFromDisplayName<Category>(categoryName);
+
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
     }
 }

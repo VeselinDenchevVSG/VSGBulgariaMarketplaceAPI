@@ -5,6 +5,7 @@
     using VSGBulgariaMarketplace.Application.Helpers.Validators.CustomValidators;
     using VSGBulgariaMarketplace.Application.Helpers.Validators.ItemValidators;
     using VSGBulgariaMarketplace.Application.Models.Item.Dtos;
+    using VSGBulgariaMarketplace.Application.Services.HelpServices;
     using VSGBulgariaMarketplace.Domain.Entities;
     using VSGBulgariaMarketplace.Domain.Enums;
 
@@ -41,6 +42,18 @@
             });
         }
 
-        private bool BeValidCategory(string categoryName) => Enum.TryParse(categoryName, true, out Category category);
+        private bool BeValidCategory(string categoryName)
+        {
+            try
+            {
+                EnumService.GetEnumValueFromDisplayName<Category>(categoryName);
+
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
     }
 }
