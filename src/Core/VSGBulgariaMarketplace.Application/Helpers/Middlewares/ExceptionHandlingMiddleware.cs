@@ -33,12 +33,7 @@
             catch (Exception e)
             {
                 unitOfWork.Rollback();
-
-                if (e.GetType() != typeof(PrimaryKeyViolationException))
-                {
-                    this.logger.LogError(e, e.Message);
-                }
-
+                this.logger.LogError(e, e.Message);
                 await ExceptionHandler(e, httpContext);
             }
         }
