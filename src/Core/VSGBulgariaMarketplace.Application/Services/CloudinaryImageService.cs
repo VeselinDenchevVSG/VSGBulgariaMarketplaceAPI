@@ -14,6 +14,7 @@
 
     using VSGBulgariaMarketplace.Application.Models.Image.Interfaces;
     using VSGBulgariaMarketplace.Domain.Entities;
+    using static System.Net.Mime.MediaTypeNames;
 
     public class CloudinaryImageService : ICloudImageService
     {
@@ -63,7 +64,7 @@
             if (uploadResult.Error != null) throw new InvalidOperationException("Failed to upload file: " + uploadResult.Error.Message);
 
             CloudinaryImage image = mapper.Map<ImageUploadResult, CloudinaryImage>(uploadResult);
-            image.FileExtension = uploadResult.Format;
+            this.UpdateImageFileMetadata(image, uploadResult.Format, uploadResult.Version);
 
             try
             {
@@ -93,22 +94,20 @@
                 {
                     File = new FileDescription(uniqueFileName, stream),
                     PublicId = publicId, // Use the publicId of the existing file
-                    Overwrite = true // Overwrite the existing file
+                    Overwrite = true, // Overwrite the existing file
+                    Invalidate = true,
                 };
 
                 ImageUploadResult uploadResult = await cloudinary.UploadAsync(uploadParams);
                 if (uploadResult.Error != null) throw new InvalidOperationException("Failed to update file: " + uploadResult.Error.Message);
 
                 CloudinaryImage image = mapper.Map<ImageUploadResult, CloudinaryImage>(uploadResult);
-                image.FileExtension = uploadResult.Format;
+                this.UpdateImageFileMetadata(image, uploadResult.Format, uploadResult.Version);
 
                 publicId = publicId.Split('/')[1];
 
-                string oldFileExtension = this.imageRepository.GetImageFileExtension(publicId);
-                if (oldFileExtension != image.FileExtension)
-                {
-                    this.imageRepository.UpdateFileExtension(publicId, image.FileExtension);
-                }
+                this.imageRepository.UpdateImageFileInfo(publicId, image);
+                
             }
             else throw new FileNotFoundException("Image not found!");
         }
@@ -127,13 +126,13 @@
 
         public string GetImageUrlByItemCode(int itemCode)
         {
-            CloudinaryImage image = this.imageRepository.GetImagePublicIdAndFileExtensionByItemCode(itemCode);
+            CloudinaryImage image = this.imageRepository.GetImageBuildUrlInfoByItemCode(itemCode);
             if (image is not null)
             {
                 if (image.FileExtension is null) throw new FileNotFoundException("Image not found!");
                 else
                 {
-                    string imageUrl = this.cloudinary.Api.UrlImgUp.BuildUrl($"VSG_Marketplace/{image.Id}.{image.FileExtension}");
+                    string imageUrl = this.cloudinary.Api.UrlImgUp.BuildUrl($"v{image.Version}/VSG_Marketplace/{image.Id}.{image.FileExtension}");
 
                     return imageUrl;
                 }
@@ -156,6 +155,12 @@
             string uniqueFileName = Guid.NewGuid().ToString().Substring(0, 8);
 
             return uniqueFileName;
+        }
+
+        private void UpdateImageFileMetadata(CloudinaryImage image, string fileExtension, string version)
+        {
+            image.FileExtension = fileExtension;
+            image.Version = int.Parse(version);
         }
     }
 }

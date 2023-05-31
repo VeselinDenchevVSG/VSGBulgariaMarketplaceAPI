@@ -125,14 +125,17 @@
             }
             else
             {
-                if (updateItemDto.Image is null)
+                if (updateItemDto.ImageChanges)
                 {
-                    await this.imageService.DeleteAsync(itemImagePublicId);
-                }
-                else
-                {
-                    await this.imageService.UpdateAsync(itemImagePublicId, updateItemDto.Image);
-                    item.ImagePublicId = itemImagePublicId;
+                    if (updateItemDto.Image is null)
+                    {
+                        await this.imageService.DeleteAsync(itemImagePublicId);
+                    }
+                    else
+                    {
+                        await this.imageService.UpdateAsync(itemImagePublicId, updateItemDto.Image);
+                        item.ImagePublicId = itemImagePublicId.Split("/")[1];
+                    }
                 }
             }
 
@@ -140,10 +143,10 @@
             {
                 this.repository.Update(code, item);
             }
-            catch (SqlException) when (itemImagePublicId is not null)
+            catch (SqlException se) when (itemImagePublicId is not null)
             {
-
                 await this.imageService.DeleteAsync(itemImagePublicId);
+                throw se;
             }
 
             base.cacheAdapter.Clear();
