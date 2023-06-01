@@ -2,7 +2,7 @@
 {
     using FluentMigrator;
 
-    [Migration(2023)]
+    [Migration(202306010846)]
     public class AddLocationColumnToItemsTable : Migration
     {
         private const string ITEMS_TABLE_NAME = "Items";

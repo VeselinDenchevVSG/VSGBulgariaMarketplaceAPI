@@ -5,6 +5,21 @@
 
     public static class EnumService
     {
+        public static List<string> GetAll<T>() where T : Enum
+        {
+            List<string> enumStrings = new List<string>();
+
+            var enumConstants = Enum.GetValues(typeof(T));
+
+            foreach (T enumConstant in enumConstants)
+            {
+                string locationString = GetEnumDisplayName(enumConstant);
+                enumStrings.Add(locationString);
+            }
+
+            return enumStrings;
+        }
+
         public static string GetEnumDisplayName(Enum enumValue)
         {
             var enumMember = enumValue.GetType().GetMember(enumValue.ToString())[0];

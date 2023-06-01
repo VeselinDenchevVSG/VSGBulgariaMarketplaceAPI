@@ -9,8 +9,10 @@
     using VSGBulgariaMarketplace.Application.Models.Item.Dtos;
     using VSGBulgariaMarketplace.Application.Models.Item.Interfaces;
     using VSGBulgariaMarketplace.Application.Models.Order.Interfaces;
+    using VSGBulgariaMarketplace.Application.Services.HelpServices;
     using VSGBulgariaMarketplace.Application.Services.HelpServices.Cache.Interfaces;
     using VSGBulgariaMarketplace.Domain.Entities;
+    using VSGBulgariaMarketplace.Domain.Enums;
 
     public class ItemService : BaseService<IItemRepository, Item>, IItemService
     {
@@ -45,6 +47,21 @@
             }
 
             return itemDtos;
+        }
+
+        public List<string> GetAllCategories()
+        {
+            List<string> locationStrings = new List<string>();
+
+            var locations = Enum.GetValues(typeof(Location));
+
+            foreach (Location location in locations)
+            {
+                string locationString = EnumService.GetEnumDisplayName(location);
+                locationStrings.Add(locationString);
+            }
+
+            return locationStrings;
         }
 
         public InventoryItemDto[] GetInventory()

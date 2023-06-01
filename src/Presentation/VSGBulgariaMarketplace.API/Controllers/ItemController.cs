@@ -5,6 +5,8 @@
 
     using VSGBulgariaMarketplace.Application.Models.Item.Dtos;
     using VSGBulgariaMarketplace.Application.Models.Item.Interfaces;
+    using VSGBulgariaMarketplace.Application.Services.HelpServices;
+    using VSGBulgariaMarketplace.Domain.Enums;
 
     //[Route("api/[controller]")]
     [ApiController]
@@ -26,6 +28,19 @@
 
             return Ok(items);
         }
+
+
+        [HttpGet]
+        //[Route("categories")]
+        [Route("/getcategories")]
+        public IActionResult GetCategories()
+        {
+            List<string> categories = EnumService.GetAll<Category>();
+
+            return Ok(categories);
+        }
+
+
         [HttpGet]
         [Route("inventory")]
         [Authorize(Policy = "Admin")]

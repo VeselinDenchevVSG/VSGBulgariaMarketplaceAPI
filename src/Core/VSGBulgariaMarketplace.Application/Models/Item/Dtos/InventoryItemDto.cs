@@ -21,5 +21,7 @@
 
         [JsonPropertyName("imageURL")]
         public string? ImageUrl { get; set; }
+
+        public string Location { get; set; }
     }
 }

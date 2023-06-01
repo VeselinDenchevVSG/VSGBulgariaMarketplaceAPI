@@ -19,4 +19,6 @@ public class Item : BaseEntity<string>
     public short? QuantityForSale { get; set; }
 
     public string? Description { get; set; }
+
+    public Location Location { get; set; }
 }

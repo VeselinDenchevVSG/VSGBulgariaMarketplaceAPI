@@ -7,6 +7,7 @@
     using VSGBulgariaMarketplace.Domain.Entities;
     using VSGBulgariaMarketplace.Application.Helpers.Validators.CustomValidators;
     using VSGBulgariaMarketplace.Application.Services.HelpServices;
+    using VSGBulgariaMarketplace.Application.Helpers.Validators.Helpers;
 
     public class CreateItemDtoValidator : AbstractValidator<CreateItemDto>
     {
@@ -25,7 +26,7 @@
                                     .WithMessage("Item price must have no more than two digits after the decimal point and mustn't be longer than 28 digits in total"!);
 
             RuleFor(i => i.Category).NotEmptyWithMessage<CreateItemDto, string, Item>()
-                                    .Must(BeValidCategory).WithMessage($"Item category must be in the specified ones!");
+                                    .Must(EnumValidationHelper.BeValid<Category>).WithMessage($"Item category must be in the specified ones!");
 
             RuleFor(i => i.Quantity).NotEmptyWithMessage<CreateItemDto, short, Item>()
                                             .InclusiveBetween((short)0, short.MaxValue).WithMessage($"Item quantity combined must be between 0 and {short.MaxValue}!");
@@ -39,20 +40,9 @@
             {
                 RuleFor(i => i.Image).SetValidator(new ImageFileValidator());
             });
-        }
 
-        private bool BeValidCategory(string categoryName)
-        {
-            try
-            {
-                EnumService.GetEnumValueFromDisplayName<Category>(categoryName);
-
-                return true;
-            }
-            catch (Exception)
-            {
-                return false;
-            }
+            RuleFor(i => i.Location).NotEmptyWithMessage<CreateItemDto, string, Item>()
+                                    .Must(EnumValidationHelper.BeValid<Location>).WithMessage($"Item location must be in the specified ones!");
         }
     }
 }

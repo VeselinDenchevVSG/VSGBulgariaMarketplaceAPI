@@ -17,7 +17,7 @@
             : base(unitOfWork)
         {
             base.columnNamesString = "(Id, Code, Name, ImagePublicId, Price, Category, QuantityCombined, QuantityForSale, " +
-                                        "Description, CreatedAtUtc, ModifiedAtUtc)";
+                                        "Description, Location, CreatedAtUtc, ModifiedAtUtc)";
             base.SetUpRepository();
         }
         
@@ -47,7 +47,7 @@
 
         public Item[] GetInventory()
         {
-            string sql = $"SELECT Code, Name, Description, Category, QuantityForSale, Price, QuantityCombined, ImagePublicId FROM Items";
+            string sql = $"SELECT Code, Name, Description, Category, QuantityForSale, Price, QuantityCombined, ImagePublicId, Location FROM Items";
             Item[] inventory = base.DbConnection.Query<Item>(sql, transaction: this.Transaction).ToArray();
 
             return inventory;
@@ -113,6 +113,7 @@
                     QuantityCombined = item.QuantityCombined,
                     QuantityForSale = item.QuantityForSale,
                     Description = item.Description,
+                    Location = item.Location,
                     ModifiedAtUtc = DateTime.UtcNow,
                     OldCode = oldCode
                 }, transaction: this.Transaction);
