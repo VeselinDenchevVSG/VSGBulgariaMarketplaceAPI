@@ -64,58 +64,65 @@
         {
             string email = this.httpContextAccessor.HttpContext.User.FindFirst(c => c.Type == "preferred_username").Value;
 
-            base.cacheAdapter.Remove(PENDING_ORDERS_CACHE_KEY);
-            base.cacheAdapter.Remove(string.Format(USER_ORDER_CACHE_KEY_TEMPLATE, email));
-
             CreateOrderDtoValidator validator = new CreateOrderDtoValidator();
             validator.ValidateAndThrow(orderDto);
 
             Order order = base.mapper.Map<CreateOrderDto, Order>(orderDto);
 
-            Item item = this.itemRepository.GetOrderItemInfoByCode(orderDto.ItemCode);
-            if (item is null) throw new ArgumentException($"item with code {orderDto.ItemCode} doesn't exist!");
+            Item item = this.itemRepository.GetOrderItemInfoById(orderDto.ItemId);
+            if (item is null) throw new ArgumentException($"Item doesn't exist!");
             else
             {
                 bool isEnoughQuantity = orderDto.Quantity <= item.QuantityForSale;
                 if (isEnoughQuantity)
                 {
                     order.ItemId = item.Id;
+                    order.ItemCode = item.Code;
                     order.ItemName = item.Name;
                     order.ItemPrice = item.Price;
                     order.Email = email;
 
                     base.repository.Create(order);
+                    this.itemRepository.RequestItemPurchase(order.ItemId, order.Quantity);
+
+                    this.ClearOrderItemRelatedCache(order.ItemId, email);
                 }
-                else throw new ArgumentOutOfRangeException("Not enough item quantity for sale!");
+                else throw new ArgumentException("Not enough item quantity for sale!");
             }
         }
 
         public void Finish(string id)
         {
             Order order = base.repository.GetOrderItemIdAndQuantity(id);
-            if (order is null) throw new NotFoundException($"Order with id {id} doesn't exist!");
+            if (order is null) throw new NotFoundException($"Order doesn't exist!");
 
             string email = this.httpContextAccessor.HttpContext.User.FindFirst(c => c.Type == "preferred_username").Value;
 
-            base.cacheAdapter.Remove(ItemService.MARKETPLACE_CACHE_KEY);
-            base.cacheAdapter.Remove(ItemService.INVENTORY_CACHE_KEY);
-            base.cacheAdapter.Remove(string.Format(ItemService.ITEM_CACHE_KEY_TEMPLATE, order.ItemId));
-            base.cacheAdapter.Remove(PENDING_ORDERS_CACHE_KEY);
-            base.cacheAdapter.Remove(string.Format(USER_ORDER_CACHE_KEY_TEMPLATE, email));
-
-            this.itemRepository.BuyItem(order.ItemCode, order.Quantity);
-
+            this.itemRepository.BuyItem(order.ItemId, order.Quantity);
             base.repository.Finish(id);
+
+            this.ClearOrderItemRelatedCache(order.ItemId, email);
         }
 
         public void Decline(string id)
         {
+            Order order = base.repository.GetOrderItemIdAndQuantity(id);
+
             string email = this.httpContextAccessor.HttpContext.User.FindFirst(c => c.Type == "preferred_username").Value;
 
+            base.repository.DeleteById(id);
+            this.itemRepository.RestoreItemQuantities(order.ItemId, order.Quantity);
+
+            this.ClearOrderItemRelatedCache(order.ItemId, email);
+        }
+
+        public void ClearOrderItemRelatedCache(string itemId, string email)
+        {
+            base.cacheAdapter.Remove(ItemService.MARKETPLACE_CACHE_KEY);
+            base.cacheAdapter.Remove(ItemService.INVENTORY_CACHE_KEY);
+            base.cacheAdapter.Remove(string.Format(ItemService.ITEM_CACHE_KEY_TEMPLATE, itemId));
             base.cacheAdapter.Remove(PENDING_ORDERS_CACHE_KEY);
             base.cacheAdapter.Remove(string.Format(USER_ORDER_CACHE_KEY_TEMPLATE, email));
-
-            base.repository.DeleteById(id);
         }
     }
 }

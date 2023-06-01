@@ -20,7 +20,7 @@
     public class ItemServiceTests
     {
         private const string ITEM_ID = "Test";
-        private const int ITEM_CODE = 1;
+        private const string ITEM_CODE = "Test";
         private const string ITEM_NAME = "Test";
         private const string ITEM_IMAGE_PUBLIC_ID = "Test";
         private const string ITEM_IMAGE_URL = "https://shorturl.at/fgwFK";
@@ -127,10 +127,10 @@
             this.itemRepository.Setup(ir => ir.GetMarketplace()).Returns(items);
             this.itemRepository.Setup(ir => ir.GetInventory()).Returns(items);
             this.itemRepository.Setup(ir => ir.Create(It.IsAny<Item>()));
-            this.itemRepository.Setup(ir => ir.Update(It.IsAny<int>(), It.IsAny<Item>()));
+            this.itemRepository.Setup(ir => ir.Update(It.IsAny<string>(), It.IsAny<Item>()));
             this.itemRepository.Setup(ir => ir.DeleteById(It.IsAny<string>()));
 
-            this.orderRepository.Setup(or => or.DeclineAllPendingOrdersWithDeletedItem(It.IsAny<int>()));
+            this.orderRepository.Setup(or => or.DeclineAllPendingOrdersWithDeletedItem(It.IsAny<string>()));
 
             this.imageService.Setup(s => s.ExistsAsync(It.IsAny<string>())).ReturnsAsync(true);
             this.imageService.Setup(s => s.UploadAsync(It.IsAny<IFormFile>())).ReturnsAsync("https://shorturl.at/fgwFK");
@@ -199,10 +199,10 @@
         {
             // Arrange
             this.memoryCache.Setup(mc => mc.Get<ItemDetailsDto>(It.IsAny<string>())).Returns((ItemDetailsDto)null);
-            this.itemRepository.Setup(ir => ir.GetByCode(It.IsAny<int>())).Returns(this.item);
+            this.itemRepository.Setup(ir => ir.GetById(It.IsAny<string>())).Returns(this.item);
 
             // Act
-            ItemDetailsDto itemDetailsDto = this.itemService.GetByCode(ITEM_CODE);
+            ItemDetailsDto itemDetailsDto = this.itemService.GetById(ITEM_ID);
 
             // Assert
             itemDetailsDto.Should().Be(this.itemDetailsDto);
@@ -213,10 +213,10 @@
         {
             // Arrange
             this.memoryCache.Setup(mc => mc.Get<ItemDetailsDto>(It.IsAny<string>())).Returns(this.itemDetailsDto);
-            this.itemRepository.Setup(ir => ir.GetByCode(It.IsAny<int>())).Returns(this.item);
+            this.itemRepository.Setup(ir => ir.GetById(It.IsAny<string>())).Returns(this.item);
 
             // Act
-            ItemDetailsDto itemDetailsDto = this.itemService.GetByCode(ITEM_CODE);
+            ItemDetailsDto itemDetailsDto = this.itemService.GetById(ITEM_ID);
 
             // Assert
             itemDetailsDto.Should().BeEquivalentTo(this.itemDetailsDto);
@@ -227,10 +227,10 @@
         {
             // Arrange
             this.memoryCache.Setup(mc => mc.Get<ItemDetailsDto>(It.IsAny<string>())).Returns((ItemDetailsDto) null);
-            this.itemRepository.Setup(ir => ir.GetByCode(It.IsAny<int>())).Returns((Item) null);
+            this.itemRepository.Setup(ir => ir.GetById(It.IsAny<string>())).Returns((Item) null);
 
             // Act
-            Action action = () => this.itemService.GetByCode(ITEM_CODE);
+            Action action = () => this.itemService.GetById(ITEM_ID);
 
             // Assert
             action.Should().Throw<NotFoundException>();
@@ -269,7 +269,7 @@
             this.updateItemDto.Quantity = ITEM_QUANTITY_COMBINED;
 
             // Act
-            Func<Task> task = async () => await this.itemService.UpdateAsync(ITEM_CODE, this.updateItemDto);
+            Func<Task> task = async () => await this.itemService.UpdateAsync(ITEM_ID, this.updateItemDto);
 
             // Assert
             await task.Should().NotThrowAsync();
@@ -282,7 +282,7 @@
             this.updateItemDto.Quantity = 0;
 
             // Act
-            Func<Task> task = async () => await itemService.UpdateAsync(ITEM_CODE, this.updateItemDto);
+            Func<Task> task = async () => await itemService.UpdateAsync(ITEM_ID, this.updateItemDto);
 
             // Assert
             await task.Should().ThrowAsync<ArgumentOutOfRangeException>();
@@ -295,7 +295,7 @@
             this.updateItemDto.Quantity = ITEM_QUANTITY_COMBINED;
 
             // Act
-            Func<Task> task = async () => await itemService.UpdateAsync(ITEM_CODE, this.updateItemDto);
+            Func<Task> task = async () => await itemService.UpdateAsync(ITEM_ID, this.updateItemDto);
 
             // Assert
             await task.Should().NotThrowAsync();
@@ -307,7 +307,7 @@
             // Arrange
 
             // Act
-            Action action = () => this.itemService.Delete(ITEM_CODE);
+            Action action = () => this.itemService.Delete(ITEM_ID);
 
             // Assert
             action.Should().NotThrow();

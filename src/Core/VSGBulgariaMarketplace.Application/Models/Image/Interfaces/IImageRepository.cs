@@ -5,7 +5,7 @@
 
     public interface IImageRepository : IRepository<CloudinaryImage, string>
     {
-        CloudinaryImage GetImageBuildUrlInfoByItemCode(int itemCode);
+        CloudinaryImage GetImageBuildUrlInfoByItemId(string itemId);
 
         void UpdateImageFileInfo(string publicId, CloudinaryImage image);
     }

@@ -9,16 +9,20 @@
 
         public Item[] GetInventory();
 
-        public Item GetByCode(int code);
+        public Item GetById(string id);
 
-        public Item GetOrderItemInfoByCode(int code);
+        public Item GetOrderItemInfoById(string id);
 
-        public void Update(int id, Item item);
+        public void Update(string id, Item item);
 
-        public void DeleteByCode(int code);
+        public void Delete(string id);
 
-        public void BuyItem(int code, short quantity);
+        public void RequestItemPurchase(string id, short quantityRequested);
 
-        public string GetItemPicturePublicId(int code);
+        public void RestoreItemQuantities(string id, short quantity);
+
+        public void BuyItem(string id, short quantitySold);
+
+        public string GetItemPicturePublicId(string id);
     }
 }

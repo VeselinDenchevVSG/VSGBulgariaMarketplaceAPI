@@ -70,11 +70,7 @@
                     errors.Add(new ErrorModel { Code = 404, ErrorMessage = fileNotFoundException.Message });
                     break;
 
-                case PrimaryKeyViolationException primaryKeyViolationException:
-                    errors.Add(new ErrorModel { Code = 422, ErrorMessage = primaryKeyViolationException.Message });
-                    break;
-
-                case ItemAlreadyExistsException itemAlreadyExistsException:
+                case EntityAlreadyExistsException itemAlreadyExistsException:
                     errors.Add(new ErrorModel { Code = 422, ErrorMessage = itemAlreadyExistsException.Message });
                     break;
 

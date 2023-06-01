@@ -23,7 +23,8 @@
         private IOrderRepository orderRepository;
         private ICloudImageService imageService;
 
-        public ItemService(IItemRepository itemRepository, IOrderRepository orderRepository, ICloudImageService imageService, IMemoryCacheAdapter cacheAdapter, IMapper mapper)
+        public ItemService(IItemRepository itemRepository, IOrderRepository orderRepository, ICloudImageService imageService, 
+                            IMemoryCacheAdapter cacheAdapter, IMapper mapper)
             : base(itemRepository, cacheAdapter, mapper)
         {
             this.orderRepository = orderRepository;
@@ -40,7 +41,7 @@
 
                 foreach (MarketplaceItemDto marketplaceItem in itemDtos)
                 {
-                    marketplaceItem.ImageUrl = this.imageService.GetImageUrlByItemCode(marketplaceItem.Code);
+                    marketplaceItem.ImageUrl = this.imageService.GetImageUrlByItemId(marketplaceItem.Id);
                 }
 
                 base.cacheAdapter.Set(MARKETPLACE_CACHE_KEY, itemDtos);
@@ -74,7 +75,7 @@
 
                 foreach (InventoryItemDto inventoryItem in itemDtos)
                 {
-                    inventoryItem.ImageUrl = this.imageService.GetImageUrlByItemCode(inventoryItem.Code);
+                    inventoryItem.ImageUrl = this.imageService.GetImageUrlByItemId(inventoryItem.Id);
                 }
 
                 base.cacheAdapter.Set(INVENTORY_CACHE_KEY, itemDtos);
@@ -83,19 +84,19 @@
             return itemDtos;
         }
 
-        public ItemDetailsDto GetByCode(int code)
+        public ItemDetailsDto GetById(string id)
         {
-            string itemCacheKey = string.Format(ITEM_CACHE_KEY_TEMPLATE, code);
+            string itemCacheKey = string.Format(ITEM_CACHE_KEY_TEMPLATE, id);
 
             ItemDetailsDto itemDto = base.cacheAdapter.Get<ItemDetailsDto>(itemCacheKey);
             if (itemDto is null)
             {
-                Item item = base.repository.GetByCode(code);
+                Item item = base.repository.GetById(id);
 
-                if (item is null) throw new NotFoundException($"Item with code {code} doesn't exist!");
+                if (item is null) throw new NotFoundException($"Item doesn't exist!");
 
                 itemDto = base.mapper.Map<Item, ItemDetailsDto>(item);
-                itemDto.ImageUrl = this.imageService.GetImageUrlByItemCode(code);
+                itemDto.ImageUrl = this.imageService.GetImageUrlByItemId(id);
 
                 base.cacheAdapter.Set(itemCacheKey, itemDto);
             }
@@ -105,14 +106,6 @@
 
         public async Task CreateAsync(CreateItemDto createItemDto)
         {
-            if (createItemDto.QuantityForSale > createItemDto.Quantity)
-            {
-                throw new ArgumentOutOfRangeException("Quantity for sale should be less or equal to quantity combined!");
-            }
-
-            base.cacheAdapter.Remove(MARKETPLACE_CACHE_KEY);
-            base.cacheAdapter.Remove(INVENTORY_CACHE_KEY);
-
             Item item = base.mapper.Map<CreateItemDto, Item>(createItemDto);
 
             if (createItemDto.Image is not null)
@@ -121,18 +114,22 @@
             }
 
             this.repository.Create(item);
+
+            base.cacheAdapter.Remove(MARKETPLACE_CACHE_KEY);
+            base.cacheAdapter.Remove(INVENTORY_CACHE_KEY);
         }
 
-        public async Task UpdateAsync(int code, UpdateItemDto updateItemDto) 
+        public async Task UpdateAsync(string id, UpdateItemDto updateItemDto) 
         {
-            if (updateItemDto.QuantityForSale > updateItemDto.Quantity)
+            short totalPendingOrdersQuantity = this.orderRepository.GetPendingOrdersTotalItemQuantityByItemId(id);
+            if (updateItemDto.QuantityForSale <= totalPendingOrdersQuantity)
             {
-                throw new ArgumentOutOfRangeException("Quantity for sale should be less or equal than quantity combined!");
+                throw new ArgumentException("Not enough quantity for sale in order to complete pending orders with this item!");
             }
 
             Item item = base.mapper.Map<UpdateItemDto, Item>(updateItemDto);
 
-            string itemImagePublicId = this.GetItemPicturePublicId(code);
+            string itemImagePublicId = this.GetItemPicturePublicId(id);
             if (itemImagePublicId is null)
             {
                 if (updateItemDto.Image is not null)
@@ -158,7 +155,7 @@
 
             try
             {
-                this.repository.Update(code, item);
+                this.repository.Update(id, item);
             }
             catch (SqlException se) when (itemImagePublicId is not null)
             {
@@ -166,16 +163,18 @@
                 throw se;
             }
 
-            base.cacheAdapter.Clear();
+            base.cacheAdapter.Remove(MARKETPLACE_CACHE_KEY);
+            base.cacheAdapter.Remove(INVENTORY_CACHE_KEY);
+            base.cacheAdapter.Remove(string.Format(ITEM_CACHE_KEY_TEMPLATE, item.Id));
         }
 
-        public async Task Delete(int code)
+        public async Task Delete(string id)
         {
-            this.orderRepository.DeclineAllPendingOrdersWithDeletedItem(code);
+            this.orderRepository.DeclineAllPendingOrdersWithDeletedItem(id);
 
-            string itemPicturePublicId = this.GetItemPicturePublicId(code);
+            string itemPicturePublicId = this.GetItemPicturePublicId(id);
 
-            base.repository.DeleteByCode(code);
+            base.repository.Delete(id);
 
             if (itemPicturePublicId is not null)
             {
@@ -185,6 +184,6 @@
             base.cacheAdapter.Clear();
         }
         
-        private string GetItemPicturePublicId(int code) => this.repository.GetItemPicturePublicId(code);
+        private string GetItemPicturePublicId(string id) => this.repository.GetItemPicturePublicId(id);
     }
 }

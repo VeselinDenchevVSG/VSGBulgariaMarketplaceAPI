@@ -4,10 +4,9 @@
 
     public class PendingOrderDto
     {
-        [JsonPropertyName("code")]
         public string Id { get; set; }
 
-        public int ItemCode { get; set; }
+        public string ItemCode { get; set; }
 
         public short Quantity { get; set; }
 

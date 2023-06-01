@@ -12,6 +12,6 @@
 
         public Task DeleteAsync(string publicId);
 
-       public string GetImageUrlByItemCode(int itemCode);
+       public string GetImageUrlByItemId(string itemId);
     }
 }

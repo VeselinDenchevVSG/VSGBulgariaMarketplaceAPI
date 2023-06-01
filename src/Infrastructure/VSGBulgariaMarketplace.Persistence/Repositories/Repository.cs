@@ -54,7 +54,7 @@
             }
             catch (SqlException se) when (se.Number == 2627)
             {
-                this.ThrowPrimaryKeyViolationException(entity.Id);
+                throw new EntityAlreadyExistsException($"{this.entityName} with already exists!");
             }
         }
 
@@ -117,22 +117,6 @@
         {
             this.parameterizedColumnsNamesString = this.GetParameterizedColumnNamesString();
             this.parameterizedColumnsNamesUpdateString = this.GetParameterizedColumnNamesUpdateString();
-        }
-
-        protected void ThrowPrimaryKeyViolationException(U id)
-        {
-            string primaryKeyName = null;
-
-            if (this.entityName != "Item")
-            {
-                primaryKeyName = "id";
-            }
-            else
-            {
-                primaryKeyName = "code";
-            }
-
-            throw new PrimaryKeyViolationException($"{this.entityName} with {primaryKeyName} {id} already exists!");
         }
     }
 }

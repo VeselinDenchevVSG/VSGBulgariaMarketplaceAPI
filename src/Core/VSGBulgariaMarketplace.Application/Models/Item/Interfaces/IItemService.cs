@@ -8,12 +8,12 @@
 
         public InventoryItemDto[] GetInventory();
 
-        public ItemDetailsDto GetByCode(int id);
+        public ItemDetailsDto GetById(string id);
 
         public Task CreateAsync(CreateItemDto createItemDto);
 
-        public Task UpdateAsync(int code, UpdateItemDto updateItemDto);
+        public Task UpdateAsync(string id, UpdateItemDto updateItemDto);
 
-        public Task Delete(int code);
+        public Task Delete(string id);
     }
 }

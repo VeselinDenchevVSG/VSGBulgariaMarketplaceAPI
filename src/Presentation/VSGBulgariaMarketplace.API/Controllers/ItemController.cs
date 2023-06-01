@@ -53,10 +53,10 @@
 
         [HttpGet]
         //[Route("{code}")]
-        [Route("marketplace/{code}")]
-        public IActionResult GetByCode([FromRoute] int code)
+        [Route("marketplace/{id}")]
+        public IActionResult GetById([FromRoute] string id)
         {
-            ItemDetailsDto item = this.itemService.GetByCode(code);
+            ItemDetailsDto item = this.itemService.GetById(id);
 
             if (item is null) return NotFound("Item doesn't exist!");
 
@@ -76,22 +76,22 @@
 
         [HttpPut]
         //[Route("update/{code}")]
-        [Route("~/inventory/modify/{oldCode}")]
+        [Route("~/inventory/modify/{id}")]
         [Authorize(Policy = "Admin")]
-        public async Task<IActionResult> UpdateAsync([FromRoute] int oldCode, [FromForm] UpdateItemDto itemDto)
+        public async Task<IActionResult> UpdateAsync([FromRoute] string id, [FromForm] UpdateItemDto itemDto)
         {
-            await this.itemService.UpdateAsync(oldCode, itemDto);
+            await this.itemService.UpdateAsync(id, itemDto);
 
             return Ok($"Item {itemDto.Name} has been successfully updated!");
         }
 
         [HttpDelete]
         //[Route("delete/{code}")]
-        [Route("/deleteItem/{code}")]
+        [Route("/deleteItem/{id}")]
         [Authorize(Policy = "Admin")]
-        public async Task<IActionResult> Delete([FromRoute] int code)
+        public async Task<IActionResult> Delete([FromRoute] string id)
         {
-            await this.itemService.Delete(code);
+            await this.itemService.Delete(id);
 
             return Ok("Item has been successfully deleted!");
         }

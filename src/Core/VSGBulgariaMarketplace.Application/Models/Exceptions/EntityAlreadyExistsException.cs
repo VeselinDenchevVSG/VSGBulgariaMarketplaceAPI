@@ -1,8 +1,8 @@
 ﻿namespace VSGBulgariaMarketplace.Application.Models.Exceptions
 {
-    public class ItemAlreadyExistsException : Exception
+    public class EntityAlreadyExistsException : Exception
     {
-        public ItemAlreadyExistsException(string? message)
+        public EntityAlreadyExistsException(string? message)
             : base(message)
         {
         }

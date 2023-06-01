@@ -14,7 +14,6 @@
 
     using VSGBulgariaMarketplace.Application.Models.Image.Interfaces;
     using VSGBulgariaMarketplace.Domain.Entities;
-    using static System.Net.Mime.MediaTypeNames;
 
     public class CloudinaryImageService : ICloudImageService
     {
@@ -124,9 +123,9 @@
             this.imageRepository.DeleteById(publicId);
         }
 
-        public string GetImageUrlByItemCode(int itemCode)
+        public string GetImageUrlByItemId(string itemId)
         {
-            CloudinaryImage image = this.imageRepository.GetImageBuildUrlInfoByItemCode(itemCode);
+            CloudinaryImage image = this.imageRepository.GetImageBuildUrlInfoByItemId(itemId);
             if (image is not null)
             {
                 if (image.FileExtension is null) throw new FileNotFoundException("Image not found!");

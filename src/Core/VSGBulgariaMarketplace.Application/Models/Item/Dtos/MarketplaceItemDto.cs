@@ -4,7 +4,9 @@
 
     public class MarketplaceItemDto
     {
-        public int Code { get; set; }
+        public string Id { get; set; }
+
+        public string Code { get; set; }
 
         [JsonPropertyName("imageURL")]
         public string ImageUrl { get; set; }

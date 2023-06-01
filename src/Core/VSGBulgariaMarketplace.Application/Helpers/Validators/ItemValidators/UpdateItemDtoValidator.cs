@@ -12,11 +12,13 @@
 
     public class UpdateItemDtoValidator : AbstractValidator<UpdateItemDto>
     {
+        private const int ITEM_CODE_MAX_STRING_LENGTH = 50;
         private const int ITEM_NAME_MAX_STRING_LENGTH = 120;
 
         public UpdateItemDtoValidator()
         {
-            RuleFor(i => i.Code).InclusiveBetween(1, int.MaxValue).WithMessage($"Item code must be between 1 and {int.MaxValue}!");
+            RuleFor(i => i.Code).NotEmptyWithMessage<UpdateItemDto, string, Item>()
+                                .MaximumLength(ITEM_CODE_MAX_STRING_LENGTH).WithMessage($"Item code can't be logner than {ITEM_CODE_MAX_STRING_LENGTH}!");
 
             RuleFor(i => i.Name).NotEmptyWithMessage<UpdateItemDto, string, Item>()
                                 .MaximumLength(ITEM_NAME_MAX_STRING_LENGTH).WithMessage($"Item name can't be logner than {ITEM_NAME_MAX_STRING_LENGTH}!");

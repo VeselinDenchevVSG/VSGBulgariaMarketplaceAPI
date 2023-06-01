@@ -4,8 +4,9 @@
 
     public class UserOrderDto
     {
-        [JsonPropertyName("code")]
         public string Id { get; set; }
+
+        public string ItemCode { get; set; }
 
         [JsonPropertyName("name")]
         public string ItemName { get; set; }

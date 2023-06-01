@@ -57,7 +57,7 @@
         {
             this.orderService.Finish(code);
 
-            return Ok($"Order with id {code} is finished");
+            return Ok($"Order has been finished");
         }
 
         //[HttpDelete]

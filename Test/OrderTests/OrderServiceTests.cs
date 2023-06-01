@@ -22,7 +22,7 @@
         private const string PENDING_ORDER_ID = "Pending";
         private const string FINISHED_ORDER_ID = "Finished";
         private const string ORDER_ITEM_ID = "Test";
-        private const int ORDER_ITEM_CODE = 1;
+        private const string ORDER_ITEM_CODE = "Test";
         private const short ORDER_ITEM_QUANTITY = 1;
         private const decimal ORDER_ITEM_PRICE = 1.11m;
         private const string ORDER_ITEM_NAME = "Test";
@@ -135,7 +135,7 @@
 
             this.createOrderDto = new CreateOrderDto()
             {
-                ItemCode = ORDER_ITEM_CODE,
+                ItemId = ORDER_ITEM_ID,
                 Quantity = ORDER_ITEM_QUANTITY
             };
             this.mapper.Setup(m => m.Map<CreateOrderDto, Order>(It.IsAny<CreateOrderDto>())).Returns(this.pendingOrder);
@@ -210,7 +210,7 @@
         {
             // Arrange
             //this.pendingOrder.Item.QuantityForSale = ORDER_ITEM_QUANTITY_COMBINED;
-            this.itemRepository.Setup(ir => ir.GetOrderItemInfoByCode(ORDER_ITEM_CODE)).Returns((Item)null);
+            this.itemRepository.Setup(ir => ir.GetOrderItemInfoById(ORDER_ITEM_ID)).Returns((Item)null);
 
             // Act
             Action action = () => this.orderService.Create(this.createOrderDto);
@@ -224,7 +224,7 @@
         {
             // Arrange
             this.orderItem.QuantityForSale = 0;
-            this.itemRepository.Setup(ir => ir.GetOrderItemInfoByCode(ORDER_ITEM_CODE)).Returns(this.orderItem);
+            this.itemRepository.Setup(ir => ir.GetOrderItemInfoById(ORDER_ITEM_ID)).Returns(this.orderItem);
 
             // Act
             Action action = () => this.orderService.Create(this.createOrderDto);
@@ -238,7 +238,7 @@
         {
             // Arrange
             this.orderItem.QuantityForSale = ORDER_ITEM_QUANTITY_COMBINED;
-            this.itemRepository.Setup(ir => ir.GetOrderItemInfoByCode(ORDER_ITEM_CODE)).Returns(this.orderItem);
+            this.itemRepository.Setup(ir => ir.GetOrderItemInfoById(ORDER_ITEM_ID)).Returns(this.orderItem);
 
             // Act
             Action action = () => this.orderService.Create(this.createOrderDto);
@@ -252,7 +252,7 @@
         {
             // Arrange
             this.orderItem.QuantityForSale = ORDER_ITEM_QUANTITY_COMBINED;
-            this.itemRepository.Setup(ir => ir.GetOrderItemInfoByCode(ORDER_ITEM_CODE)).Returns(this.orderItem);
+            this.itemRepository.Setup(ir => ir.GetOrderItemInfoById(ORDER_ITEM_ID)).Returns(this.orderItem);
 
             // Act
             Action action = () => this.orderService.Finish(PENDING_ORDER_ID);
@@ -266,7 +266,7 @@
         {
             // Arrange
             this.orderItem.QuantityForSale = ORDER_ITEM_QUANTITY_COMBINED;
-            itemRepository.Setup(ir => ir.GetOrderItemInfoByCode(ORDER_ITEM_CODE)).Returns(this.orderItem);
+            itemRepository.Setup(ir => ir.GetOrderItemInfoById(ORDER_ITEM_ID)).Returns(this.orderItem);
 
             // Act
             Action action = () => this.orderService.Decline(PENDING_ORDER_ID);

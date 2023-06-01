@@ -4,7 +4,7 @@ using VSGBulgariaMarketplace.Domain.Enums;
 
 public class Item : BaseEntity<string>
 {
-    public int Code { get; set; }
+    public string Code { get; set; }
 
     public string Name { get; set; } = null!;
 

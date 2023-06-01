@@ -15,16 +15,16 @@
             base.SetUpRepository();
         }
 
-        public CloudinaryImage GetImageBuildUrlInfoByItemCode(int itemCode)
+        public CloudinaryImage GetImageBuildUrlInfoByItemId(string itemId)
         {
             string sql =    $"SELECT ci.FileExtension, ci.Version, ci.Id, i.ImagePublicId AS ImageId FROM CloudinaryImages AS ci " +
                             $"JOIN Items AS i " +
                             $"ON ci.Id = i.ImagePublicId " +
-                            $"WHERE i.Code = @ItemCode";
+                            $"WHERE i.Id = @ItemId";
             CloudinaryImage image = base.DbConnection.Query<CloudinaryImage, Item, CloudinaryImage>(sql, (image, item) =>
             {
                 return image;
-            }, new { ItemCode = itemCode }, splitOn: "ImageId", transaction: base.Transaction).FirstOrDefault();
+            }, new { ItemId = itemId }, splitOn: "ImageId", transaction: base.Transaction).FirstOrDefault();
 
             return image;
         }

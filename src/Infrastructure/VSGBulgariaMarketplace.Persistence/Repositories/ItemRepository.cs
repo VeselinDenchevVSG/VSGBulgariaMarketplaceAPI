@@ -23,7 +23,7 @@
         
         public Item[] GetMarketplace()
         {
-            string sql =    $"SELECT i.Code, i.Price, i.Category, i.QuantityForSale, i.ImagePublicId, ci.Id AS CloudinaryImageId FROM Items AS i " +
+            string sql =    $"SELECT i.Id, i.Code, i.Price, i.Category, i.QuantityForSale, i.ImagePublicId, ci.Id AS CloudinaryImageId FROM Items AS i " +
                             $"LEFT JOIN CloudinaryImages AS ci " +
                             $"ON i.ImagePublicId = ci.Id " +
                             $"WHERE i.QuantityForSale IS NOT NULL";
@@ -47,24 +47,24 @@
 
         public Item[] GetInventory()
         {
-            string sql = $"SELECT Code, Name, Description, Category, QuantityForSale, Price, QuantityCombined, ImagePublicId, Location FROM Items";
+            string sql = $"SELECT Id, Code, Name, Description, Category, QuantityForSale, Price, QuantityCombined, ImagePublicId, Location FROM Items";
             Item[] inventory = base.DbConnection.Query<Item>(sql, transaction: this.Transaction).ToArray();
 
             return inventory;
         }
 
-        public Item GetByCode(int code)
+        public Item GetById(string id)
         {
             string sql =    "SELECT i.Name, i.Price, i.Category, i.QuantityForSale, i.Description, i.ImagePublicId, ci.Id AS CloudinaryImageId FROM Items AS i " +
                             "LEFT JOIN CloudinaryImages AS ci " +
                             "ON i.ImagePublicId = ci.Id " +
-                            "WHERE i.Code = @Code AND i.QuantityForSale IS NOT NULL";
+                            "WHERE i.Id = @Id AND i.QuantityForSale IS NOT NULL";
             Item item = base.DbConnection.Query<Item, CloudinaryImage, Item>(sql, (item, image) =>
             {
                 item.ImagePublicId = image.Id;
 
                 return item;
-            }, new { Code = code }, splitOn: "CloudinaryImageId", transaction: base.Transaction).FirstOrDefault();
+            }, new { Id = id }, splitOn: "CloudinaryImageId", transaction: base.Transaction).FirstOrDefault();
 
             if (item?.ImagePublicId is not null)
             {
@@ -74,37 +74,57 @@
             return item;
         }
 
-        public Item GetOrderItemInfoByCode(int code)
+        public Item GetOrderItemInfoById(string id)
         {
-            string sql = "SELECT Id, Name, QuantityForSale, Price FROM Items WHERE Code = @Code";
-            Item item = base.DbConnection.QueryFirstOrDefault<Item>(sql, new { Code = code }, transaction: base.Transaction);
+            string sql = "SELECT Id, Code, Name, QuantityForSale, Price FROM Items WHERE Id = @Id";
+            Item item = base.DbConnection.QueryFirstOrDefault<Item>(sql, new { Id = id }, transaction: base.Transaction);
 
             return item;
         }
 
-        public void BuyItem(int code, short quantity)
+        public void RequestItemPurchase(string id, short quantityRequested)
         {
-            string getItemQuantityForSaleSql = "SELECT QuantityForSale FROM Items WHERE Code = @Code";
-            string result = base.DbConnection.ExecuteScalar(getItemQuantityForSaleSql, new { Code = code }, transaction: base.Transaction).ToString();
+            string getItemQuantityForSaleSql = "SELECT QuantityForSale FROM Items WHERE Id = @Id";
+            string result = base.DbConnection.ExecuteScalar<string>(getItemQuantityForSaleSql, new { Id = id }, transaction: base.Transaction).ToString();
             short quantityForSale = short.Parse(result);
 
-            if (quantity > quantityForSale)
+            if (quantityRequested <= quantityForSale)
             {
-                throw new ArgumentOutOfRangeException("Not enough item quantity in stock!");
+                string requestItemPurchaseSql = $"UPDATE Items SET QuantityForSale -= @QuantityRequested, ModifiedAtUtc = GETUTCDATE() WHERE Id = @Id";
+                base.DbConnection.Execute(requestItemPurchaseSql, new { Id = id, QuantityRequested = quantityRequested }, transaction: base.Transaction);
             }
-
-            string buyItemSql = $"UPDATE Items SET QuantityForSale -= @QuantitySold, QuantityCombined -= @QuantitySold, ModifiedAtUtc = GETUTCDATE() WHERE Code = @Code";
-            base.DbConnection.Execute(buyItemSql, new { Code = code, QuantitySold = quantity }, transaction: base.Transaction);
+            else throw new ArgumentOutOfRangeException("Not enough item quantity in stock!");
         }
 
-        public void Update(int oldCode, Item item)
+        public void RestoreItemQuantities(string id, short quantity)
         {
-            string sql = $"UPDATE Items SET {this.parameterizedColumnsNamesUpdateString} WHERE Code = @OldCode";
+            string sql = $"UPDATE Items SET QuantityForSale += @Quantity, QuantityCombined += @Quantity, ModifiedAtUtc = GETUTCDATE() WHERE Id = @Id";
+            base.DbConnection.Execute(sql, new { Id = id, Quantity = quantity }, transaction: base.Transaction);
+        }
+
+        public void BuyItem(string id, short quantityRequested)
+        {
+            string getItemQuantityForSaleSql = "SELECT QuantityForSale FROM Items WHERE Id = @Id";
+            string result = base.DbConnection.ExecuteScalar<string>(getItemQuantityForSaleSql, new { Id = id }, transaction: base.Transaction).ToString();
+            short quantityForSale = short.Parse(result);
+
+            if (quantityRequested <= quantityForSale)
+            {
+                string buyItemSql = $"UPDATE Items SET QuantityCombined -= @QuantitySold, ModifiedAtUtc = GETUTCDATE() WHERE Id = @Id";
+                base.DbConnection.Execute(buyItemSql, new { Id = id, QuantitySold = quantityRequested }, transaction: base.Transaction);
+            }
+            else throw new ArgumentOutOfRangeException("Not enough item quantity in stock!");
+        }
+
+        public void Update(string id, Item item)
+        {
+            string sql = $"UPDATE Items SET {this.parameterizedColumnsNamesUpdateString} WHERE Id = @Id";
 
             try
             {
                 base.DbConnection.Execute(sql, new
                 {
+                    Id = id,
                     Code = item.Code,
                     Name = item.Name,
                     ImagePublicId = item.ImagePublicId,
@@ -114,35 +134,34 @@
                     QuantityForSale = item.QuantityForSale,
                     Description = item.Description,
                     Location = item.Location,
-                    ModifiedAtUtc = DateTime.UtcNow,
-                    OldCode = oldCode
+                    ModifiedAtUtc = DateTime.UtcNow
                 }, transaction: this.Transaction);
             }
             catch (SqlException se) when (se.Number == 2601)
             {
-                ThrowItemAlreadyExistsException(se.Message);
+                ThrowEntityAlreadyExistsException(se.Message);
             }
         }
 
-        public void DeleteByCode(int code)
+        public void Delete(string id)
         {
-            string sql = $"DELETE FROM Items WHERE Code = @Code";
+            string sql = $"DELETE FROM Items WHERE Id = @Id";
             bool hasBeenDeleted =
-                Convert.ToBoolean(this.DbConnection.Execute(sql, new { Code = code }, transaction: this.Transaction));
+                Convert.ToBoolean(this.DbConnection.Execute(sql, new { Id = id }, transaction: this.Transaction));
             if (!hasBeenDeleted)
             {
-                throw new NotFoundException($"{typeof(Item)} with code {code} doesn't exist!");
+                throw new NotFoundException($"Item doesn't exist!");
             }
         }
 
-        public string GetItemPicturePublicId(int code)
+        public string GetItemPicturePublicId(string id)
         {
-            string sql = "SELECT ImagePublicId FROM Items WHERE Code = @Code";
-            var result = this.DbConnection.Query<string>(sql, new { Code = code }, base.Transaction);
+            string sql = "SELECT ImagePublicId FROM Items WHERE Id = @Id";
+            var result = this.DbConnection.Query<string>(sql, new { Id = id }, base.Transaction);
 
             if (result.Count() == 0)
             {
-                throw new NotFoundException($"Item with code = {code} doesn't exist!");
+                throw new NotFoundException($"Item doesn't exist!");
             }
 
             string itemPicturePublicId = result.FirstOrDefault();
@@ -159,16 +178,24 @@
         {
             item.Id = Guid.NewGuid().ToString();
 
-            base.Create(item);
+            try
+            {
+                base.Create(item);
+            }
+            catch (EntityAlreadyExistsException)
+            {
+                throw new EntityAlreadyExistsException("Item with the same name and location or code and location or all three the same already exists!");
+            }
+
         }
 
-        private static void ThrowItemAlreadyExistsException(string message) 
+        private static void ThrowEntityAlreadyExistsException(string message) 
         {
             string[] exceptionMessageTokens = message.Split(" _()'.".ToCharArray());
             string duplicateColumn = exceptionMessageTokens[17];
             string duplicateValue = exceptionMessageTokens[26];
 
-            throw new ItemAlreadyExistsException($"Item with {duplicateColumn} {duplicateValue} already exists!");
+            throw new EntityAlreadyExistsException($"Item with {duplicateColumn} {duplicateValue} already exists!");
         }
     }
 }
