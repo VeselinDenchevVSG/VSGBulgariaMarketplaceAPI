@@ -2,7 +2,7 @@
 {
     using FluentMigrator;
 
-    [Migration(202326051035)]
+    [Migration(202305261035)]
     public class UpdateTableOrders : Migration
     {
         private const string ORDERS_TABLE_NAME = "Orders";

@@ -2,7 +2,7 @@
 {
     using FluentMigrator;
 
-    [Migration(202331051556)]
+    [Migration(202305311556)]
     public class AddVersionColumnToCloudinaryImagesTable : Migration
     {
         private const string CLOUDINARY_IMAGES_TABLE_NAME = "CloudinaryImages";
