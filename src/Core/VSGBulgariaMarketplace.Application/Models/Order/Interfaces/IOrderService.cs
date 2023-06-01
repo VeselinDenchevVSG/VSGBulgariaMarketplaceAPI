@@ -13,5 +13,7 @@
         public void Finish(string id);
 
         public void Decline(string id);
+
+        public void ClearOrderItemRelatedCache(string itemId, string email);
     }
 }

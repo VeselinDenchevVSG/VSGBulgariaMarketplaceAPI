@@ -13,6 +13,8 @@
 
         public void Finish(string id);
 
-        public void DeclineAllPendingOrdersWithDeletedItem(int itemCode);
+        public void DeclineAllPendingOrdersWithDeletedItem(string itemId);
+
+        public short GetPendingOrdersTotalItemQuantityByItemId(string itemId);
     }
 }
