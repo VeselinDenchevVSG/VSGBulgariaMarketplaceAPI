@@ -26,7 +26,7 @@
             string sql =    $"SELECT i.Id, i.Code, i.Price, i.Category, i.QuantityForSale, i.ImagePublicId, ci.Id AS CloudinaryImageId FROM Items AS i " +
                             $"LEFT JOIN CloudinaryImages AS ci " +
                             $"ON i.ImagePublicId = ci.Id " +
-                            $"WHERE i.QuantityForSale IS NOT NULL";
+                            $"WHERE i.QuantityForSale IS NOT NULL AND i.QuantityForSale > 0";
             Item[] marketplace = base.DbConnection.Query<Item, CloudinaryImage, Item>(sql, (item, image) =>
             {
                 item.ImagePublicId = image.Id;
