@@ -58,8 +58,6 @@
         {
             ItemDetailsDto item = this.itemService.GetById(id);
 
-            if (item is null) return NotFound("Item doesn't exist!");
-
             return Ok(item);
         }
 
@@ -71,7 +69,7 @@
         {
             await this.itemService.CreateAsync(itemDto);
 
-            return Ok($"Item {itemDto.Name} is successfully created!");
+            return Ok(new { Message = $"Item {itemDto.Name} is successfully created!" } );
         }
 
         [HttpPut]
@@ -82,7 +80,7 @@
         {
             await this.itemService.UpdateAsync(id, itemDto);
 
-            return Ok($"Item {itemDto.Name} has been successfully updated!");
+            return Ok(new { Message = $"Item {itemDto.Name} has been successfully updated!" } );
         }
 
         [HttpDelete]
@@ -93,7 +91,7 @@
         {
             await this.itemService.Delete(id);
 
-            return Ok("Item has been successfully deleted!");
+            return Ok(new { Message = "Item has been successfully deleted!" } );
         }
     }
 }

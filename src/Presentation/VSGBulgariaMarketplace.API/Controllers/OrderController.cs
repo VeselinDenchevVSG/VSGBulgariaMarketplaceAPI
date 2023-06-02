@@ -45,7 +45,7 @@
         {
             this.orderService.Create(orderDto);
 
-            return Ok($"Order was successfully created!");
+            return Ok(new { Message = $"Order was successfully created!" });
         }
 
         //[HttpPatch]
@@ -57,7 +57,7 @@
         {
             this.orderService.Finish(code);
 
-            return Ok($"Order has been finished");
+            return Ok(new { Message = $"Order has been finished" });
         }
 
         //[HttpDelete]
@@ -68,7 +68,7 @@
         {
             this.orderService.Decline(code);
 
-            return Ok("Order has been declined!");
+            return Ok(new { Message = "Order has been declined!" });
         }
     }
 }
