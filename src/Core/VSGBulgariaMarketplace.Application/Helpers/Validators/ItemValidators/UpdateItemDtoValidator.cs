@@ -34,8 +34,12 @@
             RuleFor(i => i.Quantity).NotEmptyWithMessage<UpdateItemDto, short, Item>()
                                             .InclusiveBetween((short)0, short.MaxValue).WithMessage($"Item quantity combined must be between 0 and {short.MaxValue}!");
 
-            RuleFor(i => i.QuantityForSale).InclusiveBetween((short)0, short.MaxValue).WithMessage($"Item quantity for sale must be between 0 and {short.MaxValue}!")
-                                            .LessThanOrEqualTo(i => i.Quantity).WithMessage("Item quantity for sale must be less than or equal to quantity combined!");
+            When(i => i.QuantityForSale is not null, () =>
+            {
+                RuleFor(i => i.QuantityForSale).InclusiveBetween((short)0, short.MaxValue).WithMessage($"Item quantity for sale must be between 0 and {short.MaxValue}!")
+                            .LessThanOrEqualTo(i => i.Quantity).WithMessage("Item quantity for sale must be less than or equal to quantity combined!");
+            });
+
 
             RuleFor(i => i.Description).MaximumLength(1_000);
 
