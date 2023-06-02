@@ -165,7 +165,7 @@
 
             base.cacheAdapter.Remove(MARKETPLACE_CACHE_KEY);
             base.cacheAdapter.Remove(INVENTORY_CACHE_KEY);
-            base.cacheAdapter.Remove(string.Format(ITEM_CACHE_KEY_TEMPLATE, item.Id));
+            base.cacheAdapter.Remove(string.Format(ITEM_CACHE_KEY_TEMPLATE, id));
         }
 
         public async Task Delete(string id)
