@@ -79,7 +79,7 @@
             return image.Id;
         }
 
-        public async Task UpdateAsync(string publicId, IFormFile newimageFile)
+        public async Task<string> UpdateAsync(string publicId, IFormFile newimageFile)
         {
             publicId = publicId.Replace("%2F", "/");
 
@@ -106,6 +106,8 @@
                 publicId = publicId.Split('/')[1];
 
                 this.imageRepository.UpdateImageFileInfo(publicId, image);
+
+                return publicId;
                 
             }
             else throw new FileNotFoundException("Image not found!");

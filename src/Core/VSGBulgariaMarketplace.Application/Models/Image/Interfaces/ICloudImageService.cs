@@ -8,7 +8,7 @@
 
         public Task<string> UploadAsync(IFormFile imageFile);
 
-        public Task UpdateAsync(string publicId, IFormFile newimageFile);
+        public Task<string> UpdateAsync(string publicId, IFormFile newimageFile);
 
         public Task DeleteAsync(string publicId);
 
