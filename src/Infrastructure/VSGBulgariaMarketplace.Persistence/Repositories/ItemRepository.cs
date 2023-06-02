@@ -93,7 +93,7 @@
                 string requestItemPurchaseSql = $"UPDATE Items SET QuantityForSale -= @QuantityRequested, ModifiedAtUtc = GETUTCDATE() WHERE Id = @Id";
                 base.DbConnection.Execute(requestItemPurchaseSql, new { Id = id, QuantityRequested = quantityRequested }, transaction: base.Transaction);
             }
-            else throw new ArgumentOutOfRangeException("Not enough item quantity in stock!");
+            else throw new ArgumentException("Not enough item quantity in stock!");
         }
 
         public void RestoreItemQuantities(string id, short quantity)
@@ -104,16 +104,8 @@
 
         public void BuyItem(string id, short quantityRequested)
         {
-            string getItemQuantityForSaleSql = "SELECT QuantityForSale FROM Items WHERE Id = @Id";
-            string result = base.DbConnection.ExecuteScalar<string>(getItemQuantityForSaleSql, new { Id = id }, transaction: base.Transaction).ToString();
-            short quantityForSale = short.Parse(result);
-
-            if (quantityRequested <= quantityForSale)
-            {
-                string buyItemSql = $"UPDATE Items SET QuantityCombined -= @QuantitySold, ModifiedAtUtc = GETUTCDATE() WHERE Id = @Id";
-                base.DbConnection.Execute(buyItemSql, new { Id = id, QuantitySold = quantityRequested }, transaction: base.Transaction);
-            }
-            else throw new ArgumentOutOfRangeException("Not enough item quantity in stock!");
+            string sql = $"UPDATE Items SET QuantityCombined -= @QuantitySold, ModifiedAtUtc = GETUTCDATE() WHERE Id = @Id";
+            base.DbConnection.Execute(sql, new { Id = id, QuantitySold = quantityRequested }, transaction: base.Transaction);
         }
 
         public void Update(string id, Item item)
