@@ -110,8 +110,8 @@
 
             string email = this.httpContextAccessor.HttpContext.User.FindFirst(c => c.Type == "preferred_username").Value;
 
-            base.repository.DeleteById(id);
-            this.itemRepository.RestoreItemQuantities(order.ItemId, order.Quantity);
+            base.repository.Delete(id);
+            this.itemRepository.RestoreItemQuantitiesWhenOrderIsDeclined(order.ItemId, order.Quantity);
 
             this.ClearOrderItemRelatedCache(order.ItemId, email);
         }

@@ -147,7 +147,7 @@
             this.orderRepository.Setup(or => or.GetUserOrders(USER_EMAIL)).Returns(orders);
             this.orderRepository.Setup(or => or.GetOrderItemIdAndQuantity(PENDING_ORDER_ID)).Returns(this.pendingOrder);
             this.orderRepository.Setup(or => or.Finish(PENDING_ORDER_ID));
-            this.orderRepository.Setup(or => or.DeleteById(PENDING_ORDER_ID));
+            this.orderRepository.Setup(or => or.Delete(PENDING_ORDER_ID));
 
             this.memoryCache.Setup(mc => mc.Set(It.IsAny<string>(), It.IsAny<object>()));
             this.memoryCache.Setup(mc => mc.Remove(It.IsAny<string>()));

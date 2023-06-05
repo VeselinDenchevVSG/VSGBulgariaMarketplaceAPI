@@ -13,13 +13,17 @@
 
         public Item GetOrderItemInfoById(string id);
 
-        public void Update(string id, Item item);
+        public bool TryGetAvailableQuantity(string id, out int? avaiableQuantity);
 
-        public void Delete(string id);
+        public void Update(string id, Item item);
 
         public void RequestItemPurchase(string id, short quantityRequested);
 
-        public void RestoreItemQuantities(string id, short quantity);
+        public void RequestItemLoan(string id, short quantityRequested);
+
+        public void RestoreItemQuantitiesWhenOrderIsDeclined(string id, short quantity);
+
+        public void RestoreItemQuantitiesWhenReturningLendItems(string id, short quantity);
 
         public void BuyItem(string id, short quantitySold);
 

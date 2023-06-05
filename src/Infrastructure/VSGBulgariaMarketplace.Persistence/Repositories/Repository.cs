@@ -58,14 +58,14 @@
             }
         }
 
-        public virtual void DeleteById(U id)
+        public virtual void Delete(U id)
         {
             string sql = $"DELETE FROM {this.tableName} WHERE Id = @Id";
             bool hasBeenDeleted = 
                 Convert.ToBoolean(this.DbConnection.Execute(sql, new { Id = id }, transaction: this.Transaction));
             if (!hasBeenDeleted)
             {
-                throw new NotFoundException($"{typeof(T).Name} with id {id} doesn't exist!");
+                throw new NotFoundException($"{typeof(T).Name} doesn't exist!");
             }
         }
 

@@ -35,7 +35,7 @@
         
         public Order GetOrderItemIdAndQuantity(string id)
         {
-            string sql = "SELECT ItemId, ItemCode, Quantity FROM Orders WHERE Id = @Id";
+            string sql = "SELECT ItemId, Quantity FROM Orders WHERE Id = @Id";
             Order order = base.DbConnection.QueryFirstOrDefault<Order>(sql, new { Id = id }, transaction: base.Transaction);
 
             return order;
@@ -62,7 +62,7 @@
 
             foreach (Order order in pendingOrdersWithDeletedItem)
             {
-                base.DeleteById(order.Id);
+                base.Delete(order.Id);
             }
         }
 

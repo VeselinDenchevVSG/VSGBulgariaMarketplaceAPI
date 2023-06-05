@@ -40,6 +40,22 @@
                             .LessThanOrEqualTo(i => i.Quantity).WithMessage("Item quantity for sale must be less than or equal to quantity combined!");
             });
 
+            When(i => i.AvailableQuantity.HasValue, () =>
+            {
+                When(i => i.QuantityForSale.HasValue, () =>
+                {
+                    RuleFor(i => i.AvailableQuantity)
+                            .InclusiveBetween((short)0, short.MaxValue).WithMessage($"Item quantity for sale must be between 0 and {short.MaxValue}!")
+                            .LessThanOrEqualTo(i => (short)(i.Quantity - i.QuantityForSale.Value))
+                            .WithMessage("Item quantity for sale must be less than or equal to the difference of quantity combined and quantity for sale!");
+                })
+                .Otherwise(() =>
+                {
+                    RuleFor(i => i.AvailableQuantity)
+                            .InclusiveBetween((short)0, short.MaxValue).WithMessage($"Item quantity for sale must be between 0 and {short.MaxValue}!")
+                            .LessThanOrEqualTo(i => i.Quantity).WithMessage("Item quantity for sale must be less than or equal to quantity combined!");
+                });
+            });
 
             RuleFor(i => i.Description).MaximumLength(1_000);
 

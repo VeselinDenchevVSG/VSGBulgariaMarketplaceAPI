@@ -122,7 +122,7 @@
             if (deletionResult.Result == "not found") throw new FileNotFoundException("Image not found!");
 
             publicId = publicId.Split('/')[1];
-            this.imageRepository.DeleteById(publicId);
+            this.imageRepository.Delete(publicId);
         }
 
         public string GetImageUrlByItemId(string itemId)

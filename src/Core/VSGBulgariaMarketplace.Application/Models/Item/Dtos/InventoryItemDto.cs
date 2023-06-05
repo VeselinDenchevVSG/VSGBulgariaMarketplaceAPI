@@ -16,6 +16,8 @@
 
         public short? QuantityForSale { get; set; }
 
+        public short? AvailableQuantity { get; set; }
+
         public decimal Price { get; set; }
 
         [JsonPropertyName("quantity")]

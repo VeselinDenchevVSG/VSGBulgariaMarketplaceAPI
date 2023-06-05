@@ -14,6 +14,7 @@
             CreateMap<Item, MarketplaceItemDto>().ForMember(dto => dto.Category, x => x.MapFrom(e => EnumService.GetEnumDisplayName(e.Category)));
             CreateMap<Item, ItemDetailsDto>().ForMember(dto => dto.Category, x => x.MapFrom(e => EnumService.GetEnumDisplayName(e.Category)));
             CreateMap<Item, InventoryItemDto>().ForMember(dto => dto.QuantityForSale, x => x.MapFrom(e => e.QuantityForSale == null ? 0 : e.QuantityForSale))
+                                                .ForMember(dto => dto.AvailableQuantity, x => x.MapFrom(e => e.AvailableQuantity == null ? 0 : e.AvailableQuantity))
                                                 .ForMember(dto => dto.Category, x => x.MapFrom(e => EnumService.GetEnumDisplayName(e.Category)))
                                                 .ForMember(dto => dto.Location, x => x.MapFrom(e => EnumService.GetEnumDisplayName(e.Location)));
 

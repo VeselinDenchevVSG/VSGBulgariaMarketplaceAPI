@@ -128,7 +128,7 @@
             this.itemRepository.Setup(ir => ir.GetInventory()).Returns(items);
             this.itemRepository.Setup(ir => ir.Create(It.IsAny<Item>()));
             this.itemRepository.Setup(ir => ir.Update(It.IsAny<string>(), It.IsAny<Item>()));
-            this.itemRepository.Setup(ir => ir.DeleteById(It.IsAny<string>()));
+            this.itemRepository.Setup(ir => ir.Delete(It.IsAny<string>()));
 
             this.orderRepository.Setup(or => or.DeclineAllPendingOrdersWithDeletedItem(It.IsAny<string>()));
 

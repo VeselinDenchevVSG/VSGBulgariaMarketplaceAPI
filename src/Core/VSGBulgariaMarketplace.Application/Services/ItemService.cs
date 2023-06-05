@@ -8,6 +8,7 @@
     using VSGBulgariaMarketplace.Application.Models.Image.Interfaces;
     using VSGBulgariaMarketplace.Application.Models.Item.Dtos;
     using VSGBulgariaMarketplace.Application.Models.Item.Interfaces;
+    using VSGBulgariaMarketplace.Application.Models.ItemLoan.Interfaces;
     using VSGBulgariaMarketplace.Application.Models.Order.Interfaces;
     using VSGBulgariaMarketplace.Application.Services.HelpServices;
     using VSGBulgariaMarketplace.Application.Services.HelpServices.Cache.Interfaces;
@@ -21,13 +22,16 @@
         internal const string ITEM_CACHE_KEY_TEMPLATE = "item-{0}";
 
         private IOrderRepository orderRepository;
+        private IItemLoanRepository itemLoanRepository;
+
         private ICloudImageService imageService;
 
-        public ItemService(IItemRepository itemRepository, IOrderRepository orderRepository, ICloudImageService imageService, 
+        public ItemService(IItemRepository itemRepository, IOrderRepository orderRepository, IItemLoanRepository itemLoanRepository,  ICloudImageService imageService, 
                             IMemoryCacheAdapter cacheAdapter, IMapper mapper)
             : base(itemRepository, cacheAdapter, mapper)
         {
             this.orderRepository = orderRepository;
+            this.itemLoanRepository = itemLoanRepository;
             this.imageService = imageService;
         }
 
@@ -121,10 +125,16 @@
 
         public async Task UpdateAsync(string id, UpdateItemDto updateItemDto) 
         {
-            short totalPendingOrdersQuantity = this.orderRepository.GetPendingOrdersTotalItemQuantityByItemId(id);
-            if (updateItemDto.QuantityForSale <= totalPendingOrdersQuantity)
+            short pendingOrderdTotalItemQuantity = this.orderRepository.GetPendingOrdersTotalItemQuantityByItemId(id);
+            if (updateItemDto.QuantityForSale <= pendingOrderdTotalItemQuantity)
             {
                 throw new ArgumentException("Not enough quantity for sale in order to complete pending orders with this item!");
+            }
+
+            short itemLoansTotalItemQuantity = this.itemLoanRepository.GetItemLoansTotalItemQuantityByItemId(id);
+            if (updateItemDto.AvailableQuantity <= itemLoansTotalItemQuantity)
+            {
+                throw new ArgumentException("Not enough available quantity for loan in order to complete pending orders with this item!");
             }
 
             Item item = base.mapper.Map<UpdateItemDto, Item>(updateItemDto);
@@ -170,18 +180,23 @@
 
         public async Task Delete(string id)
         {
-            this.orderRepository.DeclineAllPendingOrdersWithDeletedItem(id);
-
-            string itemPicturePublicId = this.GetItemPicturePublicId(id);
-
-            base.repository.Delete(id);
-
-            if (itemPicturePublicId is not null)
+            bool isLoanWithItem = this.itemLoanRepository.IsLoanWithItem(id);
+            if (!isLoanWithItem)
             {
-                await this.imageService.DeleteAsync(itemPicturePublicId);
-            }
+                this.orderRepository.DeclineAllPendingOrdersWithDeletedItem(id);
 
-            base.cacheAdapter.Clear();
+                string itemPicturePublicId = this.GetItemPicturePublicId(id);
+
+                base.repository.Delete(id);
+
+                if (itemPicturePublicId is not null)
+                {
+                    await this.imageService.DeleteAsync(itemPicturePublicId);
+                }
+
+                base.cacheAdapter.Clear();
+            }
+            else throw new InvalidOperationException("Can't delete item because it is lent to someone!");
         }
         
         private string GetItemPicturePublicId(string id) => this.repository.GetItemPicturePublicId(id);

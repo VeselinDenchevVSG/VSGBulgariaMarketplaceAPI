@@ -16,11 +16,11 @@
         public ItemRepository(IUnitOfWork unitOfWork)
             : base(unitOfWork)
         {
-            base.columnNamesString = "(Id, Code, Name, ImagePublicId, Price, Category, QuantityCombined, QuantityForSale, " +
-                                        "Description, Location, CreatedAtUtc, ModifiedAtUtc)";
+            base.columnNamesString = "(Id, Code, Name, ImagePublicId, Price, Category, QuantityCombined, QuantityForSale, AvailableQuantity, Description, Location, CreatedAtUtc, " +
+                                        "ModifiedAtUtc)";
             base.SetUpRepository();
         }
-        
+
         public Item[] GetMarketplace()
         {
             string sql =    $"SELECT i.Id, i.Code, i.Price, i.Category, i.QuantityForSale, i.ImagePublicId, ci.Id AS CloudinaryImageId FROM Items AS i " +
@@ -47,7 +47,7 @@
 
         public Item[] GetInventory()
         {
-            string sql = $"SELECT Id, Code, Name, Description, Category, QuantityForSale, Price, QuantityCombined, ImagePublicId, Location FROM Items";
+            string sql = $"SELECT Id, Code, Name, Description, Category, QuantityCombined, QuantityForSale, AvailableQuantity, Price, ImagePublicId, Location FROM Items";
             Item[] inventory = base.DbConnection.Query<Item>(sql, transaction: this.Transaction).ToArray();
 
             return inventory;
@@ -82,6 +82,16 @@
             return item;
         }
 
+        public bool TryGetAvailableQuantity(string id, out int? avaiableQuantity)
+        {
+            string sql = "SELECT ISNULL(AvailableQuantity, 0) FROM Items WHERE Id = @Id";
+            avaiableQuantity = base.DbConnection.ExecuteScalar<int?>(sql, new { Id = id }, transaction: base.Transaction);
+
+            bool exists = avaiableQuantity != null;
+
+            return exists;
+        }
+
         public void RequestItemPurchase(string id, short quantityRequested)
         {
             string getItemQuantityForSaleSql = "SELECT QuantityForSale FROM Items WHERE Id = @Id";
@@ -93,12 +103,32 @@
                 string requestItemPurchaseSql = $"UPDATE Items SET QuantityForSale -= @QuantityRequested, ModifiedAtUtc = GETUTCDATE() WHERE Id = @Id";
                 base.DbConnection.Execute(requestItemPurchaseSql, new { Id = id, QuantityRequested = quantityRequested }, transaction: base.Transaction);
             }
-            else throw new ArgumentException("Not enough item quantity in stock!");
+            else throw new ArgumentException("Not enough quantity for sale in stock!");
         }
 
-        public void RestoreItemQuantities(string id, short quantity)
+        public void RequestItemLoan(string id, short quantityRequested)
+        {
+            string getItemQuantityForSaleSql = "SELECT AvailableQuantity FROM Items WHERE Id = @Id";
+            string result = base.DbConnection.ExecuteScalar<string>(getItemQuantityForSaleSql, new { Id = id }, transaction: base.Transaction).ToString();
+            short lendQuantity = short.Parse(result);
+
+            if (quantityRequested <= lendQuantity)
+            {
+                string requestItemLoanSql = $"UPDATE Items SET AvailableQuantity -= @QuantityRequested, ModifiedAtUtc = GETUTCDATE() WHERE Id = @Id";
+                base.DbConnection.Execute(requestItemLoanSql, new { Id = id, QuantityRequested = quantityRequested }, transaction: base.Transaction);
+            }
+            else throw new ArgumentException("Not enough available quantity for lending in stock!");
+        }
+
+        public void RestoreItemQuantitiesWhenOrderIsDeclined(string id, short quantity)
         {
             string sql = $"UPDATE Items SET QuantityForSale += @Quantity, QuantityCombined += @Quantity, ModifiedAtUtc = GETUTCDATE() WHERE Id = @Id";
+            base.DbConnection.Execute(sql, new { Id = id, Quantity = quantity }, transaction: base.Transaction);
+        }
+
+        public void RestoreItemQuantitiesWhenReturningLendItems(string id, short quantity)
+        {
+            string sql = $"UPDATE Items SET QuantityForSale += @Quantity, ModifiedAtUtc = GETUTCDATE() WHERE Id = @Id";
             base.DbConnection.Execute(sql, new { Id = id, Quantity = quantity }, transaction: base.Transaction);
         }
 
@@ -124,6 +154,7 @@
                     Category = item.Category,
                     QuantityCombined = item.QuantityCombined,
                     QuantityForSale = item.QuantityForSale,
+                    AvailableQuantity = item.AvailableQuantity,
                     Description = item.Description,
                     Location = item.Location,
                     ModifiedAtUtc = DateTime.UtcNow
@@ -132,17 +163,6 @@
             catch (SqlException se) when (se.Number == 2601)
             {
                 ThrowEntityAlreadyExistsException(se.Message);
-            }
-        }
-
-        public void Delete(string id)
-        {
-            string sql = $"DELETE FROM Items WHERE Id = @Id";
-            bool hasBeenDeleted =
-                Convert.ToBoolean(this.DbConnection.Execute(sql, new { Id = id }, transaction: this.Transaction));
-            if (!hasBeenDeleted)
-            {
-                throw new NotFoundException($"Item doesn't exist!");
             }
         }
 
@@ -176,9 +196,15 @@
             }
             catch (EntityAlreadyExistsException)
             {
-                throw new EntityAlreadyExistsException("Item with the same name and location or code and location or all three the same already exists!");
+                throw new EntityAlreadyExistsException("Item with the same name and location or code and location already exists!");
             }
 
+        }
+
+        private void RestoreItemQuantities(string id, short quantity, string quantityType)
+        {
+            string sql = $"UPDATE Items SET {quantityType} += @Quantity, QuantityCombined += @Quantity, ModifiedAtUtc = GETUTCDATE() WHERE Id = @Id";
+            base.DbConnection.Execute(sql, new { Id = id, Quantity = quantity }, transaction: base.Transaction);
         }
 
         private static void ThrowEntityAlreadyExistsException(string message) 
