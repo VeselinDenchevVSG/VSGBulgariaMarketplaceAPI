@@ -4,7 +4,7 @@
 
     public interface IItemLoanService
     {
-        List<EmailWithLendItemsCountDto> GetUserEmailWithLendItemsCount();
+        List<EmailWithLendItemsCountDto> GetUserEmailsWithLendItemsCount();
 
         UserLendItemDto[] GetUserLendItems(string email);
 

@@ -11,6 +11,9 @@
 
     public class ItemLoanService : BaseService<IItemLoanRepository, ItemLoan>, IItemLoanService
     {
+        private const string USER_EMAILS_WITH_LEND_ITEMS_COUNT_CACHE_KEY = "user-emails-with-lend-items-count";
+        private const string USER_LEND_ITEMS_CACHE_KEY_TEMPLATE = "user-lend-items-{0}";
+
         private IItemRepository itemRepository;
 
         public ItemLoanService(IItemLoanRepository repository, IItemRepository itemRepository, IMemoryCacheAdapter cacheAdapter, IMapper mapper)
@@ -19,18 +22,30 @@
             this.itemRepository = itemRepository;
         }
 
-        public List<EmailWithLendItemsCountDto> GetUserEmailWithLendItemsCount()
+        public List<EmailWithLendItemsCountDto> GetUserEmailsWithLendItemsCount()
         {
-            Dictionary<string, int> emailsWithLendItemsCount = base.repository.GetUserEmailWithLendItemsCount();
-            List<EmailWithLendItemsCountDto> emailsWithLendItemsCountDtos  = base.mapper.Map<Dictionary<string, int>, List<EmailWithLendItemsCountDto>>(emailsWithLendItemsCount);
+            List<EmailWithLendItemsCountDto> emailsWithLendItemsCountDtos = base.cacheAdapter.Get<List<EmailWithLendItemsCountDto>>(USER_EMAILS_WITH_LEND_ITEMS_COUNT_CACHE_KEY);
+            if (emailsWithLendItemsCountDtos is null)
+            {
+                Dictionary<string, int> emailsWithLendItemsCount = base.repository.GetUserEmailWithLendItemsCount();
+                emailsWithLendItemsCountDtos = base.mapper.Map<Dictionary<string, int>,List<EmailWithLendItemsCountDto>>(emailsWithLendItemsCount);
+
+                base.cacheAdapter.Set(USER_EMAILS_WITH_LEND_ITEMS_COUNT_CACHE_KEY, emailsWithLendItemsCountDtos);
+            }
 
             return emailsWithLendItemsCountDtos;
         } 
 
         public UserLendItemDto[] GetUserLendItems(string email)
         {
-            ItemLoan[] userLendItems = base.repository.GetUserLendItems(email);
-            UserLendItemDto[] userLendItemDtos = base.mapper.Map<ItemLoan[], UserLendItemDto[]>(userLendItems);
+            UserLendItemDto[] userLendItemDtos = base.cacheAdapter.Get<UserLendItemDto[]>(string.Format(USER_LEND_ITEMS_CACHE_KEY_TEMPLATE, email));
+            if (userLendItemDtos is null)
+            {
+                ItemLoan[] userLendItems = base.repository.GetUserLendItems(email);
+                userLendItemDtos = base.mapper.Map<ItemLoan[], UserLendItemDto[]>(userLendItems);
+
+                base.cacheAdapter.Set(string.Format(USER_LEND_ITEMS_CACHE_KEY_TEMPLATE, email), userLendItemDtos);
+            }
 
             return userLendItemDtos;
         }
@@ -48,6 +63,8 @@
                     base.repository.Create(itemLoan);
 
                     this.itemRepository.RequestItemLoan(itemId, lendItems.Quantity);
+
+                    this.ClearLoanRelatedCache(itemLoan.Email);
                 }
             }
             else throw new ArgumentException("Such item doesn't exist!");
@@ -60,6 +77,15 @@
 
             this.itemRepository.RestoreItemQuantitiesWhenReturningLendItems(itemLoan.ItemId, itemLoan.Quantity);
             base.repository.Return(id);
+
+            this.ClearLoanRelatedCache(itemLoan.Email);
+        }
+
+        private void ClearLoanRelatedCache(string email)
+        {
+            base.cacheAdapter.Remove(ItemService.INVENTORY_CACHE_KEY);
+            base.cacheAdapter.Remove(USER_EMAILS_WITH_LEND_ITEMS_COUNT_CACHE_KEY);
+            base.cacheAdapter.Remove(string.Format(USER_LEND_ITEMS_CACHE_KEY_TEMPLATE, email));
         }
     }
 }

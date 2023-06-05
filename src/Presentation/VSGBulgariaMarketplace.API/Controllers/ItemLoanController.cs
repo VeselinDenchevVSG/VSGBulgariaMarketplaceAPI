@@ -21,7 +21,7 @@
         [Route("lentitems")]
         public IActionResult GetUserEmailsWithLendItemsCount()
         {
-            List<EmailWithLendItemsCountDto> emailsWithLendItemsCount = this.itemLoanService.GetUserEmailWithLendItemsCount();
+            List<EmailWithLendItemsCountDto> emailsWithLendItemsCount = this.itemLoanService.GetUserEmailsWithLendItemsCount();
 
             return Ok(emailsWithLendItemsCount);
         }
