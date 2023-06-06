@@ -13,12 +13,10 @@
             CreateMap<Dictionary<string, int>, List<EmailWithLendItemsCountDto>>().ConvertUsing((dictionary) => 
                                                                                                     MapEmailsWithLendItemsCount(dictionary));
 
-            CreateMap<ItemLoan, UserLendItemDto>().ForMember(dto => dto.StartDate, x => x.MapFrom(e => e.CreatedAtUtc.ToLocalTime()
-                                                                                                                                                                .ToShortDateString()))
+            CreateMap<ItemLoan, UserLendItemDto>().ForMember(dto => dto.StartDate, x => x.MapFrom(e => e.CreatedAtUtc.ToLocalTime()))
                                                     .ForMember(dto => dto.EndDate, 
-                                                                x => x.MapFrom(e => e.EndDatetimeUtc.HasValue ? e.EndDatetimeUtc.Value.ToLocalTime()
-                                                                                                                                                                .ToShortDateString() 
-                                                                                                                                                                : null));
+                                                                x => x.MapFrom(e => e.EndDatetimeUtc.HasValue ? e.EndDatetimeUtc.Value.ToLocalTime() 
+                                                                                                                                        : (DateTime?) null));
 
             CreateMap<LendItemsDto, ItemLoan>();
         }
