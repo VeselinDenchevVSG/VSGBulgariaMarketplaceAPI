@@ -45,16 +45,17 @@
         //[Route("lend-items/{ItemId}")]
         [Route("inventory/loan/{itemId}")]
         [Authorize(Policy = "Admin")]
-        public IActionResult LendItems([FromRoute] string itemId, [FromForm] LendItemsDto lendItems)
+        //public IActionResult LendItems([FromRoute] string itemId, [FromForm] LendItemsDto lendItems)
+        public IActionResult LendItems([FromRoute] string itemId, [FromBody] LendItemsDto input)
         {
-            this.itemLoanService.LendItems(itemId, lendItems);
+            this.itemLoanService.LendItems(itemId, input);
 
             return Ok(new { Message = "Item lent successful" });
         }
 
-        [HttpPost]
+        [HttpPut]
         //[Route("return-items/{id}")]
-        [Route("inventory/return/{id}")]
+        [Route("lentitems/return/{id}")]
         [Authorize(Policy = "Admin")]
         public IActionResult Return([FromRoute] string id)
         {
