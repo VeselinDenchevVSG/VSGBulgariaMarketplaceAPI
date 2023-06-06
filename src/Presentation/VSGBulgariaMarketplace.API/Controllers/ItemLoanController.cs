@@ -1,5 +1,6 @@
 ﻿namespace VSGBulgariaMarketplace.API.Controllers
 {
+    using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
 
     using VSGBulgariaMarketplace.Application.Models.ItemLoan.Dtos;
@@ -7,6 +8,7 @@
 
     //[Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class ItemLoanController : ControllerBase
     {
         private IItemLoanService itemLoanService;
@@ -19,6 +21,7 @@
         [HttpGet]
         // [Route("user-emails-with-lend-items-count")]
         [Route("lentitems")]
+        [Authorize(Policy = "Admin")]
         public IActionResult GetUserEmailsWithLendItemsCount()
         {
             List<EmailWithLendItemsCountDto> emailsWithLendItemsCount = this.itemLoanService.GetUserEmailsWithLendItemsCount();
@@ -29,7 +32,7 @@
         [HttpGet]
         //[Route("user-lend-items/{email}")]
         [Route("myloans/{email}/")]
-        public IActionResult GetUserLendItems([FromRoute] string email)
+        public IActionResult GetMyLendItems([FromRoute] string email)
         {
             UserLendItemDto[] userLendItems = this.itemLoanService.GetUserLendItems(email);
 
@@ -39,6 +42,7 @@
         [HttpPost]
         //[Route("lend-items/{ItemId}")]
         [Route("inventory/loan/{itemId}")]
+        [Authorize(Policy = "Admin")]
         public IActionResult LendItems([FromRoute] string itemId, [FromForm] LendItemsDto lendItems)
         {
             this.itemLoanService.LendItems(itemId, lendItems);
@@ -49,6 +53,7 @@
         [HttpPost]
         //[Route("return-items/{id}")]
         [Route("inventory/return/{id}")]
+        [Authorize(Policy = "Admin")]
         public IActionResult Return([FromRoute] string id)
         {
             this.itemLoanService.Return(id);
