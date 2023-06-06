@@ -13,7 +13,7 @@
 
         bool IsLoanWithItem(string itemId);
 
-        short GetItemLoansTotalItemQuantityByItemId(string itemId);
+        short GetItemLoansTotalQuantityForItem(string itemId);
 
         void Return(string id);
     }

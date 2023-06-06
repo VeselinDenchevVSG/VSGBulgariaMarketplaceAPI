@@ -131,7 +131,7 @@
                 throw new ArgumentException("Not enough quantity for sale in order to complete pending orders with this item!");
             }
 
-            short itemLoansTotalItemQuantity = this.itemLoanRepository.GetItemLoansTotalItemQuantityByItemId(id);
+            short itemLoansTotalItemQuantity = this.itemLoanRepository.GetItemLoansTotalQuantityForItem(id);
             if (updateItemDto.AvailableQuantity <= itemLoansTotalItemQuantity)
             {
                 throw new ArgumentException("Not enough available quantity for loan in order to complete pending orders with this item!");
