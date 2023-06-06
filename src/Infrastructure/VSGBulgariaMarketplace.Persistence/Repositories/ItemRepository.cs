@@ -128,7 +128,7 @@
 
         public void RestoreItemQuantitiesWhenReturningLendItems(string id, short quantity)
         {
-            string sql = $"UPDATE Items SET QuantityForSale += @Quantity, ModifiedAtUtc = GETUTCDATE() WHERE Id = @Id";
+            string sql = $"UPDATE Items SET AvailableQuantity += @Quantity, ModifiedAtUtc = GETUTCDATE() WHERE Id = @Id";
             base.DbConnection.Execute(sql, new { Id = id, Quantity = quantity }, transaction: base.Transaction);
         }
 
