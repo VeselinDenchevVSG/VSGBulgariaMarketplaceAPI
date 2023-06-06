@@ -31,20 +31,9 @@
         }
 
         [HttpGet]
-        //[Route("my-lend-items/{email}")]
-        [Route("myloans/{email}")]
-        [ServiceFilter(typeof(ValidateEmailFilter))]
-        public IActionResult GetMyLendItems([FromRoute] string email)
-        {
-            UserLendItemDto[] userLendItems = this.itemLoanService.GetUserLendItems(email);
-
-            return Ok(userLendItems);
-        }
-
-        [HttpGet]
         //[Route("user-lend-items/{email}")]
-        [Route("lentitems/{email}")]
-        [Authorize(Policy = "Admin")]
+        [Route("myloans/{email}/")]
+        [ServiceFilter(typeof(ValidateEmailFilter))]
         public IActionResult GetUserLendItems([FromRoute] string email)
         {
             UserLendItemDto[] userLendItems = this.itemLoanService.GetUserLendItems(email);

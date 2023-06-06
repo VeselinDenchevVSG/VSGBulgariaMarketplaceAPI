@@ -2,6 +2,7 @@
 {
     using FluentValidation.AspNetCore;
 
+    using Microsoft.Extensions.Configuration;
     using Microsoft.Extensions.DependencyInjection;
 
     using System.Reflection;
@@ -17,11 +18,11 @@
 
     public static class ApplicationLayerConfiguration
     {
-        public static IServiceCollection AddApplicationLayerConfiguration(this IServiceCollection services)
+        public static IServiceCollection AddApplicationLayerConfiguration(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddControllers(options => 
             {
-                options.Filters.Add(new ValidateEmailFilter());
+                options.Filters.Add(new ValidateEmailFilter(configuration));
             })
                     .AddFluentValidation(options =>
                     {
