@@ -55,8 +55,8 @@
             this.mapper = new Mock<IMapper>();
             this.httpContextAccessor = new Mock<IHttpContextAccessor>();
             this.httpContext = new Mock<HttpContext>();
-            this.orderService = new OrderService(this.orderRepository.Object, this.itemRepository.Object, this.memoryCache.Object, this.mapper.Object,
-                                                    this.httpContextAccessor.Object);
+            this.orderService = new OrderService(this.orderRepository.Object, this.itemRepository.Object, this.memoryCache.Object, 
+                                            this.mapper.Object, this.httpContextAccessor.Object);
             this.pendingOrder = new Order()
             {
                 Id = PENDING_ORDER_ID,
@@ -92,14 +92,16 @@
                 QuantityForSale = ORDER_ITEM_QUANTITY
             };
 
-            PendingOrderDto pendingOrderDto = new PendingOrderDto()
+            this.pendingOrderDtos = new PendingOrderDto[] 
             {
-                ItemCode = ORDER_ITEM_CODE,
-                Quantity = ORDER_ITEM_QUANTITY,
-                Price = ORDER_ITEM_PRICE,
-                OrderDate = this.pendingOrder.CreatedAtUtc.ToLocalTime()
+                new PendingOrderDto()
+                {
+                    ItemCode = ORDER_ITEM_CODE,
+                    Quantity = ORDER_ITEM_QUANTITY,
+                    Price = ORDER_ITEM_PRICE,
+                    OrderDate = this.pendingOrder.CreatedAtUtc.ToLocalTime()
+                }
             };
-            this.pendingOrderDtos = new PendingOrderDto[] { pendingOrderDto };
             this.mapper.Setup(m => m.Map<Order[], PendingOrderDto[]>(It.IsAny<Order[]>())).Returns(this.pendingOrderDtos);
 
             UserOrderDto userPendingOrder = new UserOrderDto()
@@ -118,7 +120,25 @@
                 OrderDate = this.pendingOrder.CreatedAtUtc.ToLocalTime(),
                 Status = OrderStatus.Finished.ToString()
             };
-            this.userOrderDtos = new UserOrderDto[] { userPendingOrder, userFinishedOrder };
+            this.userOrderDtos = new UserOrderDto[] 
+            {
+                new UserOrderDto()
+                {
+                    ItemName = ORDER_ITEM_NAME,
+                    Quantity = ORDER_ITEM_QUANTITY,
+                    Price = ORDER_ITEM_PRICE,
+                    OrderDate = this.pendingOrder.CreatedAtUtc.ToLocalTime(),
+                    Status = OrderStatus.Pending.ToString()
+                },
+                new UserOrderDto()
+                {
+                    ItemName = ORDER_ITEM_NAME,
+                    Quantity = ORDER_ITEM_QUANTITY,
+                    Price = ORDER_ITEM_PRICE,
+                    OrderDate = this.pendingOrder.CreatedAtUtc.ToLocalTime(),
+                    Status = OrderStatus.Finished.ToString()
+                }
+            };
 
             List<Claim> claims = new List<Claim>()
             {
@@ -146,11 +166,6 @@
             this.orderRepository.Setup(or => or.GetPendingOrders()).Returns(pendingOrders);
             this.orderRepository.Setup(or => or.GetUserOrders(USER_EMAIL)).Returns(orders);
             this.orderRepository.Setup(or => or.GetOrderItemIdAndQuantity(PENDING_ORDER_ID)).Returns(this.pendingOrder);
-            this.orderRepository.Setup(or => or.Finish(PENDING_ORDER_ID));
-            this.orderRepository.Setup(or => or.Delete(PENDING_ORDER_ID));
-
-            this.memoryCache.Setup(mc => mc.Set(It.IsAny<string>(), It.IsAny<object>()));
-            this.memoryCache.Setup(mc => mc.Remove(It.IsAny<string>()));
         }
 
         [Test]
@@ -167,7 +182,7 @@
         }
 
         [Test]
-        public void GetPendingOrders_Should_Return_PendingOrderDtoArray_Mapped_From_Cache()
+        public void GetPendingOrders_Should_Return_PendingOrderDtoArray_From_Cache()
         {
             // Arrange
             this.memoryCache.Setup(mc => mc.Get<PendingOrderDto[]>(It.IsAny<string>())).Returns(this.pendingOrderDtos);
@@ -193,7 +208,7 @@
         }
 
         [Test]
-        public void GetUserOrders_Should_Return_UserOrderDtoArray_Mapped_From_Cache()
+        public void GetUserOrders_Should_Return_UserOrderDtoArray_From_Cache()
         {
             // Arrange
             this.memoryCache.Setup(mc => mc.Get<UserOrderDto[]>(It.IsAny<string>())).Returns(this.userOrderDtos);
@@ -206,10 +221,9 @@
         }
 
         [Test]
-        public void Create_Should_Throw_ArgumentException()
+        public void Create_Order_With_Non_Existent_Item_Should_Throw_ArgumentException()
         {
             // Arrange
-            //this.pendingOrder.Item.QuantityForSale = ORDER_ITEM_QUANTITY_COMBINED;
             this.itemRepository.Setup(ir => ir.GetOrderItemInfoById(ORDER_ITEM_ID)).Returns((Item)null);
 
             // Act
@@ -220,7 +234,7 @@
         }
 
         [Test]
-        public void Create_Should_Throw_ArgumentOutOfRangeException()
+        public void Create_Order_With_Insufficient_Item_Quantity_For_Sale_Should_Throw_ArgumentException()
         {
             // Arrange
             this.orderItem.QuantityForSale = 0;
@@ -230,7 +244,7 @@
             Action action = () => this.orderService.Create(this.createOrderDto);
 
             // Assert
-            action.Should().Throw<ArgumentOutOfRangeException>();
+            action.Should().Throw<ArgumentException>();
         }
 
         [Test]
