@@ -18,7 +18,7 @@
                                                                 x => x.MapFrom(e => e.EndDatetimeUtc.HasValue ? e.EndDatetimeUtc.Value.ToLocalTime() 
                                                                                                                                         : (DateTime?) null));
 
-            CreateMap<LendItemsDto, ItemLoan>();
+            CreateMap<LendItemsDto, ItemLoan>().ForMember(e => e.Email, x => x.MapFrom(dto => dto.Email.ToLower()));
         }
 
         private List<EmailWithLendItemsCountDto> MapEmailsWithLendItemsCount(Dictionary<string, int> emailsWithlendItemsCount)

@@ -34,20 +34,26 @@
             }
 
             return emailsWithLendItemsCountDtos;
-        } 
+        }
 
         public UserLendItemDto[] GetUserLendItems(string email)
         {
-            UserLendItemDto[] userLendItemDtos = base.cacheAdapter.Get<UserLendItemDto[]>(string.Format(USER_LEND_ITEMS_CACHE_KEY_TEMPLATE, email));
-            if (userLendItemDtos is null)
+            if (email is not null)
             {
-                ItemLoan[] userLendItems = base.repository.GetUserLendItems(email);
-                userLendItemDtos = base.mapper.Map<ItemLoan[], UserLendItemDto[]>(userLendItems);
+                email = email.ToLower();
 
-                base.cacheAdapter.Set(string.Format(USER_LEND_ITEMS_CACHE_KEY_TEMPLATE, email), userLendItemDtos);
+                UserLendItemDto[] userLendItemDtos = base.cacheAdapter.Get<UserLendItemDto[]>(string.Format(USER_LEND_ITEMS_CACHE_KEY_TEMPLATE, email));
+                if (userLendItemDtos is null)
+                {
+                    ItemLoan[] userLendItems = base.repository.GetUserLendItems(email);
+                    userLendItemDtos = base.mapper.Map<ItemLoan[], UserLendItemDto[]>(userLendItems);
+
+                    base.cacheAdapter.Set(string.Format(USER_LEND_ITEMS_CACHE_KEY_TEMPLATE, email), userLendItemDtos);
+                }
+
+                return userLendItemDtos;
             }
-
-            return userLendItemDtos;
+            else throw new ArgumentException("Email is empty!");
         }
 
         public void LendItems(string itemId, LendItemsDto lendItems)
