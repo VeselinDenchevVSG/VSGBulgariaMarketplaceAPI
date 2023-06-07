@@ -41,9 +41,9 @@
             return lendItemsByUser;
         }
 
-        public ItemLoan GetItemLoanItemIdAndQuantity(string id)
+        public ItemLoan GetItemLoanItemIdQuantityAndEmail(string id)
         {
-            string sql = "SELECT ItemId, Quantity FROM ItemLoans WHERE Id = @Id";
+            string sql = "SELECT ItemId, Quantity, Email FROM ItemLoans WHERE Id = @Id";
             ItemLoan itemLoan = base.DbConnection.QueryFirstOrDefault<ItemLoan>(sql, new { Id = id }, transaction: base.Transaction);
 
             return itemLoan;

@@ -78,8 +78,8 @@
 
         public void Return(string id)
         {
-            ItemLoan itemLoan = base.repository.GetItemLoanItemIdAndQuantity(id);
-            if (itemLoan is null) throw new NotFoundException($"Order doesn't exist!");
+            ItemLoan itemLoan = base.repository.GetItemLoanItemIdQuantityAndEmail(id);
+            if (itemLoan is null) throw new NotFoundException($"Item loan doesn't exist!");
 
             this.itemRepository.RestoreItemQuantitiesWhenReturningLendItems(itemLoan.ItemId, itemLoan.Quantity);
             base.repository.Return(id);

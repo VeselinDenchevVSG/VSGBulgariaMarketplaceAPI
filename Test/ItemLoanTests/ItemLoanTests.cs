@@ -180,7 +180,7 @@
         public void Return_Should_Throw_NotFoundException()
         {
             // Arrange
-            this.itemLoanRepository.Setup(ilr => ilr.GetItemLoanItemIdAndQuantity(LEND_ITEM_ID)).Returns((ItemLoan) null);
+            this.itemLoanRepository.Setup(ilr => ilr.GetItemLoanItemIdQuantityAndEmail(LEND_ITEM_ID)).Returns((ItemLoan) null);
 
             // Act
             Action action = () => this.itemLoanService.Return(LEND_ITEM_ID);
@@ -193,7 +193,7 @@
         public void Return_Should_Not_Throw_Exception()
         {
             // Arrange
-            this.itemLoanRepository.Setup(ilr => ilr.GetItemLoanItemIdAndQuantity(LEND_ITEM_ID)).Returns(this.itemLoan);
+            this.itemLoanRepository.Setup(ilr => ilr.GetItemLoanItemIdQuantityAndEmail(LEND_ITEM_ID)).Returns(this.itemLoan);
 
             // Act
             Action action = () => this.itemLoanService.Return(LEND_ITEM_ID);

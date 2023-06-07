@@ -9,7 +9,7 @@
 
         ItemLoan[] GetUserLendItems(string email);
 
-        ItemLoan GetItemLoanItemIdAndQuantity(string id);
+        ItemLoan GetItemLoanItemIdQuantityAndEmail(string id);
 
         bool IsLoanWithItem(string itemId);
 
