@@ -24,7 +24,7 @@
         private const short LEND_ITEMS_QUANTITY = 1;
         private const short ITEM_AVAILABLE_QUANTITY = 1;
 
-        private readonly string userLendItemStartDate = DateTime.UtcNow.Date.ToString();
+        private readonly DateTime userLendItemStartDate = DateTime.UtcNow.Date;
 
         private readonly Mock<IItemRepository> itemRepository;
         private readonly Mock<IItemLoanRepository> itemLoanRepository;
@@ -148,6 +148,19 @@
 
             // Assert
             userLendItemDtos.Should().BeEquivalentTo(this.userLendItemDtos);
+        }
+
+        [Test]
+        public void GetUserLendItems_Should_Throw_ArgumentException()
+        {
+            // Arrange
+            this.memoryCache.Setup(mc => mc.Get<UserLendItemDto[]>(It.IsAny<string>())).Returns(this.userLendItemDtos);
+
+            // Act
+            Action action = () => this.itemLoanService.GetUserLendItems(null);
+
+            // Assert
+            action.Should().Throw<ArgumentException>();
         }
 
         [Test]
