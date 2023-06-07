@@ -16,7 +16,7 @@
 
         public void OnActionExecuting(ActionExecutingContext context)
         {
-            bool isAdmin = context.HttpContext.User.Claims.Any(x => x.Value == configuration["AzureAd:AdminGroupId"]);
+            bool isAdmin = context.HttpContext.User.Claims.Any(x => x.Value == this.configuration["AzureAd:AdminGroupId"]);
             if (!isAdmin)
             {
                 var user = context.HttpContext.User;
