@@ -3,7 +3,7 @@
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
 
-    using VSGBulgariaMarketplace.Application.Helpers.ActionFilters;
+    using VSGBulgariaMarketplace.Application.Helpers.ActionFilters.ValidateEmail;
     using VSGBulgariaMarketplace.Application.Models.ItemLoan.Dtos;
     using VSGBulgariaMarketplace.Application.Models.ItemLoan.Interfaces;
 
@@ -33,7 +33,7 @@
         [HttpGet]
         //[Route("user-lend-items/{email}")]
         [Route("myloans/{email}/")]
-        [ServiceFilter(typeof(ValidateEmailFilter))]
+        [ValidateEmailFilter]
         public IActionResult GetUserLendItems([FromRoute] string email)
         {
             UserLendItemDto[] userLendItems = this.itemLoanService.GetUserLendItems(email);

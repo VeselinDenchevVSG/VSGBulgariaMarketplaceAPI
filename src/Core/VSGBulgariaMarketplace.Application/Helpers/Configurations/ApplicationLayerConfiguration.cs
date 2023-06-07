@@ -6,8 +6,7 @@
     using Microsoft.Extensions.DependencyInjection;
 
     using System.Reflection;
-
-    using VSGBulgariaMarketplace.Application.Helpers.ActionFilters;
+    using VSGBulgariaMarketplace.Application.Helpers.ActionFilters.ValidateEmail;
     using VSGBulgariaMarketplace.Application.Models.Image.Interfaces;
     using VSGBulgariaMarketplace.Application.Models.Item.Interfaces;
     using VSGBulgariaMarketplace.Application.Models.ItemLoan.Interfaces;
@@ -18,12 +17,9 @@
 
     public static class ApplicationLayerConfiguration
     {
-        public static IServiceCollection AddApplicationLayerConfiguration(this IServiceCollection services, IConfiguration configuration)
+        public static IServiceCollection AddApplicationLayerConfiguration(this IServiceCollection services)
         {
-            services.AddControllers(options => 
-            {
-                options.Filters.Add(new ValidateEmailFilter(configuration));
-            })
+            services.AddControllers()
                     .AddFluentValidation(options =>
                     {
                         // Validate child properties and root collection elements

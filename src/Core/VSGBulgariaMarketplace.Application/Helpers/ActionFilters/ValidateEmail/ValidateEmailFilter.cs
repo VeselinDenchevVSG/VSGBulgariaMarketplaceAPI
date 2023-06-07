@@ -1,4 +1,4 @@
-﻿namespace VSGBulgariaMarketplace.Application.Helpers.ActionFilters
+﻿namespace VSGBulgariaMarketplace.Application.Helpers.ActionFilters.ValidateEmail
 {
     using Microsoft.AspNetCore.Http;
     using Microsoft.AspNetCore.Mvc;
@@ -16,8 +16,8 @@
 
         public void OnActionExecuting(ActionExecutingContext context)
         {
-            bool isAdmin = context.HttpContext.User.Claims.Any(x => x.Value == this.configuration["AzureAd:AdminGroupId"]);
-            if (!isAdmin) 
+            bool isAdmin = context.HttpContext.User.Claims.Any(x => x.Value == configuration["AzureAd:AdminGroupId"]);
+            if (!isAdmin)
             {
                 var user = context.HttpContext.User;
                 var routeEmail = context.RouteData.Values["email"]?.ToString()?.ToLower();

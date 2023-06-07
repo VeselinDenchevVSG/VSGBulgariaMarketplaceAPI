@@ -47,7 +47,7 @@ try
  });
     });
 
-    builder.Services.AddApplicationLayerConfiguration(builder.Configuration);
+    builder.Services.AddApplicationLayerConfiguration();
     builder.Services.AddRepositoriesConfiguration();
     builder.Services.AddMigrationsConfiguration();
 
