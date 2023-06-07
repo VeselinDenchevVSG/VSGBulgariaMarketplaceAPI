@@ -18,7 +18,6 @@
         public Dictionary<string, int> GetUserEmailWithLendItemsCount()
         {
             string sql = "SELECT Email, COUNT(Id) AS LoansCount FROM ItemLoans " +
-                         "WHERE EndDatetimeUtc IS NULL " +
                          "GROUP BY Email";
             var emailsWithLendItemsCountRows = base.DbConnection.Query(sql, transaction: this.Transaction).ToArray();
 
