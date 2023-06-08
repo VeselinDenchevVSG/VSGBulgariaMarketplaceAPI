@@ -18,10 +18,10 @@
         public UpdateItemDtoValidator()
         {
             RuleFor(i => i.Code).NotEmptyWithMessage<UpdateItemDto, string, Item>()
-                                .MaximumLength(ITEM_CODE_MAX_STRING_LENGTH).WithMessage($"Item code can't be logner than {ITEM_CODE_MAX_STRING_LENGTH}!");
+                                .MaximumLength(ITEM_CODE_MAX_STRING_LENGTH).WithMessage($"Item code can't be longer than {ITEM_CODE_MAX_STRING_LENGTH}!");
 
             RuleFor(i => i.Name).NotEmptyWithMessage<UpdateItemDto, string, Item>()
-                                .MaximumLength(ITEM_NAME_MAX_STRING_LENGTH).WithMessage($"Item name can't be logner than {ITEM_NAME_MAX_STRING_LENGTH}!");
+                                .MaximumLength(ITEM_NAME_MAX_STRING_LENGTH).WithMessage($"Item name can't be longer than {ITEM_NAME_MAX_STRING_LENGTH}!");
 
             RuleFor(i => i.Price).NotEmptyWithMessage<UpdateItemDto, decimal, Item>()
                                     .InclusiveBetween(0m, decimal.MaxValue).WithMessage($"Item price must be between 0 and {decimal.MaxValue}!")
