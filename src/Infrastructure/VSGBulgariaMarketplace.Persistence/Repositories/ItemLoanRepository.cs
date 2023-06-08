@@ -58,7 +58,7 @@
 
         public short GetItemLoansTotalQuantityForItem(string itemId)
         {
-            string sql = "SELECT SUM(Quantity) FROM ItemLoans WHERE ItemId = @ItemId AND EndDatetimeUtc IS NOT NULL";
+            string sql = "SELECT SUM(Quantity) FROM ItemLoans WHERE ItemId = @ItemId AND EndDatetimeUtc IS NULL";
             short itemLoansTotalItemQuantity = base.DbConnection.ExecuteScalar<short>(sql, new { ItemId = itemId }, transaction: base.Transaction);
 
             return itemLoansTotalItemQuantity;
