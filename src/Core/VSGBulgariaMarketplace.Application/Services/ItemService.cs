@@ -134,7 +134,7 @@
             short itemLoansTotalItemQuantity = this.itemLoanRepository.GetItemLoansTotalQuantityForItem(id);
             if (updateItemDto.AvailableQuantity <= itemLoansTotalItemQuantity)
             {
-                throw new ArgumentException("Not enough available quantity for loan in order to complete pending orders with this item!");
+                throw new ArgumentException("Not enough available quantity for loan in order to complete active loans with this item!");
             }
 
             Item item = base.mapper.Map<UpdateItemDto, Item>(updateItemDto);
@@ -158,9 +158,10 @@
                     else
                     {
                         await this.imageService.UpdateAsync(itemImagePublicId, updateItemDto.Image);
-                        item.ImagePublicId = itemImagePublicId.Split("/")[1];
                     }
                 }
+
+                item.ImagePublicId = itemImagePublicId.Split("/")[1];
             }
 
             try
