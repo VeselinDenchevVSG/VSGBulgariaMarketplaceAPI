@@ -132,9 +132,9 @@
             }
 
             short itemLoansTotalItemQuantity = this.itemLoanRepository.GetItemLoansTotalQuantityForItem(id);
-            if (updateItemDto.AvailableQuantity <= itemLoansTotalItemQuantity)
+            if (updateItemDto.Quantity <= itemLoansTotalItemQuantity)
             {
-                throw new ArgumentException("Not enough available quantity for loan in order to complete active loans with this item!");
+                throw new ArgumentException("Quantity combined mustn't be lower than the active loans item quantity!");
             }
 
             Item item = base.mapper.Map<UpdateItemDto, Item>(updateItemDto);
