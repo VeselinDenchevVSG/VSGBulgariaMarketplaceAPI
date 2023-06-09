@@ -4,9 +4,10 @@
 
     public enum Location
     {
-        Plovdiv = 1,
+        Home = 1,
+        Plovdiv = 2,
 
         [Display(Name = "Veliko Tarnovo")]
-        VelikoTarnovo = 2
+        VelikoTarnovo = 3
     }
 }
