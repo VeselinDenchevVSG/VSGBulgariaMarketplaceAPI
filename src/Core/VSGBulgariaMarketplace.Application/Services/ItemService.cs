@@ -139,6 +139,8 @@
 
             Item item = base.mapper.Map<UpdateItemDto, Item>(updateItemDto);
 
+            bool imageIsDeleted = false;
+
             string itemImagePublicId = this.GetItemPicturePublicId(id);
             if (itemImagePublicId is null)
             {
@@ -154,21 +156,21 @@
                     if (updateItemDto.Image is null)
                     {
                         await this.imageService.DeleteAsync(itemImagePublicId);
+                        imageIsDeleted = true;
                     }
                     else
                     {
                         await this.imageService.UpdateAsync(itemImagePublicId, updateItemDto.Image);
+                        item.ImagePublicId = itemImagePublicId.Split("/")[1];
                     }
                 }
-
-                item.ImagePublicId = itemImagePublicId.Split("/")[1];
             }
 
             try
             {
                 this.repository.Update(id, item);
             }
-            catch (SqlException se) when (itemImagePublicId is not null)
+            catch (SqlException se) when (itemImagePublicId is not null && !imageIsDeleted)
             {
                 await this.imageService.DeleteAsync(itemImagePublicId);
                 throw se;
