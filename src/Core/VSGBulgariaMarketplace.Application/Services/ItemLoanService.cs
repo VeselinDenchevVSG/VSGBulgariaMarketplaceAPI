@@ -2,6 +2,9 @@
 {
     using AutoMapper;
 
+    using FluentValidation;
+
+    using VSGBulgariaMarketplace.Application.Constants;
     using VSGBulgariaMarketplace.Application.Models.Exceptions;
     using VSGBulgariaMarketplace.Application.Models.Item.Interfaces;
     using VSGBulgariaMarketplace.Application.Models.ItemLoan.Dtos;
@@ -11,9 +14,6 @@
 
     public class ItemLoanService : BaseService<IItemLoanRepository, ItemLoan>, IItemLoanService
     {
-        private const string USER_EMAILS_WITH_LEND_ITEMS_COUNT_CACHE_KEY = "user-emails-with-lend-items-count";
-        private const string USER_LEND_ITEMS_CACHE_KEY_TEMPLATE = "user-lend-items-{0}";
-
         private IItemRepository itemRepository;
 
         public ItemLoanService(IItemLoanRepository repository, IItemRepository itemRepository, IMemoryCacheAdapter cacheAdapter, IMapper mapper)
@@ -24,13 +24,14 @@
 
         public List<EmailWithLendItemsCountDto> GetUserEmailsWithLendItemsCount()
         {
-            List<EmailWithLendItemsCountDto> emailsWithLendItemsCountDtos = base.cacheAdapter.Get<List<EmailWithLendItemsCountDto>>(USER_EMAILS_WITH_LEND_ITEMS_COUNT_CACHE_KEY);
+            List<EmailWithLendItemsCountDto> emailsWithLendItemsCountDtos = base.cacheAdapter.Get<List<EmailWithLendItemsCountDto>>(
+                                                                                ServiceConstant.USER_EMAILS_WITH_LEND_ITEMS_COUNT_CACHE_KEY);
             if (emailsWithLendItemsCountDtos is null)
             {
                 Dictionary<string, int> emailsWithLendItemsCount = base.repository.GetUserEmailWithLendItemsCount();
                 emailsWithLendItemsCountDtos = base.mapper.Map<Dictionary<string, int>,List<EmailWithLendItemsCountDto>>(emailsWithLendItemsCount);
 
-                base.cacheAdapter.Set(USER_EMAILS_WITH_LEND_ITEMS_COUNT_CACHE_KEY, emailsWithLendItemsCountDtos);
+                base.cacheAdapter.Set(ServiceConstant.USER_EMAILS_WITH_LEND_ITEMS_COUNT_CACHE_KEY, emailsWithLendItemsCountDtos);
             }
 
             return emailsWithLendItemsCountDtos;
@@ -38,22 +39,26 @@
 
         public UserLendItemDto[] GetUserLendItems(string email)
         {
-            if (email is not null)
+            var emailValidator = new InlineValidator<string>();
+            emailValidator.RuleFor(e => e).NotEmpty().Matches(ValidationConstant.VSG_EMAIL_REGEX_PATTERN)
+                                                    .WithMessage(ValidationConstant.INVALID_EMAIL_FORMAT_ERROR_MESSAGE);
+            var emailValidationResult = emailValidator.Validate(email);
+            if (emailValidationResult.IsValid)
             {
                 email = email.ToLower();
 
-                UserLendItemDto[] userLendItemDtos = base.cacheAdapter.Get<UserLendItemDto[]>(string.Format(USER_LEND_ITEMS_CACHE_KEY_TEMPLATE, email));
+                UserLendItemDto[] userLendItemDtos = base.cacheAdapter.Get<UserLendItemDto[]>(string.Format(ServiceConstant.USER_LEND_ITEMS_CACHE_KEY_TEMPLATE, email));
                 if (userLendItemDtos is null)
                 {
                     ItemLoan[] userLendItems = base.repository.GetUserLendItems(email);
                     userLendItemDtos = base.mapper.Map<ItemLoan[], UserLendItemDto[]>(userLendItems);
 
-                    base.cacheAdapter.Set(string.Format(USER_LEND_ITEMS_CACHE_KEY_TEMPLATE, email), userLendItemDtos);
+                    base.cacheAdapter.Set(string.Format(ServiceConstant.USER_LEND_ITEMS_CACHE_KEY_TEMPLATE, email), userLendItemDtos);
                 }
 
                 return userLendItemDtos;
             }
-            else throw new ArgumentException("Email is empty!");
+            else throw new ArgumentException(ValidationConstant.INVALID_EMAIL_FORMAT_ERROR_MESSAGE);
         }
 
         public void LendItems(string itemId, LendItemsDto lendItems)
@@ -61,7 +66,8 @@
             bool exists = this.itemRepository.TryGetAvailableQuantity(itemId, out int? availableQuantity);
             if (exists)
             {
-                if (lendItems.Quantity < availableQuantity)
+                bool isEnoughQuantity = lendItems.Quantity <= availableQuantity;
+                if (isEnoughQuantity)
                 {
                     ItemLoan itemLoan = base.mapper.Map<LendItemsDto, ItemLoan>(lendItems);
                     itemLoan.ItemId = itemId;
@@ -72,14 +78,15 @@
 
                     this.ClearLoanRelatedCache(itemLoan.Email);
                 }
+                else throw new ArgumentException(ServiceConstant.NOT_ENOUGH_AVAILABLE_QUANTITY_FOR_LENDING_IN_STOCK_ERROR_MESSAGE);
             }
-            else throw new ArgumentException("Such item doesn't exist!");
+            else throw new NotFoundException(ServiceConstant.SUCH_ITEM_DOES_NOT_EXIST_ERROR_MESSAGE);
         }
 
         public void Return(string id)
         {
             ItemLoan itemLoan = base.repository.GetItemLoanItemIdQuantityAndEmail(id);
-            if (itemLoan is null) throw new NotFoundException($"Item loan doesn't exist!");
+            if (itemLoan is null) throw new NotFoundException(ServiceConstant.SUCH_ITEM_LOAN_DOES_NOT_EXISTS_ERROR_MESSAGE);
 
             this.itemRepository.RestoreItemQuantitiesWhenReturningLendItems(itemLoan.ItemId, itemLoan.Quantity);
             base.repository.Return(id);
@@ -89,9 +96,9 @@
 
         private void ClearLoanRelatedCache(string email)
         {
-            base.cacheAdapter.Remove(ItemService.INVENTORY_CACHE_KEY);
-            base.cacheAdapter.Remove(USER_EMAILS_WITH_LEND_ITEMS_COUNT_CACHE_KEY);
-            base.cacheAdapter.Remove(string.Format(USER_LEND_ITEMS_CACHE_KEY_TEMPLATE, email));
+            base.cacheAdapter.Remove(ServiceConstant.INVENTORY_CACHE_KEY);
+            base.cacheAdapter.Remove(ServiceConstant.USER_EMAILS_WITH_LEND_ITEMS_COUNT_CACHE_KEY);
+            base.cacheAdapter.Remove(string.Format(ServiceConstant.USER_LEND_ITEMS_CACHE_KEY_TEMPLATE, email));
         }
     }
 }

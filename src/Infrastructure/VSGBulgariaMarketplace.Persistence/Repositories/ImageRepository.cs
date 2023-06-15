@@ -5,41 +5,31 @@
     using VSGBulgariaMarketplace.Application.Models.Image.Interfaces;
     using VSGBulgariaMarketplace.Application.Models.UnitOfWork;
     using VSGBulgariaMarketplace.Domain.Entities;
+    using VSGBulgariaMarketplace.Persistence.Constants;
 
     public class ImageRepository : Repository<CloudinaryImage, string>, IImageRepository
     {
         public ImageRepository(IUnitOfWork unitOfWork) 
             : base(unitOfWork)
         {
-            base.columnNamesString = "(Id, FileExtension, Version, CreatedAtUtc, ModifiedAtUtc)";
+            base.columnNamesString = RepositoryConstant.IMAGE_REPOSITORY_COLUMN_NAMES_STRING;
             base.SetUpRepository();
         }
 
         public CloudinaryImage GetImageBuildUrlInfoByItemId(string itemId)
         {
-            string sql =    $"SELECT ci.FileExtension, ci.Version, ci.Id, i.ImagePublicId AS ImageId FROM CloudinaryImages AS ci " +
-                            $"JOIN Items AS i " +
-                            $"ON ci.Id = i.ImagePublicId " +
-                            $"WHERE i.Id = @ItemId";
+            string sql = RepositoryConstant.GET_IMAGE_BUILD_URL_INFO_BY_ITEM_ID_SQL_QUERY;
             CloudinaryImage image = base.DbConnection.Query<CloudinaryImage, Item, CloudinaryImage>(sql, (image, item) =>
             {
                 return image;
-            }, new { ItemId = itemId }, splitOn: "ImageId", transaction: base.Transaction).FirstOrDefault();
+            }, new { ItemId = itemId }, splitOn: RepositoryConstant.CLOUDINARY_IMAGE_ID_ALIAS, transaction: base.Transaction).FirstOrDefault();
 
             return image;
         }
 
-        public string GetImageFileExtension(string publicId)
-        {
-            string sql = "SELECT FileExtension, Version FROM CloudinaryImages WHERE Id = @PublicId";
-            string fileExtension = base.DbConnection.ExecuteScalar<string>(sql, new { PublicId = publicId }, transaction: base.Transaction);
-
-            return fileExtension;
-        }
-
         public void UpdateImageFileInfo(string publicId, CloudinaryImage image)
         {
-            string sql = $"UPDATE CloudinaryImages SET FileExtension = FileExtension, Version = @Version, ModifiedAtUtc = GETUTCDATE() WHERE Id = @PublicId";
+            string sql = RepositoryConstant.UPDATE_IMAGE_FILE_INFO_SQL_QUERY;
             base.DbConnection.Execute(sql, new { PublicId = publicId, FileExtension = image.FileExtension, Version = image.Version }, transaction: this.Transaction);
         }
     }

@@ -5,20 +5,20 @@
     using VSGBulgariaMarketplace.Application.Models.ItemLoan.Interfaces;
     using VSGBulgariaMarketplace.Application.Models.UnitOfWork;
     using VSGBulgariaMarketplace.Domain.Entities;
+    using VSGBulgariaMarketplace.Persistence.Constants;
 
     public class ItemLoanRepository : Repository<ItemLoan, string>, IItemLoanRepository
     {
         public ItemLoanRepository(IUnitOfWork unitOfWork) 
             : base(unitOfWork)
         {
-            base.columnNamesString = "(Id, ItemId, Email, Quantity, EndDatetimeUtc, CreatedAtUtc, ModifiedAtUtc)";
+            base.columnNamesString = RepositoryConstant.ITEM_LOAN_REPOSITORY_COLUMN_NAMES_STRING;
             base.SetUpRepository();
         }
 
         public Dictionary<string, int> GetUserEmailWithLendItemsCount()
         {
-            string sql = "SELECT Email, COUNT(Id) AS LoansCount FROM ItemLoans " +
-                         "GROUP BY Email";
+            string sql = RepositoryConstant.GET_USER_EMAILS_WITH_LEND_ITEMS_COUNT_SQL_QUERY;
             var emailsWithLendItemsCountRows = base.DbConnection.Query(sql, transaction: this.Transaction).ToArray();
 
             Dictionary<string, int> emailsWithLendItemsCount = new Dictionary<string, int>();
@@ -33,8 +33,7 @@
 
         public ItemLoan[] GetUserLendItems(string email)
         {
-            string sql =    "SELECT Id, ItemId, Email, Quantity, CreatedAtUtc, EndDatetimeUtc FROM ItemLoans " +
-                            "WHERE Email = @Email";
+            string sql = RepositoryConstant.GET_USER_LEND_ITEMS_SQL_QUERY;
             ItemLoan[] lendItemsByUser = base.DbConnection.Query<ItemLoan>(sql, new { Email = email }, transaction: base.Transaction).ToArray();
 
             return lendItemsByUser;
@@ -42,7 +41,7 @@
 
         public ItemLoan GetItemLoanItemIdQuantityAndEmail(string id)
         {
-            string sql = "SELECT ItemId, Quantity, Email FROM ItemLoans WHERE Id = @Id";
+            string sql = RepositoryConstant.GET_ITEM_LOAN_ITEM_ID_AND_QUANTITY_SQL_QUERY;
             ItemLoan itemLoan = base.DbConnection.QueryFirstOrDefault<ItemLoan>(sql, new { Id = id }, transaction: base.Transaction);
 
             return itemLoan;
@@ -50,7 +49,7 @@
 
         public bool IsLoanWithItem(string itemId)
         {
-            string sql = "SELECT TOP 1 1 FROM ItemLoans WHERE ItemId = @ItemId";
+            string sql = RepositoryConstant.IS_LOAN_WITH_ITEM_SQL_QUERY;
             int? result = base.DbConnection.QueryFirstOrDefault<int?>(sql, new { ItemId = itemId }, transaction: base.Transaction);
 
             return result.HasValue;
@@ -58,7 +57,7 @@
 
         public short GetItemLoansTotalQuantityForItem(string itemId)
         {
-            string sql = "SELECT SUM(Quantity) FROM ItemLoans WHERE ItemId = @ItemId AND EndDatetimeUtc IS NULL";
+            string sql = RepositoryConstant.GET_ITEM_LOANS_TOTAL_QUANTITY_FOR_ITEM_SQL_QUERY;
             short itemLoansTotalItemQuantity = base.DbConnection.ExecuteScalar<short>(sql, new { ItemId = itemId }, transaction: base.Transaction);
 
             return itemLoansTotalItemQuantity;
@@ -67,7 +66,7 @@
 
         public void Return(string id)
         {
-            string sql = $"UPDATE ItemLoans SET EndDatetimeUtc = GETUTCDATE(), ModifiedAtUtc = GETUTCDATE() WHERE Id = @Id";
+            string sql = RepositoryConstant.RETURN_LEND_ITEM_SQL_QUERY;
             base.DbConnection.Execute(sql, new { Id = id }, transaction: base.Transaction);
         }
 

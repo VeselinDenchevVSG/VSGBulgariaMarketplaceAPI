@@ -2,23 +2,21 @@
 {
     using FluentMigrator;
 
-    [Migration(202306021001)]
+    using VSGBulgariaMarketplace.Persistence.Constants;
+
+    [Migration(DatabaseConstant.DELETE_UNIQUE_CONSTRAINT_CODE_NAME_LOCATION_IN_TABLE_ITEMS_MIGRATION_VERSION)]
     public class DeleteUniqueConstraintCodeNameLocationInTableItems : Migration
     {
-        private const string ITEMS_TABLE_NAME = "Items";
-
-        private const string NAME_COLUMN_NAME = "Name";
-        private const string CODE_COLUMN_NAME = "Code";
-        private const string LOCATION_COLUMN_NAME = "Location";
-
         public override void Up()
         {
-            Delete.UniqueConstraint().FromTable(ITEMS_TABLE_NAME).Columns(NAME_COLUMN_NAME, CODE_COLUMN_NAME, LOCATION_COLUMN_NAME);
+            Delete.UniqueConstraint().FromTable(DatabaseConstant.ITEMS_TABLE_NAME)
+                                        .Columns(DatabaseConstant.NAME_COLUMN_NAME, DatabaseConstant.CODE_COLUMN_NAME, DatabaseConstant.LOCATION_COLUMN_NAME);
         }
 
         public override void Down()
         {
-            Create.UniqueConstraint().OnTable(ITEMS_TABLE_NAME).Columns(NAME_COLUMN_NAME, CODE_COLUMN_NAME, LOCATION_COLUMN_NAME);
+            Create.UniqueConstraint().OnTable(DatabaseConstant.ITEMS_TABLE_NAME)
+                                        .Columns(DatabaseConstant.NAME_COLUMN_NAME, DatabaseConstant.CODE_COLUMN_NAME, DatabaseConstant.LOCATION_COLUMN_NAME);
         }
     }
 }

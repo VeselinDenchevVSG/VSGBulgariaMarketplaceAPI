@@ -4,6 +4,7 @@
 
     using Microsoft.Data.SqlClient;
 
+    using VSGBulgariaMarketplace.Application.Constants;
     using VSGBulgariaMarketplace.Application.Models.Exceptions;
     using VSGBulgariaMarketplace.Application.Models.Image.Interfaces;
     using VSGBulgariaMarketplace.Application.Models.Item.Dtos;
@@ -17,10 +18,6 @@
 
     public class ItemService : BaseService<IItemRepository, Item>, IItemService
     {
-        internal const string MARKETPLACE_CACHE_KEY = "marketplace";
-        internal const string INVENTORY_CACHE_KEY = "inventory";
-        internal const string ITEM_CACHE_KEY_TEMPLATE = "item-{0}";
-
         private IOrderRepository orderRepository;
         private IItemLoanRepository itemLoanRepository;
 
@@ -37,7 +34,7 @@
 
         public MarketplaceItemDto[] GetMarketplace()
         {
-            MarketplaceItemDto[] itemDtos = base.cacheAdapter.Get<MarketplaceItemDto[]>(MARKETPLACE_CACHE_KEY);
+            MarketplaceItemDto[] itemDtos = base.cacheAdapter.Get<MarketplaceItemDto[]>(ServiceConstant.MARKETPLACE_CACHE_KEY);
             if (itemDtos is null)
             {
                 Item[] items = base.repository.GetMarketplace();
@@ -48,7 +45,7 @@
                     marketplaceItem.ImageUrl = this.imageService.GetImageUrlByItemId(marketplaceItem.Id);
                 }
 
-                base.cacheAdapter.Set(MARKETPLACE_CACHE_KEY, itemDtos);
+                base.cacheAdapter.Set(ServiceConstant.MARKETPLACE_CACHE_KEY, itemDtos);
             }
 
             return itemDtos;
@@ -71,7 +68,7 @@
 
         public InventoryItemDto[] GetInventory()
         {
-            InventoryItemDto[] itemDtos = base.cacheAdapter.Get<InventoryItemDto[]>(INVENTORY_CACHE_KEY);
+            InventoryItemDto[] itemDtos = base.cacheAdapter.Get<InventoryItemDto[]>(ServiceConstant.INVENTORY_CACHE_KEY);
             if (itemDtos is null)
             {
                 Item[] items = base.repository.GetInventory();
@@ -82,7 +79,7 @@
                     inventoryItem.ImageUrl = this.imageService.GetImageUrlByItemId(inventoryItem.Id);
                 }
 
-                base.cacheAdapter.Set(INVENTORY_CACHE_KEY, itemDtos);
+                base.cacheAdapter.Set(ServiceConstant.INVENTORY_CACHE_KEY, itemDtos);
             }
 
             return itemDtos;
@@ -90,14 +87,14 @@
 
         public ItemDetailsDto GetById(string id)
         {
-            string itemCacheKey = string.Format(ITEM_CACHE_KEY_TEMPLATE, id);
+            string itemCacheKey = string.Format(ServiceConstant.ITEM_CACHE_KEY_TEMPLATE, id);
 
             ItemDetailsDto itemDto = base.cacheAdapter.Get<ItemDetailsDto>(itemCacheKey);
             if (itemDto is null)
             {
                 Item item = base.repository.GetById(id);
 
-                if (item is null) throw new NotFoundException($"Item doesn't exist!");
+                if (item is null) throw new NotFoundException(ServiceConstant.SUCH_ITEM_DOES_NOT_EXIST_ERROR_MESSAGE);
 
                 itemDto = base.mapper.Map<Item, ItemDetailsDto>(item);
                 itemDto.ImageUrl = this.imageService.GetImageUrlByItemId(id);
@@ -119,8 +116,8 @@
 
             this.repository.Create(item);
 
-            base.cacheAdapter.Remove(MARKETPLACE_CACHE_KEY);
-            base.cacheAdapter.Remove(INVENTORY_CACHE_KEY);
+            base.cacheAdapter.Remove(ServiceConstant.MARKETPLACE_CACHE_KEY);
+            base.cacheAdapter.Remove(ServiceConstant.INVENTORY_CACHE_KEY);
         }
 
         public async Task UpdateAsync(string id, UpdateItemDto updateItemDto) 
@@ -128,13 +125,13 @@
             short pendingOrderdTotalItemQuantity = this.orderRepository.GetPendingOrdersTotalItemQuantityByItemId(id);
             if (updateItemDto.QuantityForSale <= pendingOrderdTotalItemQuantity)
             {
-                throw new ArgumentException("Not enough quantity for sale in order to complete pending orders with this item!");
+                throw new ArgumentException(ServiceConstant.NOT_ENOUGH_QUANTITY_FOR_SALE_IN_ORDER_TO_COMPLETE_PENDING_ORDERS_WITH_THIS_ITEM_ERROR_MESSAGE);
             }
 
             short itemLoansTotalItemQuantity = this.itemLoanRepository.GetItemLoansTotalQuantityForItem(id);
             if (updateItemDto.Quantity <= itemLoansTotalItemQuantity)
             {
-                throw new ArgumentException("Quantity combined mustn't be lower than the active loans item quantity!");
+                throw new ArgumentException(ServiceConstant.QUANTITY_COMBINED_MUST_NOT_BE_LOWER_THAN_THE_ACTIVE_LOANS_ITEM_QUANTITY_ERROR_MESSAGE);
             }
 
             Item item = base.mapper.Map<UpdateItemDto, Item>(updateItemDto);
@@ -176,9 +173,9 @@
                 throw se;
             }
 
-            base.cacheAdapter.Remove(MARKETPLACE_CACHE_KEY);
-            base.cacheAdapter.Remove(INVENTORY_CACHE_KEY);
-            base.cacheAdapter.Remove(string.Format(ITEM_CACHE_KEY_TEMPLATE, id));
+            base.cacheAdapter.Remove(ServiceConstant.MARKETPLACE_CACHE_KEY);
+            base.cacheAdapter.Remove(ServiceConstant.INVENTORY_CACHE_KEY);
+            base.cacheAdapter.Remove(string.Format(ServiceConstant.ITEM_CACHE_KEY_TEMPLATE, id));
         }
 
         public async Task Delete(string id)
@@ -194,12 +191,13 @@
 
                 if (itemPicturePublicId is not null)
                 {
+
                     await this.imageService.DeleteAsync(itemPicturePublicId);
                 }
 
                 base.cacheAdapter.Clear();
             }
-            else throw new InvalidOperationException("Can't delete item because it is lent to someone!");
+            else throw new InvalidOperationException(ServiceConstant.CAN_NOT_DELETE_ITEM_BECAUSE_IT_IS_LENT_TO_SOMEONE_ERROR_MESSAGE);
         }
         
         private string GetItemPicturePublicId(string id) => this.repository.GetItemPicturePublicId(id);

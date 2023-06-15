@@ -3,6 +3,8 @@
     using System.ComponentModel.DataAnnotations;
     using System.Reflection;
 
+    using VSGBulgariaMarketplace.Application.Constants;
+
     public static class EnumService
     {
         public static List<string> GetAll<T>() where T : Enum
@@ -49,7 +51,7 @@
                     }
                 }
             }
-            throw new ArgumentException($"No {typeof(T)} with display name {displayName} found");
+            throw new ArgumentException(string.Format(ServiceConstant.NO_ENUM_WITH_DISPLAY_NAME_FOUND_ERROR_MESSAGE, typeof(T).Name, displayName));
         }
     }
 }

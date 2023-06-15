@@ -12,6 +12,7 @@
     using VSGBulgariaMarketplace.Application.Models.Repositories;
     using VSGBulgariaMarketplace.Application.Models.UnitOfWork;
     using VSGBulgariaMarketplace.Domain.Entities;
+    using VSGBulgariaMarketplace.Persistence.Constants;
 
     public abstract class Repository<T, U> : IRepository<T, U> where T : BaseEntity<U>
     {
@@ -31,8 +32,8 @@
             this.tableName = this.entityName + 's';
             this.updateStringSkipProperties = new List<string>()
             {
-                "Id",
-                "CreatedAtUtc",
+                DatabaseConstant.ID_COLUMN_NAME,
+                DatabaseConstant.CREATED_AT_UTC_COLUMN_NAME,
             };
         }
 
@@ -45,8 +46,7 @@
             entity.CreatedAtUtc = DateTime.UtcNow;
             entity.ModifiedAtUtc = entity.CreatedAtUtc;
 
-            string sql = $"INSERT INTO {this.tableName} {this.columnNamesString} " +
-                            $"VALUES {this.parameterizedColumnsNamesString}";
+            string sql = string.Format(RepositoryConstant.CREATE_ENTITY_SQL_QUERY, this.tableName, this.columnNamesString, this.parameterizedColumnsNamesString);
 
             try
             {
@@ -54,18 +54,18 @@
             }
             catch (SqlException se) when (se.Number == 2627)
             {
-                throw new EntityAlreadyExistsException($"{this.entityName} with already exists!");
+                throw new EntityAlreadyExistsException(string.Format(RepositoryConstant.ENTITY_ALREADY_EXISTS_ERROR_MESSAGE, this.entityName));
             }
         }
 
         public virtual void Delete(U id)
         {
-            string sql = $"DELETE FROM {this.tableName} WHERE Id = @Id";
+            string sql = string.Format(RepositoryConstant.DELETE_ENTITY_SQL_QUERY, this.tableName);
             bool hasBeenDeleted = 
                 Convert.ToBoolean(this.DbConnection.Execute(sql, new { Id = id }, transaction: this.Transaction));
             if (!hasBeenDeleted)
             {
-                throw new NotFoundException($"{typeof(T).Name} doesn't exist!");
+                throw new NotFoundException(string.Format(RepositoryConstant.ENTITY_DOES_NOT_EXIST_ERROR_MESSAGE, typeof(T).Name));
             }
         }
 
@@ -79,7 +79,7 @@
 
             foreach (string propertyName in parameters)
             {
-                stringBuilder.Append($"@{propertyName}, ");
+                stringBuilder.Append(string.Format(RepositoryConstant.SQL_QUERY_PARAMETER_TEMPLATE, propertyName));
             }
 
             stringBuilder.Remove(stringBuilder.Length - 2, 2);
@@ -102,7 +102,7 @@
             {
                 if (!updateStringSkipProperties.Contains(propertyName))
                 {
-                    stringBuilder.Append($"{propertyName} = @{propertyName}, ");
+                    stringBuilder.Append(string.Format(RepositoryConstant.SQL_QUERY_COLUMN_PARAMETER_TEMPLATE, propertyName));
                 }
             }
 
@@ -113,7 +113,7 @@
             return tableColumnsNames;
         }
 
-        protected void SetUpRepository(bool hasUpdate = true)
+        protected void SetUpRepository()
         {
             this.parameterizedColumnsNamesString = this.GetParameterizedColumnNamesString();
             this.parameterizedColumnsNamesUpdateString = this.GetParameterizedColumnNamesUpdateString();

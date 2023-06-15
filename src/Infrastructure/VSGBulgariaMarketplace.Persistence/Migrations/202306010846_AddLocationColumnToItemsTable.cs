@@ -2,20 +2,19 @@
 {
     using FluentMigrator;
 
-    [Migration(202306010846)]
+    using VSGBulgariaMarketplace.Persistence.Constants;
+
+    [Migration(DatabaseConstant.ADD_LOCATION_COLUMN_TO_ITEMS_TABLE_MIGRATION_VERSION)]
     public class AddLocationColumnToItemsTable : Migration
     {
-        private const string ITEMS_TABLE_NAME = "Items";
-        private const string LOCATION_COLUMN_NAME = "Location";
-
         public override void Up()
         {
-            Create.Column(LOCATION_COLUMN_NAME).OnTable(ITEMS_TABLE_NAME).AsInt32().NotNullable();
+            Create.Column(DatabaseConstant.LOCATION_COLUMN_NAME).OnTable(DatabaseConstant.ITEMS_TABLE_NAME).AsInt32().NotNullable();
         }
 
         public override void Down()
         {
-            Delete.Column(LOCATION_COLUMN_NAME).FromTable(ITEMS_TABLE_NAME);
+            Delete.Column(DatabaseConstant.LOCATION_COLUMN_NAME).FromTable(DatabaseConstant.ITEMS_TABLE_NAME);
         }
     }
 }

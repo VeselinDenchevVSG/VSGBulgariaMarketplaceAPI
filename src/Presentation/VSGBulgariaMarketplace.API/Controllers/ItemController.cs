@@ -3,6 +3,9 @@
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
 
+    using VSGBulgariaMarketplace.API.Constants;
+    using VSGBulgariaMarketplace.Application.Constants;
+    using VSGBulgariaMarketplace.Application.Helpers.ActionFilters.Validation;
     using VSGBulgariaMarketplace.Application.Models.Item.Dtos;
     using VSGBulgariaMarketplace.Application.Models.Item.Interfaces;
     using VSGBulgariaMarketplace.Application.Services.HelpServices;
@@ -21,7 +24,7 @@
         }
 
         [HttpGet]
-        [Route("marketplace")]
+        [Route(ControllerConstant.MARKETPLACE_ROUTE)]
         public IActionResult GetMarketplace()
         {
             MarketplaceItemDto[] items = this.itemService.GetMarketplace();
@@ -31,8 +34,8 @@
 
 
         [HttpGet]
-        //[Route("categories")]
-        [Route("/getcategories")]
+        //[Route(ControllerConstant.GET_CATEGORIES_ROUTE)]
+        [Route(ControllerConstant.GET_CATEGORIES_ROUTE_SPARTAK)]
         public IActionResult GetCategories()
         {
             List<string> categories = EnumService.GetAll<Category>();
@@ -42,8 +45,8 @@
 
 
         [HttpGet]
-        [Route("inventory")]
-        [Authorize(Policy = "Admin")]
+        [Route(ControllerConstant.INVENTORY_ROUTE)]
+        [Authorize(Policy = AuthorizationConstant.AUTHORIZATION_ADMIN_POLICY_NAME)]
         public IActionResult GetInventory()
         {
             InventoryItemDto[] items = this.itemService.GetInventory();
@@ -52,8 +55,8 @@
         }
 
         [HttpGet]
-        //[Route("{code}")]
-        [Route("marketplace/{id}")]
+        //[Route(ControllerConstant.GET_ITEM_BY_ID_ROUTE)]
+        [Route(ControllerConstant.GET_ITEM_BY_ID_ROUTE_SPARTAK)]
         public IActionResult GetById([FromRoute] string id)
         {
             ItemDetailsDto item = this.itemService.GetById(id);
@@ -62,36 +65,37 @@
         }
 
         [HttpPost]
-        //[Route("create")]
-        [Route("~/inventory/addItem")]
-        [Authorize(Policy = "Admin")]
+        //[Route(ControllerConstant.CREATE_ITEM_ASYNC_ROUTE)]
+        [Route(ControllerConstant.CREATE_ITEM_ASYNC_ROUTE_SPARTAK)]
+        [Authorize(Policy = AuthorizationConstant.AUTHORIZATION_ADMIN_POLICY_NAME)]
+        [ValidationFilter]
         public async Task<IActionResult> CreateAsync([FromForm] CreateItemDto itemDto)
         {
             await this.itemService.CreateAsync(itemDto);
 
-            return Ok(new { Message = $"Item {itemDto.Name} is successfully created!" } );
+            return Ok(new { Message = string.Format(ControllerConstant.ITEM_SUCCESSFULLY_CREATED_MESSAGE_TEMPLATE, itemDto.Name) } );
         }
 
         [HttpPut]
-        //[Route("update/{code}")]
-        [Route("~/inventory/modify/{id}")]
-        [Authorize(Policy = "Admin")]
+        //[Route(ControllerConstant.UPDATE_ITEM_ASYNC_ROUTE)]
+        [Route(ControllerConstant.UPDATE_ITEM_ASYNC_ROUTE_SPARTAK)]
+        [Authorize(Policy = AuthorizationConstant.AUTHORIZATION_ADMIN_POLICY_NAME)]
         public async Task<IActionResult> UpdateAsync([FromRoute] string id, [FromForm] UpdateItemDto itemDto)
         {
             await this.itemService.UpdateAsync(id, itemDto);
 
-            return Ok(new { Message = $"Item {itemDto.Name} has been successfully updated!" } );
+            return Ok(new { Message = string.Format(ControllerConstant.ITEM_SUCCESSFULLY_UPDATED_MESSAGE_TEMPLATE, itemDto.Name) } );
         }
 
         [HttpDelete]
-        //[Route("delete/{code}")]
-        [Route("/deleteItem/{id}")]
-        [Authorize(Policy = "Admin")]
-        public async Task<IActionResult> Delete([FromRoute] string id)
+        //[Route(ControllerConstant.DELETE_ITEM_ASYNC_ROUTE)]
+        [Route(ControllerConstant.DELETE_ITEM_ASYNC_ROUTE_SPARTAK)]
+        [Authorize(Policy = AuthorizationConstant.AUTHORIZATION_ADMIN_POLICY_NAME)]
+        public async Task<IActionResult> DeleteAsync([FromRoute] string id)
         {
             await this.itemService.Delete(id);
 
-            return Ok(new { Message = "Item has been successfully deleted!" } );
+            return Ok(new { Message = ControllerConstant.ITEM_SUCCESSFULLY_DELETED_MESSAGE } );
         }
     }
 }

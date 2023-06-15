@@ -2,6 +2,8 @@
 {
     using System.Text.Json.Serialization;
 
+    using VSGBulgariaMarketplace.Application.Constants;
+
     public class InventoryItemDto
     {
         public string Id { get; set; }
@@ -20,10 +22,10 @@
 
         public decimal Price { get; set; }
 
-        [JsonPropertyName("quantity")]
+        [JsonPropertyName(JsonConstant.INVENTORY_ITEM_QUANTITY_COMBINED_JSON_PROPERTY_NAME)]
         public short QuantityCombined { get; set; }
 
-        [JsonPropertyName("imageURL")]
+        [JsonPropertyName(JsonConstant.ITEM_IMAGE_URL_JSON_PROPERTY_NAME)]
         public string? ImageUrl { get; set; }
 
         public string Location { get; set; }

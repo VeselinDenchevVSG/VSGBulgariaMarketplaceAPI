@@ -3,6 +3,8 @@
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
 
+    using VSGBulgariaMarketplace.API.Constants;
+    using VSGBulgariaMarketplace.Application.Constants;
     using VSGBulgariaMarketplace.Application.Services.HelpServices;
     using VSGBulgariaMarketplace.Domain.Enums;
 
@@ -11,9 +13,9 @@
     public class LocationController : ControllerBase
     {
         [HttpGet]
-        //[Route("pending-orders")]
-        [Route("/getLocations")]
-        [Authorize(Policy = "Admin")]
+        //[Route(ControllerConstant.GET_LOCATIONS_ROUTE)]
+        [Route(ControllerConstant.GET_LOCATIONS_ROUTE_SPARTAK)]
+        [Authorize(Policy = AuthorizationConstant.AUTHORIZATION_ADMIN_POLICY_NAME)]
         public IActionResult GetLocations()
         {
             List<string> locations = EnumService.GetAll<Location>();

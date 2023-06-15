@@ -12,6 +12,7 @@
     using System;
     using System.Threading.Tasks;
 
+    using VSGBulgariaMarketplace.Application.Constants;
     using VSGBulgariaMarketplace.Application.Models.Image.Interfaces;
     using VSGBulgariaMarketplace.Domain.Entities;
 
@@ -29,19 +30,19 @@
             this.mapper = mapper;
 
             // Set Cloudinary account
-            string cloudinaryUrl = configuration["Cloudinary:Cloud"];
-            string cloudinaryApiKey = configuration["Cloudinary:ApiKey"];
-            string cloudinaryApiSecret = configuration["Cloudinary:ApiSecret"];
+            string cloudinaryUrl = configuration[ServiceConstant.CLOUDINARY_CONFIGURATION_CLOUD];
+            string cloudinaryApiKey = configuration[ServiceConstant.CLOUDINARY_CONFIGURATION_API_KEY];
+            string cloudinaryApiSecret = configuration[ServiceConstant.CLOUDINARY_CONFIGURATION_API_SECRET];
 
             this.cloudinaryAccount = new Account(cloudinaryUrl, cloudinaryApiKey, cloudinaryApiSecret);
-            this.cloudinary = new Cloudinary(cloudinaryAccount);
-            cloudinary.Api.Secure = true;
+            this.cloudinary = new Cloudinary(this.cloudinaryAccount);
+            this.cloudinary.Api.Secure = true;
         }
 
         public async Task<bool> ExistsAsync(string publicId)
         {
             var parameters = new GetResourceParams(publicId) { ResourceType = ResourceType.Image };
-            GetResourceResult result = await cloudinary.GetResourceAsync(parameters);
+            GetResourceResult result = await this.cloudinary.GetResourceAsync(parameters);
 
             bool exists = result != null && result.PublicId == publicId;
 
@@ -57,10 +58,11 @@
             var uploadParams = new ImageUploadParams()
             {
                 File = new FileDescription(uniqueFileName, stream),
-                Folder = "VSG_Marketplace"
+                Folder = ServiceConstant.CLOUDINARY_VSG_MARKETPLACE_IMAGES_FOLDER_NAME
             };
             ImageUploadResult uploadResult = await cloudinary.UploadAsync(uploadParams);
-            if (uploadResult.Error != null) throw new InvalidOperationException("Failed to upload file: " + uploadResult.Error.Message);
+            if (uploadResult.Error != null) throw new InvalidOperationException(string.Format(ServiceConstant.FAILED_TO_UPLOAD_FILE_ERROR_MESSAGE_TEMPLATE, 
+                                                                                                        uploadResult.Error.Message));
 
             CloudinaryImage image = mapper.Map<ImageUploadResult, CloudinaryImage>(uploadResult);
             this.UpdateImageFileMetadata(image, uploadResult.Format, uploadResult.Version);
@@ -81,7 +83,7 @@
 
         public async Task<string> UpdateAsync(string publicId, IFormFile newimageFile)
         {
-            publicId = publicId.Replace("%2F", "/");
+            publicId = publicId.Replace(ServiceConstant.SLASH_URL_ENCODING, "/");
 
             bool exists = await ExistsAsync(publicId);
             if (exists)
@@ -98,7 +100,8 @@
                 };
 
                 ImageUploadResult uploadResult = await cloudinary.UploadAsync(uploadParams);
-                if (uploadResult.Error != null) throw new InvalidOperationException("Failed to update file: " + uploadResult.Error.Message);
+                if (uploadResult.Error != null) throw new InvalidOperationException(string.Format(ServiceConstant.FAILED_TO_UPDATE_FILE_ERROR_MESSAGE_TEMPLATE,
+                                                                                                        uploadResult.Error.Message));
 
                 CloudinaryImage image = mapper.Map<ImageUploadResult, CloudinaryImage>(uploadResult);
                 this.UpdateImageFileMetadata(image, uploadResult.Format, uploadResult.Version);
@@ -110,16 +113,14 @@
                 return publicId;
                 
             }
-            else throw new FileNotFoundException("Image not found!");
+            else throw new FileNotFoundException(ServiceConstant.IMAGE_NOT_FOUND_ERROR_MESSAGE);
         }
 
         public async Task DeleteAsync(string publicId)
         {
-            publicId = publicId.Replace("%2F", "/");
+            publicId = publicId.Replace(ServiceConstant.SLASH_URL_ENCODING, "/");
             var deletionParams = new DeletionParams(publicId);
             var deletionResult = await cloudinary.DestroyAsync(deletionParams);
-
-            if (deletionResult.Result == "not found") throw new FileNotFoundException("Image not found!");
 
             publicId = publicId.Split('/')[1];
             this.imageRepository.Delete(publicId);
@@ -130,10 +131,12 @@
             CloudinaryImage image = this.imageRepository.GetImageBuildUrlInfoByItemId(itemId);
             if (image is not null)
             {
-                if (image.FileExtension is null) throw new FileNotFoundException("Image not found!");
+                if (image.FileExtension is null) throw new FileNotFoundException(ServiceConstant.IMAGE_NOT_FOUND_ERROR_MESSAGE);
                 else
                 {
-                    string imageUrl = this.cloudinary.Api.UrlImgUp.BuildUrl($"v{image.Version}/VSG_Marketplace/{image.Id}.{image.FileExtension}");
+                    string imageUrl = this.cloudinary.Api.UrlImgUp.BuildUrl(string.Format(ServiceConstant.CLOUDINARY_IMAGE_URL_TEMPLATE, image.Version,
+                                                                                                    ServiceConstant.CLOUDINARY_VSG_MARKETPLACE_IMAGES_FOLDER_NAME, 
+                                                                                                    image.Id, image.FileExtension));
 
                     return imageUrl;
                 }
