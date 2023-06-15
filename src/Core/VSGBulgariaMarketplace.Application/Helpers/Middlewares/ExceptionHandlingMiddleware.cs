@@ -13,10 +13,10 @@
 
     public class ExceptionHandlingMiddleware
     {
-        private const int HTTP_STATUS_CODE_BAD_REQUEST = 400;
-        private const int HTTP_STATUS_CODE_NOT_FOUND = 404;
-        private const int HTTP_STATUS_CODE_UNPROCESSABLE_CONTENT = 422;
-        private const int HTTP_STATUS_CODE_INTERNAL_SERVER_ERROR = 500;
+        private const short HTTP_STATUS_CODE_BAD_REQUEST = 400;
+        private const short HTTP_STATUS_CODE_NOT_FOUND = 404;
+        private const short HTTP_STATUS_CODE_UNPROCESSABLE_CONTENT = 422;
+        private const short HTTP_STATUS_CODE_INTERNAL_SERVER_ERROR = 500;
 
         private const string APPLICATION_JSON_CONTENT_TYPE = "application/json";
 
