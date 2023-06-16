@@ -78,7 +78,7 @@
                     order.ItemId = item.Id;
                     order.ItemCode = item.Code;
                     order.ItemName = item.Name;
-                    order.ItemPrice = item.Price;
+                    order.ItemPrice = item.Price.Value;
                     order.Email = email;
 
                     base.repository.Create(order);

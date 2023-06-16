@@ -12,7 +12,7 @@
         [JsonPropertyName(JsonConstant.ITEM_IMAGE_URL_JSON_PROPERTY_NAME)]
         public string ImageUrl { get; set; }
 
-        public decimal Price { get; set; }
+        public decimal? Price { get; set; }
 
         public string Category { get; set; }
 

@@ -20,7 +20,7 @@
 
         public short? AvailableQuantity { get; set; }
 
-        public decimal Price { get; set; }
+        public decimal? Price { get; set; }
 
         [JsonPropertyName(JsonConstant.INVENTORY_ITEM_QUANTITY_COMBINED_JSON_PROPERTY_NAME)]
         public short QuantityCombined { get; set; }
