@@ -13,7 +13,7 @@
         public override void Up()
         {
             Create.Table(this.TableName)
-                   .WithColumn(DatabaseConstant.ID_COLUMN_NAME).AsString(36).PrimaryKey()
+                   .WithColumn(DatabaseConstant.ID_COLUMN_NAME).AsString(DatabaseConstant.STRING_ID_COLUMN_SIZE).PrimaryKey()
                    .WithColumn(DatabaseConstant.ITEM_ID_COLUMN_NAME).AsString(DatabaseConstant.STRING_ID_COLUMN_SIZE)
                                                                             .ForeignKey(DatabaseConstant.ITEMS_TABLE_NAME, 
                                                                                         DatabaseConstant.ID_COLUMN_NAME)
