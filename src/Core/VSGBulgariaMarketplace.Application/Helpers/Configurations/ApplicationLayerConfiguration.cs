@@ -2,11 +2,13 @@
 {
     using FluentValidation.AspNetCore;
 
-    using Microsoft.Extensions.Configuration;
+    using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.DependencyInjection;
+    using Microsoft.Extensions.Options;
 
     using System.Reflection;
     using VSGBulgariaMarketplace.Application.Helpers.ActionFilters.ValidateEmail;
+    using VSGBulgariaMarketplace.Application.Helpers.ActionFilters.Validation;
     using VSGBulgariaMarketplace.Application.Models.Image.Interfaces;
     using VSGBulgariaMarketplace.Application.Models.Item.Interfaces;
     using VSGBulgariaMarketplace.Application.Models.ItemLoan.Interfaces;
@@ -19,7 +21,13 @@
     {
         public static IServiceCollection AddApplicationLayerConfiguration(this IServiceCollection services)
         {
-            services.AddControllers()
+            services.Configure<ApiBehaviorOptions>(options =>
+            {
+                options.SuppressModelStateInvalidFilter = true;
+            });
+
+            services.AddControllers(options => 
+                options.Filters.Add<FormatValidationErrorMessagesFilter>())
                     .AddFluentValidation(options =>
                     {
                         // Validate child properties and root collection elements
@@ -32,6 +40,7 @@
 
             services.AddAutoMapper(Assembly.GetExecutingAssembly());
 
+            services.AddScoped<FormatValidationErrorMessagesFilter>();
             services.AddScoped<ValidateEmailFilter>();
 
             services.AddScoped<IItemService, ItemService>();
