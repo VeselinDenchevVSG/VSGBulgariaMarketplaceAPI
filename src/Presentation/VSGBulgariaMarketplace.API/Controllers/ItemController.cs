@@ -68,7 +68,7 @@
         //[Route(ControllerConstant.CREATE_ITEM_ASYNC_ROUTE)]
         [Route(ControllerConstant.CREATE_ITEM_ASYNC_ROUTE_SPARTAK)]
         [Authorize(Policy = AuthorizationConstant.AUTHORIZATION_ADMIN_POLICY_NAME)]
-        [ValidationFilter]
+        [FormatValidationErrorMessagesFilter]
         public async Task<IActionResult> CreateAsync([FromForm] CreateItemDto itemDto)
         {
             await this.itemService.CreateAsync(itemDto);
@@ -80,6 +80,7 @@
         //[Route(ControllerConstant.UPDATE_ITEM_ASYNC_ROUTE)]
         [Route(ControllerConstant.UPDATE_ITEM_ASYNC_ROUTE_SPARTAK)]
         [Authorize(Policy = AuthorizationConstant.AUTHORIZATION_ADMIN_POLICY_NAME)]
+        [FormatValidationErrorMessagesFilter]
         public async Task<IActionResult> UpdateAsync([FromRoute] string id, [FromForm] UpdateItemDto itemDto)
         {
             await this.itemService.UpdateAsync(id, itemDto);

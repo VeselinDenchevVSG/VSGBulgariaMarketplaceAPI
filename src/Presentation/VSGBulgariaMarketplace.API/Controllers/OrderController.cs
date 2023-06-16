@@ -5,6 +5,7 @@
 
     using VSGBulgariaMarketplace.API.Constants;
     using VSGBulgariaMarketplace.Application.Constants;
+    using VSGBulgariaMarketplace.Application.Helpers.ActionFilters.Validation;
     using VSGBulgariaMarketplace.Application.Models.Order.Dtos;
     using VSGBulgariaMarketplace.Application.Models.Order.Interfaces;
 
@@ -44,6 +45,7 @@
         [HttpPost]
         //[Route(ControllerConstant.CREATE_ORDER_ROUTE)]
         [Route(ControllerConstant.CREATE_ORDER_ROUTE_SPARTAK)]
+        [FormatValidationErrorMessagesFilter]
         public IActionResult Create([FromBody] CreateOrderDto orderDto)
         {
             this.orderService.Create(orderDto);

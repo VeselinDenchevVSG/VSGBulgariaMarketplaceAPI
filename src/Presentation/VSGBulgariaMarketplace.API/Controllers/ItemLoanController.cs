@@ -6,6 +6,7 @@
     using VSGBulgariaMarketplace.API.Constants;
     using VSGBulgariaMarketplace.Application.Constants;
     using VSGBulgariaMarketplace.Application.Helpers.ActionFilters.ValidateEmail;
+    using VSGBulgariaMarketplace.Application.Helpers.ActionFilters.Validation;
     using VSGBulgariaMarketplace.Application.Models.ItemLoan.Dtos;
     using VSGBulgariaMarketplace.Application.Models.ItemLoan.Interfaces;
 
@@ -47,6 +48,7 @@
         //[Route(ControllerConstant.LEND_ITEMS_ROUTE)]
         [Route(ControllerConstant.LEND_ITEMS_ROUTE_SPARTAK)]
         [Authorize(Policy = AuthorizationConstant.AUTHORIZATION_ADMIN_POLICY_NAME)]
+        [FormatValidationErrorMessagesFilter]
         //public IActionResult LendItems([FromRoute] string itemId, [FromForm] LendItemsDto lendItems)
         public IActionResult LendItems([FromRoute] string itemId, [FromBody] LendItemsDto input)
         {
