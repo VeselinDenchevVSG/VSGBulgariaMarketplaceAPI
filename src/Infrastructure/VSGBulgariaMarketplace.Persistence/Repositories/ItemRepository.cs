@@ -138,7 +138,7 @@
             }
             catch (SqlException se) when (se.Number == 2601)
             {
-                ThrowEntityAlreadyExistsException(se.Message);
+                ThrowEntityAlreadyExistsException(RepositoryConstant.SIMILAR_ITEM_ALREADY_EXISTS_ERROR_MESSAGE);
             }
         }
 

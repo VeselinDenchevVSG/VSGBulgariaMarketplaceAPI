@@ -161,6 +161,10 @@
                         item.ImagePublicId = itemImagePublicId.Split("/")[1];
                     }
                 }
+                else
+                {
+                    item.ImagePublicId = itemImagePublicId.Split("/")[1];
+                }
             }
 
             try
