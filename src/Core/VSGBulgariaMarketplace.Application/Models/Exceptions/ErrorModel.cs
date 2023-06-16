@@ -2,7 +2,13 @@
 {
     internal class ErrorModel
     {
-        public short Code { get; set; }
+        public ErrorModel(int code, string errorMessage)
+        {
+            this.Code = code;
+            this.ErrorMessage = errorMessage;
+        }
+
+        public int Code { get; set; }
 
         public string ErrorMessage { get; set; }
     }

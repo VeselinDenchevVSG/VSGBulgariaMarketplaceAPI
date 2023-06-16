@@ -13,11 +13,6 @@
 
     public class ExceptionHandlingMiddleware
     {
-        private const short HTTP_STATUS_CODE_BAD_REQUEST = 400;
-        private const short HTTP_STATUS_CODE_NOT_FOUND = 404;
-        private const short HTTP_STATUS_CODE_UNPROCESSABLE_CONTENT = 422;
-        private const short HTTP_STATUS_CODE_INTERNAL_SERVER_ERROR = 500;
-
         private const string APPLICATION_JSON_CONTENT_TYPE = "application/json";
 
         private readonly RequestDelegate next;
@@ -51,7 +46,7 @@
 
             var errorResponce = JsonSerializer.Serialize(errors);
             httpContext.Response.ContentType = APPLICATION_JSON_CONTENT_TYPE;
-            httpContext.Response.StatusCode = errors[0].Code;
+            httpContext.Response.StatusCode = (int) errors[0].Code;
             await httpContext.Response.WriteAsync(errorResponce);
         }
 
@@ -62,31 +57,31 @@
             switch (exception)
             {
                 case HttpException httpException:
-                    errors.Add(new ErrorModel { Code = (short) httpException.StatusCode, ErrorMessage = httpException.Message });
+                    errors.Add(new ErrorModel((int) httpException.StatusCode, httpException.Message));
                     break;
 
                 case ValidationException validationException:
-                    errors.AddRange(validationException.Errors.Select(e => new ErrorModel { Code = HTTP_STATUS_CODE_BAD_REQUEST, ErrorMessage = e.ErrorMessage }));
+                    errors.AddRange(validationException.Errors.Select(e => new ErrorModel(StatusCodes.Status400BadRequest, e.ErrorMessage)));
                     break;
 
                 case NotFoundException notFoundException:
-                    errors.Add(new ErrorModel { Code = HTTP_STATUS_CODE_NOT_FOUND, ErrorMessage = notFoundException.Message });
+                    errors.Add(new ErrorModel(StatusCodes.Status404NotFound, notFoundException.Message));
                     break;
 
                 case FileNotFoundException fileNotFoundException:
-                    errors.Add(new ErrorModel { Code = HTTP_STATUS_CODE_NOT_FOUND, ErrorMessage = fileNotFoundException.Message });
+                    errors.Add(new ErrorModel(StatusCodes.Status404NotFound,  fileNotFoundException.Message));
                     break;
 
                 case EntityAlreadyExistsException itemAlreadyExistsException:
-                    errors.Add(new ErrorModel { Code = HTTP_STATUS_CODE_UNPROCESSABLE_CONTENT, ErrorMessage = itemAlreadyExistsException.Message });
+                    errors.Add(new ErrorModel(StatusCodes.Status422UnprocessableEntity, itemAlreadyExistsException.Message));
                     break;
 
                 case SqlException sqlException:
-                    errors.Add(new ErrorModel { Code = HTTP_STATUS_CODE_INTERNAL_SERVER_ERROR, ErrorMessage = sqlException.Message });
+                    errors.Add(new ErrorModel(StatusCodes.Status500InternalServerError,  sqlException.Message));
                     break;
 
                 default:
-                    errors.Add(new ErrorModel { Code = HTTP_STATUS_CODE_INTERNAL_SERVER_ERROR, ErrorMessage = exception.Message });
+                    errors.Add(new ErrorModel(StatusCodes.Status500InternalServerError, exception.Message));
                     break;
             }
 
