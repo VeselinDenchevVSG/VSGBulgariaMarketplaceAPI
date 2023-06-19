@@ -18,5 +18,7 @@
         internal const string PENDING_ORDER_PRICE_JSON_PROPERTY_NAME = "orderPrice";
         internal const string USER_ORDER_ITEM_NAME_JSON_PROPERTY_NAME = "name";
         #endregion
+
+        internal const string APPLICATION_JSON_CONTENT_TYPE = "application/json";
     }
 }

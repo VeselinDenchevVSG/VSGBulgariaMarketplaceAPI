@@ -8,13 +8,12 @@
 
     using System.Text.Json;
 
+    using VSGBulgariaMarketplace.Application.Constants;
     using VSGBulgariaMarketplace.Application.Models.Exceptions;
     using VSGBulgariaMarketplace.Application.Models.UnitOfWork;
 
     public class ExceptionHandlingMiddleware
     {
-        private const string APPLICATION_JSON_CONTENT_TYPE = "application/json";
-
         private readonly RequestDelegate next;
         private readonly ILogger logger;
 
@@ -45,7 +44,7 @@
             List<ErrorModel> errors = this.GenerateErrors(exception);
 
             var errorResponce = JsonSerializer.Serialize(errors);
-            httpContext.Response.ContentType = APPLICATION_JSON_CONTENT_TYPE;
+            httpContext.Response.ContentType = JsonConstant.APPLICATION_JSON_CONTENT_TYPE;
             httpContext.Response.StatusCode = (int) errors[0].Code;
             await httpContext.Response.WriteAsync(errorResponce);
         }

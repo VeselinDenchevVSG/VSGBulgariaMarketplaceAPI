@@ -6,6 +6,7 @@
     using VSGBulgariaMarketplace.Application.Models.Exceptions;
     using Microsoft.AspNetCore.Http;
     using System.Text.Json;
+    using VSGBulgariaMarketplace.Application.Constants;
 
     public class FormatValidationErrorMessagesFilter : IActionFilter
     {
@@ -28,7 +29,7 @@
                 context.Result = new ContentResult()
                 {
                     Content = errorResponce,
-                    ContentType = "application/json",
+                    ContentType = JsonConstant.APPLICATION_JSON_CONTENT_TYPE,
                     StatusCode = StatusCodes.Status400BadRequest
                 };
             }
