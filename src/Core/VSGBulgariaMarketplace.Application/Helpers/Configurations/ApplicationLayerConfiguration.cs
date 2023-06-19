@@ -4,7 +4,6 @@
 
     using Microsoft.AspNetCore.Mvc;
     using Microsoft.Extensions.DependencyInjection;
-    using Microsoft.Extensions.Options;
 
     using System.Reflection;
     using VSGBulgariaMarketplace.Application.Helpers.ActionFilters.ValidateEmail;
@@ -26,8 +25,7 @@
                 options.SuppressModelStateInvalidFilter = true;
             });
 
-            services.AddControllers(options => 
-                options.Filters.Add<FormatValidationErrorMessagesFilter>())
+            services.AddControllers()
                     .AddFluentValidation(options =>
                     {
                         // Validate child properties and root collection elements
