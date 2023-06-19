@@ -67,7 +67,7 @@
         #endregion
 
         #region CHECK CONSTRAINTS
-        internal const string ADD_CONSTRAINT_SQL_QUERY_TEMPLATE = "ALTER TABLE {0} ADD CONSTRAINT {1} CHECK {2}"; // items
+        internal const string ADD_CONSTRAINT_SQL_QUERY_TEMPLATE = "ALTER TABLE {0} ADD CONSTRAINT {1} CHECK {2}";
         internal const string DROP_CONSTRAINT_SQL_QUERY_TEMPLATE = "ALTER TABLE {0} DROP CONSTRAINT {1}";
         internal const string CHECK_ITEM_QUANTITY_COMBINED_CONSTRAINT_NAME = "CK_Item_QuantityCombined";
         internal const string CHECK_ITEM_QUANTITY_FOR_SALE_CONSTRAINT_NAME = "CK_Item_QuantityForSale";

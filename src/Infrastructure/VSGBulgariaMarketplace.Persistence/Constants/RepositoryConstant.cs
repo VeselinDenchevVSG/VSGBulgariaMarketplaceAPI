@@ -18,14 +18,14 @@
         #endregion
 
         #region ITEM REPOSITORY SQL QUERIES
-        internal const string GET_MARKETPLACE_SQL_QUERY = $"SELECT i.Id, i.Code, i.Price, i.Category, i.QuantityForSale, i.ImagePublicId, ci.Id AS CloudinaryImageId " +
-                                                            $"FROM Items AS i " +
-                                                            $"LEFT JOIN CloudinaryImages AS ci " +
-                                                            $"ON i.ImagePublicId = ci.Id " +
-                                                            $"WHERE i.QuantityForSale IS NOT NULL AND i.QuantityForSale > 0";
+        internal const string GET_MARKETPLACE_SQL_QUERY = "SELECT i.Id, i.Code, i.Price, i.Category, i.QuantityForSale, i.ImagePublicId, ci.Id AS CloudinaryImageId " +
+                                                            "FROM Items AS i " +
+                                                            "LEFT JOIN CloudinaryImages AS ci " +
+                                                            "ON i.ImagePublicId = ci.Id " +
+                                                            "WHERE i.QuantityForSale IS NOT NULL AND i.QuantityForSale > 0";
 
-        internal const string GET_INVENTORY_SQL_QUERY = $"SELECT Id, Code, Name, Description, Category, QuantityCombined, QuantityForSale, AvailableQuantity, Price, ImagePublicId, " +
-                                                        $"Location FROM Items";
+        internal const string GET_INVENTORY_SQL_QUERY = "SELECT Id, Code, Name, Description, Category, QuantityCombined, QuantityForSale, AvailableQuantity, Price, ImagePublicId, " +
+                                                        "Location FROM Items";
         internal const string GET_ITEM_BY_ID_SQL_QUERY = "SELECT i.Name, i.Price, i.Category, i.QuantityForSale, i.Description, i.ImagePublicId, ci.Id AS CloudinaryImageId " +
                                                             "FROM Items AS i " +
                                                             "LEFT JOIN CloudinaryImages AS ci " +
@@ -45,13 +45,13 @@
         #endregion
 
         #region IMAGE REPOSITORY SQL QUERIES
-        internal const string GET_IMAGE_BUILD_URL_INFO_BY_ITEM_ID_SQL_QUERY = $"SELECT ci.FileExtension, ci.Version, ci.Id, i.ImagePublicId AS CloudinaryImageId " +
-                                                                        $"FROM CloudinaryImages AS ci " +
-                                                                        $"JOIN Items AS i " +
-                                                                        $"ON ci.Id = i.ImagePublicId " +
-                                                                        $"WHERE i.Id = @ItemId";
-        internal const string UPDATE_IMAGE_FILE_INFO_SQL_QUERY = $"UPDATE CloudinaryImages SET FileExtension = @FileExtension, Version = @Version, ModifiedAtUtc = GETUTCDATE() " +
-                                                                    $"WHERE Id = @PublicId";
+        internal const string GET_IMAGE_BUILD_URL_INFO_BY_ITEM_ID_SQL_QUERY = "SELECT ci.FileExtension, ci.Version, ci.Id, i.ImagePublicId AS CloudinaryImageId " +
+                                                                                "FROM CloudinaryImages AS ci " +
+                                                                                "JOIN Items AS i " +
+                                                                                "ON ci.Id = i.ImagePublicId " +
+                                                                                "WHERE i.Id = @ItemId";
+        internal const string UPDATE_IMAGE_FILE_INFO_SQL_QUERY = "UPDATE CloudinaryImages SET FileExtension = @FileExtension, Version = @Version, ModifiedAtUtc = GETUTCDATE() " +
+                                                                    "WHERE Id = @PublicId";
         #endregion
 
         #region ORDERS REPOSITORY SQL QUERIES
@@ -88,9 +88,8 @@
         internal const string ITEM_WITH_THE_SAME_PROPERTY_ALREADY_EXISTS_ERROR_MESSAGE = "Item with {0} {1} already exists!";
         #endregion
 
-        #region OTHER
         internal const string EXCEPTION_MESSAGE_SEPERATORS = " _()'.";
+
         internal const string CLOUDINARY_IMAGE_DIRECTORY = "VSG_Marketplace/";
-        #endregion
     }
 }
