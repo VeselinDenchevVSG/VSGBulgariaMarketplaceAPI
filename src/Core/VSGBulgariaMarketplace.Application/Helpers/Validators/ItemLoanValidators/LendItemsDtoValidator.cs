@@ -14,8 +14,8 @@
 
             RuleFor(li => li.Quantity).InclusiveBetween(ValidationConstant.LEND_ITEMS_MIN_QUANTITY, ValidationConstant.LEND_ITEMS_MAX_QUANTITY)
                                                 .WithMessage(string.Format(ValidationConstant.ITEM_PROPERTY_MUST_BE_BETWEEN_MIN_AND_MAX_VALUE_ERROR_MESSAGE_TEMPLATE,
-                                                                                        ValidationConstant.ITEM_LENT_QUANTITY, ValidationConstant.LEND_ITEMS_MIN_QUANTITY, 
-                                                                                        ValidationConstant.LEND_ITEMS_MAX_QUANTITY));
+                                                                            ValidationConstant.ITEM_LENT_QUANTITY, ValidationConstant.LEND_ITEMS_MIN_QUANTITY, 
+                                                                            ValidationConstant.LEND_ITEMS_MAX_QUANTITY));
         }
     }
 }

@@ -40,8 +40,7 @@
         public UserLendItemDto[] GetUserLendItems(string email)
         {
             var emailValidator = new InlineValidator<string>();
-            emailValidator.RuleFor(e => e).NotEmpty().Matches(ValidationConstant.VSG_EMAIL_REGEX_PATTERN)
-                                                    .WithMessage(ValidationConstant.INVALID_EMAIL_FORMAT_ERROR_MESSAGE);
+            emailValidator.RuleFor(e => e).NotEmpty().Matches(ValidationConstant.VSG_EMAIL_REGEX_PATTERN).WithMessage(ValidationConstant.INVALID_EMAIL_FORMAT_ERROR_MESSAGE);
             var emailValidationResult = emailValidator.Validate(email);
             if (emailValidationResult.IsValid)
             {

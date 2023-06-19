@@ -27,7 +27,8 @@
             return ruleBuilder.NotEmpty().WithMessage(message);
         }
 
-        public static IRuleBuilderOptions<T, decimal?> NotEmptyWithMessage<T, TElement, TEntity>(this IRuleBuilder<T, decimal?> ruleBuilder, string propertyName, string message = null)
+        public static IRuleBuilderOptions<T, decimal?> NotEmptyWithMessage<T, TElement, TEntity>(this IRuleBuilder<T, decimal?> ruleBuilder, string propertyName, 
+                                                                                                    string message = null)
         {
             message = NotEmptyWithMessageBase<TEntity>(propertyName, message);
 

@@ -23,8 +23,7 @@
         {
             RuleFor(f => f.Length).NotEmpty().WithMessage(ValidationConstant.FILE_CAN_NOT_BE_EMPTY_ERROR_MESSAGE)
                                     .LessThanOrEqualTo(ValidationConstant.BYTES_IN_MB * ValidationConstant.MAX_FILE_SIZE_IN_MB)
-                                    .WithMessage(string.Format(ValidationConstant.FILE_MUST_BE_LESS_THAN_MAX_FILE_SIZE_ERROR_MESSAGE, 
-                                                                            ValidationConstant.MAX_FILE_SIZE_IN_MB));
+                                    .WithMessage(string.Format(ValidationConstant.FILE_MUST_BE_LESS_THAN_MAX_FILE_SIZE_ERROR_MESSAGE, ValidationConstant.MAX_FILE_SIZE_IN_MB));
 
             RuleFor(f => f.FileName).Must(HaveAllowedExtension)
                                                 .WithMessage(string.Format(ValidationConstant.FILE_MUST_HAVE_ALLOWED_EXTENSION_ERROR_MESSAGE, 

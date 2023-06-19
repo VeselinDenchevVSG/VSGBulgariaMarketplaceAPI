@@ -135,8 +135,8 @@
                 else
                 {
                     string imageUrl = this.cloudinary.Api.UrlImgUp.BuildUrl(string.Format(ServiceConstant.CLOUDINARY_IMAGE_URL_TEMPLATE, image.Version,
-                                                                                                    ServiceConstant.CLOUDINARY_VSG_MARKETPLACE_IMAGES_FOLDER_NAME, 
-                                                                                                    image.Id, image.FileExtension));
+                                                                                            ServiceConstant.CLOUDINARY_VSG_MARKETPLACE_IMAGES_FOLDER_NAME, 
+                                                                                            image.Id, image.FileExtension));
 
                     return imageUrl;
                 }
