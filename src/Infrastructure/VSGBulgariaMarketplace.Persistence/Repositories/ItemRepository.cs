@@ -180,11 +180,10 @@
         private static void ThrowEntityAlreadyExistsException(string message) 
         {
             string[] exceptionMessageTokens = message.Split(RepositoryConstant.EXCEPTION_MESSAGE_SEPERATORS.ToCharArray());
-            string duplicateColumn = exceptionMessageTokens[17];
-            string duplicateValue = exceptionMessageTokens[26];
+            string duplicateColumn = exceptionMessageTokens[RepositoryConstant.ENTITY_ALREADY_EXISTS_EXCEPTION_MESSAGE_TOKEN_DUPLICATE_COLUMN_INDEX];
+            string duplicateValue = exceptionMessageTokens[RepositoryConstant.ENTITY_ALREADY_EXISTS_EXCEPTION_MESSAGE_TOKEN_DUPLICATE_VALUE_INDEX];
 
-            throw new EntityAlreadyExistsException(string.Format(RepositoryConstant.ITEM_WITH_THE_SAME_PROPERTY_ALREADY_EXISTS_ERROR_MESSAGE, duplicateColumn, 
-                                                                         duplicateValue));
+            throw new EntityAlreadyExistsException(string.Format(RepositoryConstant.ITEM_WITH_THE_SAME_PROPERTY_ALREADY_EXISTS_ERROR_MESSAGE, duplicateColumn, duplicateValue));
         }
     }
 }

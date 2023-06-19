@@ -88,7 +88,11 @@
         internal const string ITEM_WITH_THE_SAME_PROPERTY_ALREADY_EXISTS_ERROR_MESSAGE = "Item with {0} {1} already exists!";
         #endregion
 
+        #region EXCEPTION MESSAGES
+        internal const int ENTITY_ALREADY_EXISTS_EXCEPTION_MESSAGE_TOKEN_DUPLICATE_COLUMN_INDEX = 17;
+        internal const int ENTITY_ALREADY_EXISTS_EXCEPTION_MESSAGE_TOKEN_DUPLICATE_VALUE_INDEX = 26;
         internal const string EXCEPTION_MESSAGE_SEPERATORS = " _()'.";
+        #endregion
 
         internal const string CLOUDINARY_IMAGE_DIRECTORY = "VSG_Marketplace/";
     }
