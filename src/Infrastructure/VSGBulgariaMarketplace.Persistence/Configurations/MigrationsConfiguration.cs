@@ -5,6 +5,8 @@
     using Microsoft.AspNetCore.Builder;
     using Microsoft.Extensions.DependencyInjection;
 
+    using NLog.Extensions.Logging;
+
     using System.Reflection;
 
     using VSGBulgariaMarketplace.Persistence.Constants;
@@ -13,11 +15,11 @@
     {
         public static IServiceCollection AddMigrationsConfiguration(this IServiceCollection services)
         {
-            services
-                .AddFluentMigratorCore()
-                .ConfigureRunner(c => c.AddSqlServer()
-                .WithGlobalConnectionString(DatabaseConnectionConstant.DEFAULT_CONNECTION_STRING_NAME)
-                .ScanIn(Assembly.GetExecutingAssembly()).For.Migrations());
+            services.AddFluentMigratorCore()
+                    .AddLogging(l => l.AddNLog())
+                    .ConfigureRunner(c => c.AddSqlServer().WithGlobalConnectionString(DatabaseConnectionConstant.DEFAULT_CONNECTION_STRING_NAME)
+                                                            .ScanIn(Assembly.GetExecutingAssembly()).For.Migrations());
+
             return services;
         }
         public static void MigrateUpDatabase(this IApplicationBuilder app)
