@@ -10,8 +10,8 @@
 
         public Task<string> UpdateAsync(string publicId, IFormFile newimageFile);
 
-        public Task DeleteAsync(string publicId);
+        public Task<string> DeleteAsync(string publicId);
 
-       public string GetImageUrlByItemId(string itemId);
+        public string GetImageUrlByItemId(string itemId);
     }
 }

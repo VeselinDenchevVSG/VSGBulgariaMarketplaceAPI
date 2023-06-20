@@ -116,14 +116,17 @@
             else throw new FileNotFoundException(ServiceConstant.IMAGE_NOT_FOUND_ERROR_MESSAGE);
         }
 
-        public async Task DeleteAsync(string publicId)
+        public async Task<string> DeleteAsync(string publicId)
         {
             publicId = publicId.Replace(ServiceConstant.SLASH_URL_ENCODING, "/");
             var deletionParams = new DeletionParams(publicId);
             var deletionResult = await cloudinary.DestroyAsync(deletionParams);
 
             publicId = publicId.Split('/')[1];
+
             this.imageRepository.Delete(publicId);
+
+            return deletionResult.Result;
         }
 
         public string GetImageUrlByItemId(string itemId)

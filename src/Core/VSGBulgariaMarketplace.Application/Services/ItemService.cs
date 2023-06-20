@@ -152,8 +152,8 @@
                 {
                     if (updateItemDto.Image is null)
                     {
-                        await this.imageService.DeleteAsync(itemImagePublicId);
-                        imageIsDeleted = true;
+                        string deletionResult = await this.imageService.DeleteAsync(itemImagePublicId);
+                        imageIsDeleted = deletionResult == ServiceConstant.CLOUDINARY_DELETION_RESULT_OK;
                     }
                     else
                     {
@@ -195,7 +195,6 @@
 
                 if (itemPicturePublicId is not null)
                 {
-
                     await this.imageService.DeleteAsync(itemPicturePublicId);
                 }
 

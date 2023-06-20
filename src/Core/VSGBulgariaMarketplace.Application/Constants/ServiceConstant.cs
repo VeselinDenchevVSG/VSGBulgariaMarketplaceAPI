@@ -8,6 +8,7 @@
         internal const string CLOUDINARY_CONFIGURATION_API_SECRET = "Cloudinary:ApiSecret";
         internal const string CLOUDINARY_VSG_MARKETPLACE_IMAGES_FOLDER_NAME = "VSG_Marketplace";
         internal const string CLOUDINARY_IMAGE_URL_TEMPLATE = "v{0}/{1}/{2}.{3}";
+        internal const string CLOUDINARY_DELETION_RESULT_OK = "ok";
         internal const string CLOUDINARY_DELETION_RESULT_NOT_FOUND = "not found";
         internal const string SLASH_URL_ENCODING = "%2F";
         #endregion
