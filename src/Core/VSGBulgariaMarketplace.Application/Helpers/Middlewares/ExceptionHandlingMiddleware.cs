@@ -15,6 +15,8 @@
 
     public class ExceptionHandlingMiddleware
     {
+        private const string OPERATION_CANCELLED_BY_USER_EXCEPTION_MESSAGE = "Operation cancelled by user.";
+
         private readonly RequestDelegate next;
         private readonly ILogger logger;
 
@@ -84,7 +86,7 @@
                     break;
 
                 case OperationCanceledException:
-                case InvalidOperationException invalidOperationException when invalidOperationException.Message == "Operation cancelled by user.":
+                case InvalidOperationException invalidOperationException when invalidOperationException.Message == OPERATION_CANCELLED_BY_USER_EXCEPTION_MESSAGE:
                     // Do nothing
                     break;
 
