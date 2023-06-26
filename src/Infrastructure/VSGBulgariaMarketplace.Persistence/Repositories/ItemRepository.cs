@@ -74,6 +74,19 @@
             return item;
         }
 
+        public async Task<string> GetItemImagePublicId(string id, CancellationToken cancellationToken)
+        {
+            string sql = RepositoryConstant.GET_ITEM_PICTURE_PUBLIC_ID_SQL_QUERY;
+            string itemImagePublicId = await this.DbConnection.QueryFirstOrDefaultAsync<string>(new CommandDefinition(sql, new { Id = id }, base.Transaction,
+                                                                                                                            cancellationToken: cancellationToken));
+            if (itemImagePublicId is not null)
+            {
+                itemImagePublicId = RepositoryConstant.CLOUDINARY_IMAGE_DIRECTORY + itemImagePublicId;
+            }
+
+            return itemImagePublicId;
+        }
+
         public bool TryGetAvailableQuantity(string id, out int? avaiableQuantity)
         {
             string sql = RepositoryConstant.TRY_GET_AVAILABLE_QUANTITY_SQL_QUERY;
@@ -142,33 +155,13 @@
             }
         }
 
-        public string GetItemPicturePublicId(string id)
-        {
-            string sql = RepositoryConstant.GET_ITEM_PICTURE_PUBLIC_ID_SQL_QUERY;
-            var result = this.DbConnection.Query<string>(sql, new { Id = id }, base.Transaction);
-
-            if (result.Count() == 0)
-            {
-                throw new NotFoundException(RepositoryConstant.ITEM_DOES_NOT_EXIST_ERROR_MESSAGE);
-            }
-
-            string itemPicturePublicId = result.FirstOrDefault();
-
-            if (itemPicturePublicId is not null)
-            {
-                itemPicturePublicId = RepositoryConstant.CLOUDINARY_IMAGE_DIRECTORY + itemPicturePublicId;
-            }
-
-            return itemPicturePublicId;
-        }
-
-        public override void Create(Item item)
+        public async override Task CreateAsync(Item item, CancellationToken cancellationToken)
         {
             item.Id = Guid.NewGuid().ToString();
 
             try
             {
-                base.Create(item);
+                await base.CreateAsync(item, cancellationToken);
             }
             catch (EntityAlreadyExistsException)
             {

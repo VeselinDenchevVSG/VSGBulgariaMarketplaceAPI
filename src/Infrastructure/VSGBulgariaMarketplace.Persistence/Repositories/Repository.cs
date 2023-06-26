@@ -58,6 +58,23 @@
             }
         }
 
+        public async virtual Task CreateAsync(T entity, CancellationToken cancellationToken = default)
+        {
+            entity.CreatedAtUtc = DateTime.UtcNow;
+            entity.ModifiedAtUtc = entity.CreatedAtUtc;
+
+            string sql = string.Format(RepositoryConstant.CREATE_ENTITY_SQL_QUERY, this.tableName, this.columnNamesString, this.parameterizedColumnsNamesString);
+
+            try
+            {
+                await this.DbConnection.ExecuteAsync(new CommandDefinition(sql, entity, transaction: this.Transaction, cancellationToken: cancellationToken));
+            }
+            catch (SqlException se) when (se.Number == 2627)
+            {
+                throw new EntityAlreadyExistsException(string.Format(RepositoryConstant.ENTITY_ALREADY_EXISTS_ERROR_MESSAGE, this.entityName));
+            }
+        }
+
         public virtual void Delete(U id)
         {
             string sql = string.Format(RepositoryConstant.DELETE_ENTITY_SQL_QUERY, this.tableName);

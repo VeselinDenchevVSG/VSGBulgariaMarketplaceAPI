@@ -5,16 +5,16 @@
 
     public interface IOrderRepository : IRepository<Order, string>
     {
-        public Order[] GetPendingOrders();
+        Order[] GetPendingOrders();
 
-        public Order[] GetUserOrders(string email);
+        Order[] GetUserOrders(string email);
 
-        public Order GetOrderItemIdAndQuantity(string id);
+        Order GetOrderItemIdAndQuantity(string id);
 
-        public void Finish(string id);
+        void Finish(string id);
 
-        public void DeclineAllPendingOrdersWithDeletedItem(string itemId);
+        Task DeclineAllPendingOrdersWithDeletedItemAsync(string itemId, CancellationToken cancellationToken);
 
-        public short GetPendingOrdersTotalItemQuantityByItemId(string itemId);
+        Task<short> GetPendingOrdersTotalItemQuantityByItemId(string itemId, CancellationToken cancellationToken);
     }
 }

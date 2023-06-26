@@ -10,6 +10,8 @@
 
         void Create(T entity);
 
+        Task CreateAsync(T entity, CancellationToken cancellationToken);
+
         void Delete(U id);
     }
 }

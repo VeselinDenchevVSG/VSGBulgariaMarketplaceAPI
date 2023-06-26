@@ -6,7 +6,6 @@
     using CloudinaryDotNet.Actions;
 
     using Microsoft.AspNetCore.Http;
-    using Microsoft.Data.SqlClient;
     using Microsoft.Extensions.Configuration;
 
     using System;
@@ -39,17 +38,17 @@
             this.cloudinary.Api.Secure = true;
         }
 
-        public async Task<bool> ExistsAsync(string publicId)
+        public async Task<bool> ExistsAsync(string publicId, CancellationToken cancellationToken)
         {
             var parameters = new GetResourceParams(publicId) { ResourceType = ResourceType.Image };
-            GetResourceResult result = await this.cloudinary.GetResourceAsync(parameters);
+            GetResourceResult result = await this.cloudinary.GetResourceAsync(parameters, cancellationToken);
 
             bool exists = result != null && result.PublicId == publicId;
 
             return exists;
         }
 
-        public async Task<string> UploadAsync(IFormFile imageFile)
+        public async Task<string> UploadAsync(IFormFile imageFile, CancellationToken cancellationToken)
         {
             using Stream stream = ConvertIFormFileToStream(imageFile);
 
@@ -60,7 +59,7 @@
                 File = new FileDescription(uniqueFileName, stream),
                 Folder = ServiceConstant.CLOUDINARY_VSG_MARKETPLACE_IMAGES_FOLDER_NAME
             };
-            ImageUploadResult uploadResult = await cloudinary.UploadAsync(uploadParams);
+            ImageUploadResult uploadResult = await cloudinary.UploadAsync(uploadParams, cancellationToken);
             if (uploadResult.Error != null) throw new InvalidOperationException(string.Format(ServiceConstant.FAILED_TO_UPLOAD_FILE_ERROR_MESSAGE_TEMPLATE, 
                                                                                                         uploadResult.Error.Message));
 
@@ -69,23 +68,23 @@
 
             try
             {
-                this.imageRepository.Create(image);
+                await this.imageRepository.CreateAsync(image, cancellationToken);
             }
-            catch (SqlException se)
+            catch (Exception)
             {
                 await DeleteAsync(uploadResult.PublicId);
 
-                throw se;
+                throw;
             }
 
             return image.Id;
         }
 
-        public async Task<string> UpdateAsync(string publicId, IFormFile newimageFile)
+        public async Task UpdateAsync(string publicId, IFormFile newimageFile, CancellationToken cancellationToken)
         {
             publicId = publicId.Replace(ServiceConstant.SLASH_URL_ENCODING, "/");
 
-            bool exists = await ExistsAsync(publicId);
+            bool exists = await ExistsAsync(publicId, cancellationToken);
             if (exists)
             {
                 using Stream stream = ConvertIFormFileToStream(newimageFile);
@@ -99,18 +98,14 @@
                     Invalidate = true,
                 };
 
-                ImageUploadResult uploadResult = await cloudinary.UploadAsync(uploadParams);
+                ImageUploadResult uploadResult = await cloudinary.UploadAsync(uploadParams, cancellationToken);
                 if (uploadResult.Error != null) throw new InvalidOperationException(string.Format(ServiceConstant.FAILED_TO_UPDATE_FILE_ERROR_MESSAGE_TEMPLATE,
                                                                                                         uploadResult.Error.Message));
 
                 CloudinaryImage image = mapper.Map<ImageUploadResult, CloudinaryImage>(uploadResult);
                 this.UpdateImageFileMetadata(image, uploadResult.Format, uploadResult.Version);
 
-                publicId = publicId.Split('/')[1];
-
                 this.imageRepository.UpdateImageFileInfo(publicId, image);
-
-                return publicId;
                 
             }
             else throw new FileNotFoundException(ServiceConstant.IMAGE_NOT_FOUND_ERROR_MESSAGE);
@@ -122,7 +117,14 @@
             var deletionParams = new DeletionParams(publicId);
             var deletionResult = await cloudinary.DestroyAsync(deletionParams);
 
-            publicId = publicId.Split('/')[1];
+            try
+            {
+                publicId = publicId.Split('/')[1];
+            }
+            catch (IndexOutOfRangeException) when (publicId is not null)
+            {
+                // Image publicId is splitted
+            }
 
             this.imageRepository.Delete(publicId);
 
@@ -166,6 +168,15 @@
 
         private void UpdateImageFileMetadata(CloudinaryImage image, string fileExtension, string version)
         {
+            try
+            {
+                image.Id = image.Id.Split('/').TakeLast(1).First();
+            }
+            catch (IndexOutOfRangeException) when (image.Id is not null)
+            {
+                // Image publicId is splitted
+            }
+
             image.FileExtension = fileExtension;
             image.Version = int.Parse(version);
         }

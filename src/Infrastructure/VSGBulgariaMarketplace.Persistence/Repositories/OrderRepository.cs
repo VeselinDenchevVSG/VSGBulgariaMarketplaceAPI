@@ -46,15 +46,17 @@
             base.DbConnection.Execute(sql, new { Id = id }, transaction: base.Transaction);
         }
 
-        public void DeclineAllPendingOrdersWithDeletedItem(string itemId)
+        public async Task DeclineAllPendingOrdersWithDeletedItemAsync(string itemId, CancellationToken cancellationToken)
         {
             string sql = RepositoryConstant.DECLINE_ALL_PENDING_ORDERS_WITH_DELETED_ITEM_SQL_QUERY;
-            Order[] pendingOrdersWithDeletedItem = base.DbConnection.Query<Order, Item, Order>(sql, (order, item) =>
+
+            CommandDefinition commandDefinition = new CommandDefinition(sql, new { ItemId = itemId }, transaction: base.Transaction, cancellationToken: cancellationToken);
+            Order[] pendingOrdersWithDeletedItem = (await base.DbConnection.QueryAsync<Order, Item, Order>(commandDefinition, (order, item) =>
             {
                 order.ItemId = item.Id;
 
                 return order;
-            }, new { ItemId = itemId }, splitOn: RepositoryConstant.ITEM_ID_ALIAS, transaction: base.Transaction).ToArray();
+            }, splitOn: RepositoryConstant.ITEM_ID_ALIAS)).ToArray();
 
             foreach (Order order in pendingOrdersWithDeletedItem)
             {
@@ -62,10 +64,11 @@
             }
         }
 
-        public short GetPendingOrdersTotalItemQuantityByItemId(string itemId)
+        public async Task<short> GetPendingOrdersTotalItemQuantityByItemId(string itemId, CancellationToken cancellationToken = default)
         {
             string sql = RepositoryConstant.GET_PENDING_ORDERS_TOTAL_ITEM_QUANTITY_BY_ITEM_ID_SQL_QUERY;
-            short pendingOrdersTotalItemQuantity = base.DbConnection.ExecuteScalar<short>(sql, new { ItemId = itemId }, transaction: base.Transaction);
+            short pendingOrdersTotalItemQuantity = await base.DbConnection.ExecuteScalarAsync<short>(new CommandDefinition(sql, new { ItemId = itemId }, 
+                                                                                                transaction: base.Transaction, cancellationToken: cancellationToken));
 
             return pendingOrdersTotalItemQuantity;
         }

@@ -5,28 +5,28 @@
 
     public interface IItemRepository : IRepository<Item, string>
     {
-        public Item[] GetMarketplace();
+        Item[] GetMarketplace();
 
-        public Item[] GetInventory();
+        Item[] GetInventory();
 
-        public Item GetById(string id);
+        Item GetById(string id);
 
-        public Item GetOrderItemInfoById(string id);
+        Item GetOrderItemInfoById(string id);
 
-        public bool TryGetAvailableQuantity(string id, out int? avaiableQuantity);
+        Task<string> GetItemImagePublicId(string id, CancellationToken cancellationToken);
 
-        public void Update(string id, Item item);
+        bool TryGetAvailableQuantity(string id, out int? avaiableQuantity);
 
-        public void RequestItemPurchase(string id, short quantityRequested);
+        void Update(string id, Item item);
 
-        public void RequestItemLoan(string id, short quantityRequested);
+        void RequestItemPurchase(string id, short quantityRequested);
 
-        public void RestoreItemQuantitiesWhenOrderIsDeclined(string id, short quantity);
+        void RequestItemLoan(string id, short quantityRequested);
 
-        public void RestoreItemQuantitiesWhenReturningLendItems(string id, short quantity);
+        void RestoreItemQuantitiesWhenOrderIsDeclined(string id, short quantity);
 
-        public void BuyItem(string id, short quantitySold);
+        void RestoreItemQuantitiesWhenReturningLendItems(string id, short quantity);
 
-        public string GetItemPicturePublicId(string id);
+        void BuyItem(string id, short quantitySold);
     }
 }

@@ -4,16 +4,16 @@
 
     public interface IItemService
     {
-        public MarketplaceItemDto[] GetMarketplace();
+        MarketplaceItemDto[] GetMarketplace();
 
-        public InventoryItemDto[] GetInventory();
+        InventoryItemDto[] GetInventory();
 
-        public ItemDetailsDto GetById(string id);
+        ItemDetailsDto GetById(string id);
 
-        public Task CreateAsync(CreateItemDto createItemDto);
+        Task CreateAsync(CreateItemDto createItemDto, CancellationToken cancellationToken);
 
-        public Task UpdateAsync(string id, UpdateItemDto updateItemDto);
+        Task UpdateAsync(string id, UpdateItemDto updateItemDto, CancellationToken cancellationToken);
 
-        public Task Delete(string id);
+        Task DeleteAsync(string id, CancellationToken cancellationToken);
     }
 }

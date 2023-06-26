@@ -1,6 +1,7 @@
 ﻿namespace VSGBulgariaMarketplace.Application.Services
 {
     using AutoMapper;
+    using CloudinaryDotNet.Actions;
 
     using Microsoft.Data.SqlClient;
 
@@ -105,30 +106,39 @@
             return itemDto;
         }
 
-        public async Task CreateAsync(CreateItemDto createItemDto)
+        public async Task CreateAsync(CreateItemDto createItemDto, CancellationToken cancellationToken)
         {
             Item item = base.mapper.Map<CreateItemDto, Item>(createItemDto);
 
             if (createItemDto.Image is not null)
             {
-                item.ImagePublicId = await this.imageService.UploadAsync(createItemDto.Image);
+                item.ImagePublicId = await this.imageService.UploadAsync(createItemDto.Image, cancellationToken);
             }
 
-            this.repository.Create(item);
+            try
+            {
+                await this.repository.CreateAsync(item, cancellationToken);
+            }
+            catch (Exception) when (item.ImagePublicId is not null)
+            {
+                await this.imageService.DeleteAsync(item.ImagePublicId);
+
+                throw;
+            }
 
             base.cacheAdapter.Remove(ServiceConstant.MARKETPLACE_CACHE_KEY);
             base.cacheAdapter.Remove(ServiceConstant.INVENTORY_CACHE_KEY);
         }
 
-        public async Task UpdateAsync(string id, UpdateItemDto updateItemDto) 
+        public async Task UpdateAsync(string id, UpdateItemDto updateItemDto, CancellationToken cancellationToken) 
         {
-            short pendingOrderdTotalItemQuantity = this.orderRepository.GetPendingOrdersTotalItemQuantityByItemId(id);
+            short pendingOrderdTotalItemQuantity = await this.orderRepository.GetPendingOrdersTotalItemQuantityByItemId(id, cancellationToken);
             if (updateItemDto.QuantityForSale <= pendingOrderdTotalItemQuantity)
             {
                 throw new ArgumentException(ServiceConstant.NOT_ENOUGH_QUANTITY_FOR_SALE_IN_ORDER_TO_COMPLETE_PENDING_ORDERS_WITH_THIS_ITEM_ERROR_MESSAGE);
             }
 
-            short itemLoansTotalItemQuantity = this.itemLoanRepository.GetItemLoansTotalQuantityForItem(id);
+            short itemLoansTotalItemQuantity = await this.itemLoanRepository.GetItemLoansTotalQuantityForItem(id, cancellationToken);
             if (updateItemDto.Quantity <= itemLoansTotalItemQuantity)
             {
                 throw new ArgumentException(ServiceConstant.QUANTITY_COMBINED_MUST_NOT_BE_LOWER_THAN_THE_ACTIVE_LOANS_ITEM_QUANTITY_ERROR_MESSAGE);
@@ -138,12 +148,12 @@
 
             bool imageIsDeleted = false;
 
-            string itemImagePublicId = this.GetItemPicturePublicId(id);
+            string itemImagePublicId = await this.repository.GetItemImagePublicId(id, cancellationToken);
             if (itemImagePublicId is null)
             {
                 if (updateItemDto.Image is not null)
                 {
-                    item.ImagePublicId = await this.imageService.UploadAsync(updateItemDto.Image);
+                    item.ImagePublicId = await this.imageService.UploadAsync(updateItemDto.Image, cancellationToken);
                 }
             }
             else
@@ -157,7 +167,7 @@
                     }
                     else
                     {
-                        await this.imageService.UpdateAsync(itemImagePublicId, updateItemDto.Image);
+                        await this.imageService.UpdateAsync(itemImagePublicId, updateItemDto.Image, cancellationToken);
                         item.ImagePublicId = itemImagePublicId.Split("/")[1];
                     }
                 }
@@ -171,10 +181,11 @@
             {
                 this.repository.Update(id, item);
             }
-            catch (SqlException se) when (itemImagePublicId is not null && !imageIsDeleted)
+            catch (SqlException) when (itemImagePublicId is not null && !imageIsDeleted)
             {
                 await this.imageService.DeleteAsync(itemImagePublicId);
-                throw se;
+
+                throw;
             }
 
             base.cacheAdapter.Remove(ServiceConstant.MARKETPLACE_CACHE_KEY);
@@ -182,14 +193,14 @@
             base.cacheAdapter.Remove(string.Format(ServiceConstant.ITEM_CACHE_KEY_TEMPLATE, id));
         }
 
-        public async Task Delete(string id)
+        public async Task DeleteAsync(string id, CancellationToken cancellationToken)
         {
-            bool isLoanWithItem = this.itemLoanRepository.IsLoanWithItem(id);
+            bool isLoanWithItem = await this.itemLoanRepository.IsLoanWithItem(id, cancellationToken);
             if (!isLoanWithItem)
             {
-                this.orderRepository.DeclineAllPendingOrdersWithDeletedItem(id);
+                string itemPicturePublicId = await this.repository.GetItemImagePublicId(id, cancellationToken);
 
-                string itemPicturePublicId = this.GetItemPicturePublicId(id);
+                await this.orderRepository.DeclineAllPendingOrdersWithDeletedItemAsync(id, cancellationToken);
 
                 base.repository.Delete(id);
 
@@ -202,7 +213,5 @@
             }
             else throw new InvalidOperationException(ServiceConstant.CAN_NOT_DELETE_ITEM_BECAUSE_IT_IS_LENT_TO_SOMEONE_ERROR_MESSAGE);
         }
-        
-        private string GetItemPicturePublicId(string id) => this.repository.GetItemPicturePublicId(id);
     }
 }

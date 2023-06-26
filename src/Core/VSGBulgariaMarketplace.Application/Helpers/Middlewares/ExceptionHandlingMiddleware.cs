@@ -6,6 +6,7 @@
     using Microsoft.Data.SqlClient;
     using Microsoft.Extensions.Logging;
 
+    using System;
     using System.Text.Json;
 
     using VSGBulgariaMarketplace.Application.Constants;
@@ -43,10 +44,13 @@
         {
             List<ErrorModel> errors = this.GenerateErrors(exception);
 
-            var errorResponce = JsonSerializer.Serialize(errors);
-            httpContext.Response.ContentType = JsonConstant.APPLICATION_JSON_CONTENT_TYPE;
-            httpContext.Response.StatusCode = (int) errors[0].Code;
-            await httpContext.Response.WriteAsync(errorResponce);
+            if (errors.Count > 0)
+            {
+                var errorResponce = JsonSerializer.Serialize(errors);
+                httpContext.Response.ContentType = JsonConstant.APPLICATION_JSON_CONTENT_TYPE;
+                httpContext.Response.StatusCode = (int)errors[0].Code;
+                await httpContext.Response.WriteAsync(errorResponce);
+            }
         }
 
         private List<ErrorModel> GenerateErrors(Exception exception)
@@ -77,6 +81,11 @@
 
                 case SqlException sqlException:
                     errors.Add(new ErrorModel(StatusCodes.Status500InternalServerError,  sqlException.Message));
+                    break;
+
+                case OperationCanceledException:
+                case InvalidOperationException invalidOperationException when invalidOperationException.Message == "Operation cancelled by user.":
+                    // Do nothing
                     break;
 
                 default:
