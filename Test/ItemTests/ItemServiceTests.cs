@@ -19,6 +19,7 @@
     using VSGBulgariaMarketplace.Application.Models.ItemLoan.Interfaces;
     using Test.Constants;
 
+    [TestOf(typeof(Item))]
     public class ItemServiceTests
     {
         private readonly Mock<IItemRepository> itemRepository;
@@ -345,6 +346,7 @@
             cancellationTokenSource.Cancel();
             CancellationToken cancellationToken = cancellationTokenSource.Token;
 
+            this.orderRepository.Setup(or => or.GetPendingOrdersTotalItemQuantityByItemIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()));
             this.imageService.Setup(s => s.UploadAsync(It.IsAny<IFormFile>(), cancellationToken)).ThrowsAsync(new OperationCanceledException());
 
             // Act
@@ -355,17 +357,18 @@
         }
 
         [Test]
-        public async Task UpdateAsync_UpdateAsyncInImageServiceWhenOperationCanceled_ThrowsOperationCanceledException2()
+        public async Task UpdateAsync_UpdateAsyncInImageServiceWhenOperationCanceled_ThrowsOperationCanceledException()
         {
             // Arrange
             this.updateItemDto.Image = new Mock<IFormFile>().Object;
             this.updateItemDto.ImageChanges = true;
-            this.updateItemDto.QuantityForSale = ItemConstant.ITEM_QUANTITY_FOR_SALE;
+            this.updateItemDto.QuantityForSale = 1;
 
             CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
             cancellationTokenSource.Cancel();
             CancellationToken cancellationToken = cancellationTokenSource.Token;
 
+            this.orderRepository.Setup(or => or.GetPendingOrdersTotalItemQuantityByItemIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()));
             this.itemRepository.Setup(ir => ir.GetItemImagePublicIdAsync(It.IsAny<string>(), cancellationToken)).ReturnsAsync(ItemConstant.ITEM_IMAGE_PUBLIC_ID);
             this.imageService.Setup(s => s.UpdateAsync(ItemConstant.ITEM_IMAGE_PUBLIC_ID, It.IsAny<IFormFile>(), cancellationToken))
                                 .ThrowsAsync(new OperationCanceledException());

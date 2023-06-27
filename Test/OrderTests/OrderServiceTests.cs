@@ -21,6 +21,7 @@
     using VSGBulgariaMarketplace.Domain.Entities;
     using VSGBulgariaMarketplace.Domain.Enums;
 
+    [TestOf(typeof(Order))]
     public class OrderServiceTests
     {
         private readonly Mock<IOrderRepository> orderRepository;
@@ -272,7 +273,7 @@
         {
             // Arrange
             this.orderItem.QuantityForSale = ItemConstant.ITEM_QUANTITY_COMBINED;
-            this.itemRepository.Setup(ir => ir.GetOrderItemInfoById(ItemConstant.ITEM_ID)).Returns(this.orderItem);
+            this.orderRepository.Setup(ir => ir.GetOrderItemIdAndQuantity(OrderConstant.PENDING_ORDER_ID)).Returns(this.pendingOrder);
 
             // Act
             Action action = () => this.orderService.Finish(OrderConstant.PENDING_ORDER_ID);

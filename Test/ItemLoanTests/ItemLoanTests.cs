@@ -15,6 +15,7 @@
     using VSGBulgariaMarketplace.Application.Services.HelpServices.Cache.Interfaces;
     using VSGBulgariaMarketplace.Domain.Entities;
 
+    [TestOf(typeof(ItemLoan))]
     public class ItemLoanTests
     {
         private readonly DateTime userLendItemStartDate = DateTime.UtcNow.Date;
