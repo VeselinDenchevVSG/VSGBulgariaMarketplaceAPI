@@ -1,7 +1,6 @@
 ﻿namespace VSGBulgariaMarketplace.Application.Services
 {
     using AutoMapper;
-    using CloudinaryDotNet.Actions;
 
     using Microsoft.Data.SqlClient;
 
@@ -132,13 +131,13 @@
 
         public async Task UpdateAsync(string id, UpdateItemDto updateItemDto, CancellationToken cancellationToken) 
         {
-            short pendingOrderdTotalItemQuantity = await this.orderRepository.GetPendingOrdersTotalItemQuantityByItemId(id, cancellationToken);
+            short pendingOrderdTotalItemQuantity = await this.orderRepository.GetPendingOrdersTotalItemQuantityByItemIdAsync(id, cancellationToken);
             if (updateItemDto.QuantityForSale <= pendingOrderdTotalItemQuantity)
             {
                 throw new ArgumentException(ServiceConstant.NOT_ENOUGH_QUANTITY_FOR_SALE_IN_ORDER_TO_COMPLETE_PENDING_ORDERS_WITH_THIS_ITEM_ERROR_MESSAGE);
             }
 
-            short itemLoansTotalItemQuantity = await this.itemLoanRepository.GetItemLoansTotalQuantityForItem(id, cancellationToken);
+            short itemLoansTotalItemQuantity = await this.itemLoanRepository.GetItemLoansTotalQuantityForItemAsync(id, cancellationToken);
             if (updateItemDto.Quantity <= itemLoansTotalItemQuantity)
             {
                 throw new ArgumentException(ServiceConstant.QUANTITY_COMBINED_MUST_NOT_BE_LOWER_THAN_THE_ACTIVE_LOANS_ITEM_QUANTITY_ERROR_MESSAGE);
@@ -148,7 +147,7 @@
 
             bool imageIsDeleted = false;
 
-            string itemImagePublicId = await this.repository.GetItemImagePublicId(id, cancellationToken);
+            string itemImagePublicId = await this.repository.GetItemImagePublicIdAsync(id, cancellationToken);
             if (itemImagePublicId is null)
             {
                 if (updateItemDto.Image is not null)
@@ -195,10 +194,10 @@
 
         public async Task DeleteAsync(string id, CancellationToken cancellationToken)
         {
-            bool isLoanWithItem = await this.itemLoanRepository.IsLoanWithItem(id, cancellationToken);
+            bool isLoanWithItem = await this.itemLoanRepository.IsLoanWithItemAsync(id, cancellationToken);
             if (!isLoanWithItem)
             {
-                string itemPicturePublicId = await this.repository.GetItemImagePublicId(id, cancellationToken);
+                string itemPicturePublicId = await this.repository.GetItemImagePublicIdAsync(id, cancellationToken);
 
                 await this.orderRepository.DeclineAllPendingOrdersWithDeletedItemAsync(id, cancellationToken);
 

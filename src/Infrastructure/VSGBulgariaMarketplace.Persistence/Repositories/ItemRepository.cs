@@ -74,7 +74,7 @@
             return item;
         }
 
-        public async Task<string> GetItemImagePublicId(string id, CancellationToken cancellationToken)
+        public async Task<string> GetItemImagePublicIdAsync(string id, CancellationToken cancellationToken)
         {
             string sql = RepositoryConstant.GET_ITEM_PICTURE_PUBLIC_ID_SQL_QUERY;
             string itemImagePublicId = await this.DbConnection.QueryFirstOrDefaultAsync<string>(new CommandDefinition(sql, new { Id = id }, base.Transaction,

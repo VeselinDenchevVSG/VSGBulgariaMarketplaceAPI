@@ -64,7 +64,7 @@
             }
         }
 
-        public async Task<short> GetPendingOrdersTotalItemQuantityByItemId(string itemId, CancellationToken cancellationToken = default)
+        public async Task<short> GetPendingOrdersTotalItemQuantityByItemIdAsync(string itemId, CancellationToken cancellationToken = default)
         {
             string sql = RepositoryConstant.GET_PENDING_ORDERS_TOTAL_ITEM_QUANTITY_BY_ITEM_ID_SQL_QUERY;
             short pendingOrdersTotalItemQuantity = await base.DbConnection.ExecuteScalarAsync<short>(new CommandDefinition(sql, new { ItemId = itemId }, 

@@ -47,7 +47,7 @@
             return itemLoan;
         }
 
-        public async Task<bool> IsLoanWithItem(string itemId, CancellationToken cancellationToken)
+        public async Task<bool> IsLoanWithItemAsync(string itemId, CancellationToken cancellationToken)
         {
             string sql = RepositoryConstant.IS_LOAN_WITH_ITEM_SQL_QUERY;
             int? result = await base.DbConnection.QueryFirstOrDefaultAsync<int?>(new CommandDefinition(sql, new { ItemId = itemId }, 
@@ -56,7 +56,7 @@
             return result.HasValue;
         }
 
-        public async Task<short> GetItemLoansTotalQuantityForItem(string itemId, CancellationToken cancellationToken)
+        public async Task<short> GetItemLoansTotalQuantityForItemAsync(string itemId, CancellationToken cancellationToken)
         {
             string sql = RepositoryConstant.GET_ITEM_LOANS_TOTAL_QUANTITY_FOR_ITEM_SQL_QUERY;
             short itemLoansTotalItemQuantity = await base.DbConnection.ExecuteScalarAsync<short>(new CommandDefinition(sql, new { ItemId = itemId }, 

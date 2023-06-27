@@ -15,6 +15,6 @@
 
         Task DeclineAllPendingOrdersWithDeletedItemAsync(string itemId, CancellationToken cancellationToken);
 
-        Task<short> GetPendingOrdersTotalItemQuantityByItemId(string itemId, CancellationToken cancellationToken);
+        Task<short> GetPendingOrdersTotalItemQuantityByItemIdAsync(string itemId, CancellationToken cancellationToken);
     }
 }

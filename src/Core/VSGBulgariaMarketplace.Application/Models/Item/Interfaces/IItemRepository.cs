@@ -13,7 +13,7 @@
 
         Item GetOrderItemInfoById(string id);
 
-        Task<string> GetItemImagePublicId(string id, CancellationToken cancellationToken);
+        Task<string> GetItemImagePublicIdAsync(string id, CancellationToken cancellationToken);
 
         bool TryGetAvailableQuantity(string id, out int? avaiableQuantity);
 

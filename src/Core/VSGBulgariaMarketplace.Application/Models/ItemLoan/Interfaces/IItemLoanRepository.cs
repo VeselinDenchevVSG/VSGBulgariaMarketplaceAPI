@@ -11,9 +11,9 @@
 
         ItemLoan GetItemLoanItemIdQuantityAndEmail(string id);
 
-        Task<bool> IsLoanWithItem(string itemId, CancellationToken cancellationToken);
+        Task<bool> IsLoanWithItemAsync(string itemId, CancellationToken cancellationToken);
 
-        Task<short> GetItemLoansTotalQuantityForItem(string itemId, CancellationToken cancellationToken);
+        Task<short> GetItemLoansTotalQuantityForItemAsync(string itemId, CancellationToken cancellationToken);
 
         void Return(string id);
     }
