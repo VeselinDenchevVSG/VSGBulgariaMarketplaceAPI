@@ -12,6 +12,7 @@
     using Test.Constants;
 
     using VSGBulgariaMarketplace.Application.Constants;
+    using VSGBulgariaMarketplace.Application.Models.Exceptions;
     using VSGBulgariaMarketplace.Application.Models.Item.Interfaces;
     using VSGBulgariaMarketplace.Application.Models.Order.Dtos;
     using VSGBulgariaMarketplace.Application.Models.Order.Interfaces;
@@ -57,7 +58,7 @@
                 ItemName = ItemConstant.ITEM_NAME,
                 ItemPrice = ItemConstant.ITEM_PRICE,
                 Quantity = OrderConstant.ORDER_ITEM_QUANTITY,
-                Email = UserConstant.USER_EMAIL,
+                Email = UserConstant.VSG_EMAIL,
                 Status = OrderStatus.Pending,
                 CreatedAtUtc = DateTime.UtcNow,
             };
@@ -68,7 +69,7 @@
                 ItemId = ItemConstant.ITEM_ID,
                 ItemCode = ItemConstant.ITEM_CODE,
                 Quantity = OrderConstant.ORDER_ITEM_QUANTITY,
-                Email = UserConstant.USER_EMAIL,
+                Email = UserConstant.VSG_EMAIL,
                 Status = OrderStatus.Finished,
                 CreatedAtUtc = DateTime.UtcNow,
             };
@@ -134,7 +135,7 @@
 
             List<Claim> claims = new List<Claim>()
             {
-                new Claim(AuthorizationConstant.PREFERRED_USERNAME_CLAIM_NAME, UserConstant.USER_EMAIL)
+                new Claim(AuthorizationConstant.PREFERRED_USERNAME_CLAIM_NAME, UserConstant.VSG_EMAIL)
             };
 
             ClaimsIdentity identity = new ClaimsIdentity(claims, OrderConstant.AUTHENTICATION_TYPE_NAME);
@@ -156,12 +157,12 @@
             Order[] orders = new Order[] { this.pendingOrder, finishedOrder };
 
             this.orderRepository.Setup(or => or.GetPendingOrders()).Returns(pendingOrders);
-            this.orderRepository.Setup(or => or.GetUserOrders(UserConstant.USER_EMAIL)).Returns(orders);
+            this.orderRepository.Setup(or => or.GetUserOrders(UserConstant.VSG_EMAIL)).Returns(orders);
             this.orderRepository.Setup(or => or.GetOrderItemIdAndQuantity(OrderConstant.PENDING_ORDER_ID)).Returns(this.pendingOrder);
         }
 
         [Test]
-        public void GetPendingOrders_Should_Return_PendingOrderDtoArray_Mapped_From_Repository()
+        public void GetPendingOrders_NotCached_ReturnsPendingOrderDtoArrayMappedFromRepository()
         {
             // Arrange
             this.memoryCache.Setup(mc => mc.Get<PendingOrderDto[]>(It.IsAny<string>())).Returns((PendingOrderDto[])null);
@@ -174,7 +175,7 @@
         }
 
         [Test]
-        public void GetPendingOrders_Should_Return_PendingOrderDtoArray_From_Cache()
+        public void GetPendingOrders_Cached_ReturnsPendingOrderDtoArrayFromCache()
         {
             // Arrange
             this.memoryCache.Setup(mc => mc.Get<PendingOrderDto[]>(It.IsAny<string>())).Returns(this.pendingOrderDtos);
@@ -187,7 +188,7 @@
         }
 
         [Test]
-        public void GetUserOrders_Should_Return_UserOrderDtoArray_Mapped_From_Repository()
+        public void GetUserOrders_NotCached_ReturnsUserOrderDtoArrayMappedFromRepository()
         {
             // Arrange
             this.memoryCache.Setup(mc => mc.Get<UserOrderDto[]>(It.IsAny<string>())).Returns((UserOrderDto[])null);
@@ -200,7 +201,7 @@
         }
 
         [Test]
-        public void GetUserOrders_Should_Return_UserOrderDtoArray_From_Cache()
+        public void GetUserOrders_Cached_ReturnsUserOrderDtoArrayFromCache()
         {
             // Arrange
             this.memoryCache.Setup(mc => mc.Get<UserOrderDto[]>(It.IsAny<string>())).Returns(this.userOrderDtos);
@@ -213,7 +214,7 @@
         }
 
         [Test]
-        public void Create_Order_With_Non_Existent_Item_Should_Throw_ArgumentException()
+        public void Create_NonExistingItem_ThrowsArgumentException()
         {
             // Arrange
             this.itemRepository.Setup(ir => ir.GetOrderItemInfoById(ItemConstant.ITEM_ID)).Returns((Item)null);
@@ -226,7 +227,7 @@
         }
 
         [Test]
-        public void Create_Order_With_Insufficient_Item_Quantity_For_Sale_Should_Throw_ArgumentException()
+        public void Create_WithInsufficientItemQuantityForSaleOrder_ThrowsArgumentException()
         {
             // Arrange
             this.orderItem.QuantityForSale = 0;
@@ -240,7 +241,7 @@
         }
 
         [Test]
-        public void Create_Should_Not_Throw_Exception()
+        public void Create_ValidOrder_DoesNotThrowException()
         {
             // Arrange
             this.orderItem.QuantityForSale = OrderConstant.ORDER_ITEM_QUANTITY_COMBINED;
@@ -254,7 +255,20 @@
         }
 
         [Test]
-        public void Finish_Order_Should_Not_Throw_Exception()
+        public void Finish_ItemNotFound_ThrowsNotFoundException()
+        {
+            // Arrange
+            this.orderRepository.Setup(or => or.GetOrderItemIdAndQuantity(It.IsAny<string>())).Returns((Order) null);
+
+            // Act
+            Action action = () => this.orderService.Finish(OrderConstant.PENDING_ORDER_ID);
+
+            // Assert
+            action.Should().Throw<NotFoundException>();
+        }
+
+        [Test]
+        public void Finish_ValidOrderItem_DoesNotThrowException()
         {
             // Arrange
             this.orderItem.QuantityForSale = ItemConstant.ITEM_QUANTITY_COMBINED;
@@ -268,7 +282,7 @@
         }
 
         [Test]
-        public void Decline_Order_Should_Not_Throw_Exception()
+        public void Decline_ExistingOrder_DoesNotThrowException()
         {
             // Arrange
             this.orderItem.QuantityForSale = ItemConstant.ITEM_QUANTITY_COMBINED;
