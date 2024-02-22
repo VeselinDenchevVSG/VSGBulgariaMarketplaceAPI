@@ -3,13 +3,14 @@
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
 
-    using VSGBulgariaMarketplace.API.Constants;
-    using VSGBulgariaMarketplace.Application.Constants;
     using VSGBulgariaMarketplace.Application.Helpers.ActionFilters.Validation;
     using VSGBulgariaMarketplace.Application.Models.Item.Dtos;
     using VSGBulgariaMarketplace.Application.Models.Item.Interfaces;
     using VSGBulgariaMarketplace.Application.Services.HelpServices;
     using VSGBulgariaMarketplace.Domain.Enums;
+
+    using static VSGBulgariaMarketplace.API.Constants.ControllerConstant;
+    using static VSGBulgariaMarketplace.Application.Constants.AuthorizationConstant;
 
     //[Route("api/[controller]")]
     [ApiController]
@@ -24,7 +25,7 @@
         }
 
         [HttpGet]
-        [Route(ControllerConstant.MARKETPLACE_ROUTE)]
+        [Route(MARKETPLACE_ROUTE)]
         public IActionResult GetMarketplace()
         {
             MarketplaceItemDto[] items = this.itemService.GetMarketplace();
@@ -34,8 +35,8 @@
 
 
         [HttpGet]
-        //[Route(ControllerConstant.GET_CATEGORIES_ROUTE)]
-        [Route(ControllerConstant.GET_CATEGORIES_ROUTE_SPARTAK)]
+        //[Route(GET_CATEGORIES_ROUTE)]
+        [Route(GET_CATEGORIES_ROUTE_SPARTAK)]
         public IActionResult GetCategories()
         {
             List<string> categories = EnumService.GetAll<Category>();
@@ -45,8 +46,8 @@
 
 
         [HttpGet]
-        [Route(ControllerConstant.INVENTORY_ROUTE)]
-        [Authorize(Policy = AuthorizationConstant.AUTHORIZATION_ADMIN_POLICY_NAME)]
+        [Route(INVENTORY_ROUTE)]
+        [Authorize(Policy = AUTHORIZATION_ADMIN_POLICY_NAME)]
         public IActionResult GetInventory()
         {
             InventoryItemDto[] items = this.itemService.GetInventory();
@@ -55,8 +56,8 @@
         }
 
         [HttpGet]
-        //[Route(ControllerConstant.GET_ITEM_BY_ID_ROUTE)]
-        [Route(ControllerConstant.GET_ITEM_BY_ID_ROUTE_SPARTAK)]
+        //[Route(GET_ITEM_BY_ID_ROUTE)]
+        [Route(GET_ITEM_BY_ID_ROUTE_SPARTAK)]
         public IActionResult GetById([FromRoute] string id)
         {
             ItemDetailsDto item = this.itemService.GetById(id);
@@ -65,38 +66,38 @@
         }
 
         [HttpPost]
-        //[Route(ControllerConstant.CREATE_ITEM_ASYNC_ROUTE)]
-        [Route(ControllerConstant.CREATE_ITEM_ASYNC_ROUTE_SPARTAK)]
-        [Authorize(Policy = AuthorizationConstant.AUTHORIZATION_ADMIN_POLICY_NAME)]
+        //[Route(CREATE_ITEM_ASYNC_ROUTE)]
+        [Route(CREATE_ITEM_ASYNC_ROUTE_SPARTAK)]
+        [Authorize(Policy = AUTHORIZATION_ADMIN_POLICY_NAME)]
         [FormatValidationErrorMessagesFilter]
         public async Task<IActionResult> CreateAsync([FromForm] CreateItemDto itemDto, CancellationToken cancellationToken)
         {
             await this.itemService.CreateAsync(itemDto, cancellationToken);
 
-            return Ok(new { Message = string.Format(ControllerConstant.ITEM_SUCCESSFULLY_CREATED_MESSAGE_TEMPLATE, itemDto.Name) } );
+            return Ok(new { Message = string.Format(ITEM_SUCCESSFULLY_CREATED_MESSAGE_TEMPLATE, itemDto.Name) } );
         }
 
         [HttpPut]
-        //[Route(ControllerConstant.UPDATE_ITEM_ASYNC_ROUTE)]
-        [Route(ControllerConstant.UPDATE_ITEM_ASYNC_ROUTE_SPARTAK)]
-        [Authorize(Policy = AuthorizationConstant.AUTHORIZATION_ADMIN_POLICY_NAME)]
+        //[Route(UPDATE_ITEM_ASYNC_ROUTE)]
+        [Route(UPDATE_ITEM_ASYNC_ROUTE_SPARTAK)]
+        [Authorize(Policy = AUTHORIZATION_ADMIN_POLICY_NAME)]
         [FormatValidationErrorMessagesFilter]
         public async Task<IActionResult> UpdateAsync([FromRoute] string id, [FromForm] UpdateItemDto itemDto, CancellationToken cancellationToken)
         {
             await this.itemService.UpdateAsync(id, itemDto, cancellationToken);
 
-            return Ok(new { Message = string.Format(ControllerConstant.ITEM_SUCCESSFULLY_UPDATED_MESSAGE_TEMPLATE, itemDto.Name) } );
+            return Ok(new { Message = string.Format(ITEM_SUCCESSFULLY_UPDATED_MESSAGE_TEMPLATE, itemDto.Name) } );
         }
 
         [HttpDelete]
-        //[Route(ControllerConstant.DELETE_ITEM_ASYNC_ROUTE)]
-        [Route(ControllerConstant.DELETE_ITEM_ASYNC_ROUTE_SPARTAK)]
-        [Authorize(Policy = AuthorizationConstant.AUTHORIZATION_ADMIN_POLICY_NAME)]
+        //[Route(DELETE_ITEM_ASYNC_ROUTE)]
+        [Route(DELETE_ITEM_ASYNC_ROUTE_SPARTAK)]
+        [Authorize(Policy = AUTHORIZATION_ADMIN_POLICY_NAME)]
         public async Task<IActionResult> DeleteAsync([FromRoute] string id, CancellationToken cancellationToken)
         {
             await this.itemService.DeleteAsync(id, cancellationToken);
 
-            return Ok(new { Message = ControllerConstant.ITEM_SUCCESSFULLY_DELETED_MESSAGE } );
+            return Ok(new { Message = ITEM_SUCCESSFULLY_DELETED_MESSAGE } );
         }
     }
 }

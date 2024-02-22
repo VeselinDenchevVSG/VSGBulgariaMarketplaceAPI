@@ -5,8 +5,6 @@
 
     using Moq;
 
-    using Test.Constants;
-
     using VSGBulgariaMarketplace.Application.Models.Exceptions;
     using VSGBulgariaMarketplace.Application.Models.Item.Interfaces;
     using VSGBulgariaMarketplace.Application.Models.ItemLoan.Dtos;
@@ -15,8 +13,12 @@
     using VSGBulgariaMarketplace.Application.Services.HelpServices.Cache.Interfaces;
     using VSGBulgariaMarketplace.Domain.Entities;
 
-    [TestOf(typeof(ItemLoan))]
-    public class ItemLoanTests
+    using static Constants.UserConstant;
+    using static Constants.ItemLoanConstant;
+    using static Constants.ItemConstant;
+
+    [TestOf(typeof(ItemLoanService))]
+    public class ItemLoanServiceTests
     {
         private readonly DateTime userLendItemStartDate = DateTime.UtcNow.Date;
 
@@ -33,7 +35,7 @@
         private readonly UserLendItemDto[] userLendItemDtos;
         private readonly LendItemsDto lendsItemsDto;
 
-        public ItemLoanTests()
+        public ItemLoanServiceTests()
         {
             this.itemRepository = new Mock<IItemRepository>();
             this.itemLoanRepository = new Mock<IItemLoanRepository>();
@@ -45,14 +47,14 @@
 
             this.emailsWithLendItemsCount = new Dictionary<string, int>()
             {
-                { UserConstant.VSG_EMAIL, ItemLoanConstant.LEND_ITEMS_COUNT }
+                { VSG_EMAIL, LEND_ITEMS_COUNT }
             };
             this.emailsWithLendItemsCountDto = new List<EmailWithLendItemsCountDto>()
             {
                 new EmailWithLendItemsCountDto()
                 {
-                    Email = UserConstant.VSG_EMAIL,
-                    LendItemsCount = ItemLoanConstant.LEND_ITEMS_COUNT
+                    Email = VSG_EMAIL,
+                    LendItemsCount = LEND_ITEMS_COUNT
                 }
             };
             this.mapper.Setup(m => m.Map<Dictionary<string, int>, List<EmailWithLendItemsCountDto>> (this.emailsWithLendItemsCount))
@@ -62,10 +64,10 @@
             {
                 new UserLendItemDto
                 {
-                    Id = ItemLoanConstant.LEND_ITEM_ID,
-                    ItemId = ItemConstant.ITEM_ID,
-                    Email = UserConstant.VSG_EMAIL,
-                    Quantity = ItemLoanConstant.LEND_ITEMS_COUNT,
+                    Id = LEND_ITEM_ID,
+                    ItemId = ITEM_ID,
+                    Email = VSG_EMAIL,
+                    Quantity = LEND_ITEMS_COUNT,
                     StartDate = userLendItemStartDate,
                 }
             };
@@ -73,15 +75,15 @@
 
             this.lendsItemsDto = new LendItemsDto()
             {
-                Quantity = ItemLoanConstant.LEND_ITEMS_QUANTITY,
-                Email = UserConstant.VSG_EMAIL
+                Quantity = LEND_ITEMS_QUANTITY,
+                Email = VSG_EMAIL
             };
 
             this.itemLoan = new ItemLoan()
             {
-                ItemId = ItemConstant.ITEM_ID,
-                Email = UserConstant.VSG_EMAIL,
-                Quantity = ItemLoanConstant.LEND_ITEMS_QUANTITY
+                ItemId = ITEM_ID,
+                Email = VSG_EMAIL,
+                Quantity = LEND_ITEMS_QUANTITY
             };
             this.mapper.Setup(m => m.Map<LendItemsDto, ItemLoan>(this.lendsItemsDto)).Returns(this.itemLoan);
 
@@ -92,7 +94,7 @@
         public void GetUserEmailsWithLendItemsCount_NotCached_ReturnsEmailWithLendItemsCountDtoListMappedFromRepository()
         {
             // Arrange
-            this.memoryCache.Setup(mc => mc.Get<List<EmailWithLendItemsCountDto>>(It.IsAny<string>())).Returns((List<EmailWithLendItemsCountDto>)null);
+            this.memoryCache.Setup(mc => mc.Get<List<EmailWithLendItemsCountDto>>(It.IsAny<string>())).Returns((List<EmailWithLendItemsCountDto>) null);
 
             // Act
             List<EmailWithLendItemsCountDto> emailsWithLendItemsCountDto = this.itemLoanService.GetUserEmailsWithLendItemsCount();
@@ -122,7 +124,7 @@
             this.memoryCache.Setup(mc => mc.Get<UserLendItemDto[]>(It.IsAny<string>())).Returns((UserLendItemDto[]) null);
 
             // Act
-            UserLendItemDto[] userLendItemDtos = this.itemLoanService.GetUserLendItems(UserConstant.VSG_EMAIL);
+            UserLendItemDto[] userLendItemDtos = this.itemLoanService.GetUserLendItems(VSG_EMAIL);
 
             // Assert
             userLendItemDtos.Should().BeEquivalentTo(this.userLendItemDtos);
@@ -135,7 +137,7 @@
             this.memoryCache.Setup(mc => mc.Get<UserLendItemDto[]>(It.IsAny<string>())).Returns(this.userLendItemDtos);
 
             // Act
-            UserLendItemDto[] userLendItemDtos = this.itemLoanService.GetUserLendItems(UserConstant.VSG_EMAIL);
+            UserLendItemDto[] userLendItemDtos = this.itemLoanService.GetUserLendItems(VSG_EMAIL);
 
             // Assert
             userLendItemDtos.Should().BeEquivalentTo(this.userLendItemDtos);
@@ -148,7 +150,7 @@
             this.memoryCache.Setup(mc => mc.Get<UserLendItemDto[]>(It.IsAny<string>())).Returns(this.userLendItemDtos);
 
             // Act
-            Action action = () => this.itemLoanService.GetUserLendItems(UserConstant.INVALID_EMAIL);
+            Action action = () => this.itemLoanService.GetUserLendItems(INVALID_EMAIL);
 
             // Assert
             action.Should().Throw<ArgumentException>();
@@ -158,10 +160,10 @@
         public void LendItems_AvailableQuantityIsNull_ThrowsNotFoundException()
         {
             // Arrange
-            this.itemRepository.Setup(ir => ir.TryGetAvailableQuantity(ItemLoanConstant.LEND_ITEM_ID, out It.Ref<int?>.IsAny)).Returns(false);
+            this.itemRepository.Setup(ir => ir.TryGetAvailableQuantity(LEND_ITEM_ID, out It.Ref<int?>.IsAny)).Returns(false);
 
             // Act
-            Action action = () => this.itemLoanService.LendItems(ItemLoanConstant.LEND_ITEM_ID, this.lendsItemsDto);
+            Action action = () => this.itemLoanService.LendItems(LEND_ITEM_ID, this.lendsItemsDto);
 
             // Assert
             action.Should().Throw<NotFoundException>();
@@ -172,10 +174,10 @@
         {
             // Arrange
             int? availableQuantity = 0;
-            this.itemRepository.Setup(ir => ir.TryGetAvailableQuantity(ItemLoanConstant.LEND_ITEM_ID, out availableQuantity)).Returns(true);
+            this.itemRepository.Setup(ir => ir.TryGetAvailableQuantity(LEND_ITEM_ID, out availableQuantity)).Returns(true);
 
             // Act
-            Action action = () => this.itemLoanService.LendItems(ItemLoanConstant.LEND_ITEM_ID, this.lendsItemsDto);
+            Action action = () => this.itemLoanService.LendItems(LEND_ITEM_ID, this.lendsItemsDto);
 
             // Assert
             action.Should().Throw<ArgumentException>();
@@ -185,11 +187,11 @@
         public void LendItems_ValidAvailableQuantity_DoesNotThrowException()
         {
             // Arrange
-            int? availableQuantity = ItemConstant.ITEM_AVAILABLE_QUANTITY;
-            this.itemRepository.Setup(ir => ir.TryGetAvailableQuantity(ItemLoanConstant.LEND_ITEM_ID, out availableQuantity)).Returns(true);
+            int? availableQuantity = ITEM_AVAILABLE_QUANTITY;
+            this.itemRepository.Setup(ir => ir.TryGetAvailableQuantity(LEND_ITEM_ID, out availableQuantity)).Returns(true);
 
             // Act
-            Action action = () => this.itemLoanService.LendItems(ItemLoanConstant.LEND_ITEM_ID, this.lendsItemsDto);
+            Action action = () => this.itemLoanService.LendItems(LEND_ITEM_ID, this.lendsItemsDto);
 
             // Assert
             action.Should().NotThrow();
@@ -199,10 +201,10 @@
         public void Return_NonExistingItemLoan_ThrowsNotFoundException()
         {
             // Arrange
-            this.itemLoanRepository.Setup(ilr => ilr.GetItemLoanItemIdQuantityAndEmail(ItemLoanConstant.LEND_ITEM_ID)).Returns((ItemLoan) null);
+            this.itemLoanRepository.Setup(ilr => ilr.GetItemLoanItemIdQuantityAndEmail(LEND_ITEM_ID)).Returns((ItemLoan) null);
 
             // Act
-            Action action = () => this.itemLoanService.Return(ItemLoanConstant.LEND_ITEM_ID);
+            Action action = () => this.itemLoanService.Return(LEND_ITEM_ID);
 
             // Assert
             action.Should().Throw<NotFoundException>();
@@ -212,10 +214,10 @@
         public void Return_ExistingItemLoan_DoesNotThrowException()
         {
             // Arrange
-            this.itemLoanRepository.Setup(ilr => ilr.GetItemLoanItemIdQuantityAndEmail(ItemLoanConstant.LEND_ITEM_ID)).Returns(this.itemLoan);
+            this.itemLoanRepository.Setup(ilr => ilr.GetItemLoanItemIdQuantityAndEmail(LEND_ITEM_ID)).Returns(this.itemLoan);
 
             // Act
-            Action action = () => this.itemLoanService.Return(ItemLoanConstant.LEND_ITEM_ID);
+            Action action = () => this.itemLoanService.Return(LEND_ITEM_ID);
 
             // Assert
             action.Should().NotThrow();

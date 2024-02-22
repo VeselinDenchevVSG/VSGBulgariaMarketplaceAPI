@@ -2,7 +2,7 @@
 {
     using System.Text.Json.Serialization;
 
-    using VSGBulgariaMarketplace.Application.Constants;
+    using static VSGBulgariaMarketplace.Application.Constants.JsonConstant;
 
     public class PendingOrderDto
     {
@@ -12,7 +12,7 @@
 
         public short Quantity { get; set; }
 
-        [JsonPropertyName(JsonConstant.PENDING_ORDER_PRICE_JSON_PROPERTY_NAME)]
+        [JsonPropertyName(PENDING_ORDER_PRICE_JSON_PROPERTY_NAME)]
         public decimal Price { get; set; }
 
         public string OrderedBy { get; set; }

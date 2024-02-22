@@ -6,13 +6,14 @@
     using System.Data;
 
     using VSGBulgariaMarketplace.Application.Models.UnitOfWork;
-    using VSGBulgariaMarketplace.Persistence.Constants;
+    
+    using static VSGBulgariaMarketplace.Persistence.Constants.DatabaseConnectionConstant;
 
     public class UnitOfWork : IUnitOfWork
     {
         public UnitOfWork(IConfiguration configuration)
         {
-            this.DbConnection = new SqlConnection(configuration.GetConnectionString(DatabaseConnectionConstant.DEFAULT_CONNECTION_STRING_NAME));
+            this.DbConnection = new SqlConnection(configuration.GetConnectionString(DEFAULT_CONNECTION_STRING_NAME));
             this.DbConnection.Open();
         }
 

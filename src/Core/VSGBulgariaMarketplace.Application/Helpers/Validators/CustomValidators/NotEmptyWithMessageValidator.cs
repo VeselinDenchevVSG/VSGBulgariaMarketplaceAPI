@@ -2,7 +2,7 @@
 {
     using FluentValidation;
 
-    using VSGBulgariaMarketplace.Application.Constants;
+    using static VSGBulgariaMarketplace.Application.Constants.ValidationConstant;
 
     internal static class NotEmptyWithMessageValidator
     {
@@ -47,7 +47,7 @@
 
         private static string FormatNotEmptyMessage(Type type, string propertyName)
         {
-            string message = string.Format(ValidationConstant.NOT_EMPTY_ERROR_MESSAGE,$"{type.Name} {propertyName}");
+            string message = string.Format(NOT_EMPTY_ERROR_MESSAGE,$"{type.Name} {propertyName}");
 
             return message;
         }

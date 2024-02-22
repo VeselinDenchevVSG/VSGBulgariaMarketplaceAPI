@@ -1,7 +1,8 @@
 ﻿namespace VSGBulgariaMarketplace.Application.Models.Item.Dtos
 {
     using System.Text.Json.Serialization;
-    using VSGBulgariaMarketplace.Application.Constants;
+
+    using static VSGBulgariaMarketplace.Application.Constants.JsonConstant;
 
     public class MarketplaceItemDto
     {
@@ -9,7 +10,7 @@
 
         public string Code { get; set; }
 
-        [JsonPropertyName(JsonConstant.ITEM_IMAGE_URL_JSON_PROPERTY_NAME)]
+        [JsonPropertyName(ITEM_IMAGE_URL_JSON_PROPERTY_NAME)]
         public string ImageUrl { get; set; }
 
         public decimal? Price { get; set; }

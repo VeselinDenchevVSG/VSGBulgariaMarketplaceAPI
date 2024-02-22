@@ -9,7 +9,7 @@
 
     using System.Reflection;
 
-    using VSGBulgariaMarketplace.Persistence.Constants;
+    using static VSGBulgariaMarketplace.Persistence.Constants.DatabaseConnectionConstant;
 
     public static class MigrationsConfiguration
     {
@@ -17,7 +17,7 @@
         {
             services.AddFluentMigratorCore()
                     .AddLogging(l => l.AddNLog())
-                    .ConfigureRunner(c => c.AddSqlServer().WithGlobalConnectionString(DatabaseConnectionConstant.DEFAULT_CONNECTION_STRING_NAME)
+                    .ConfigureRunner(c => c.AddSqlServer().WithGlobalConnectionString(DEFAULT_CONNECTION_STRING_NAME)
                                                             .ScanIn(Assembly.GetExecutingAssembly()).For.Migrations());
 
             return services;

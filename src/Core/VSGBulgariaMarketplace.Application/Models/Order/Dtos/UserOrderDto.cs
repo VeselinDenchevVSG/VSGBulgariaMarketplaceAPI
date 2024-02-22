@@ -2,7 +2,7 @@
 {
     using System.Text.Json.Serialization;
 
-    using VSGBulgariaMarketplace.Application.Constants;
+    using static VSGBulgariaMarketplace.Application.Constants.JsonConstant;
 
     public class UserOrderDto
     {
@@ -10,12 +10,12 @@
 
         public string ItemCode { get; set; }
 
-        [JsonPropertyName(JsonConstant.USER_ORDER_ITEM_NAME_JSON_PROPERTY_NAME)]
+        [JsonPropertyName(USER_ORDER_ITEM_NAME_JSON_PROPERTY_NAME)]
         public string ItemName { get; set; }
 
         public short Quantity { get; set; }
 
-        [JsonPropertyName(JsonConstant.PENDING_ORDER_PRICE_JSON_PROPERTY_NAME)]
+        [JsonPropertyName(PENDING_ORDER_PRICE_JSON_PROPERTY_NAME)]
         public decimal Price { get; set; }
 
         public DateTime OrderDate { get; set; }

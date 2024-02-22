@@ -6,7 +6,6 @@
 
     using Microsoft.AspNetCore.Http;
 
-    using VSGBulgariaMarketplace.Application.Constants;
     using VSGBulgariaMarketplace.Application.Helpers.Validators.Order;
     using VSGBulgariaMarketplace.Application.Models.Exceptions;
     using VSGBulgariaMarketplace.Application.Models.Item.Interfaces;
@@ -14,6 +13,9 @@
     using VSGBulgariaMarketplace.Application.Models.Order.Interfaces;
     using VSGBulgariaMarketplace.Application.Services.HelpServices.Cache.Interfaces;
     using VSGBulgariaMarketplace.Domain.Entities;
+
+    using static VSGBulgariaMarketplace.Application.Constants.ServiceConstant;
+    using static VSGBulgariaMarketplace.Application.Constants.AuthorizationConstant;
 
     public class OrderService : BaseService<IOrderRepository, Order>, IOrderService
     {
@@ -29,13 +31,13 @@
 
         public PendingOrderDto[] GetPendingOrders()
         {
-            PendingOrderDto[] pendingOrderDtos = base.cacheAdapter.Get<PendingOrderDto[]>(ServiceConstant.PENDING_ORDERS_CACHE_KEY);
+            PendingOrderDto[] pendingOrderDtos = base.cacheAdapter.Get<PendingOrderDto[]>(PENDING_ORDERS_CACHE_KEY);
             if (pendingOrderDtos is null)
             {
                 Order[] pendingOrders = base.repository.GetPendingOrders();
                 pendingOrderDtos = base.mapper.Map<Order[], PendingOrderDto[]>(pendingOrders);
 
-                base.cacheAdapter.Set(ServiceConstant.PENDING_ORDERS_CACHE_KEY, pendingOrderDtos);
+                base.cacheAdapter.Set(PENDING_ORDERS_CACHE_KEY, pendingOrderDtos);
             }
 
             return pendingOrderDtos;
@@ -43,9 +45,9 @@
 
         public UserOrderDto[] GetUserOrders()
         {
-            string email = this.httpContextAccessor.HttpContext.User.FindFirst(AuthorizationConstant.PREFERRED_USERNAME_CLAIM_NAME).Value;
+            string email = this.httpContextAccessor.HttpContext.User.FindFirst(PREFERRED_USERNAME_CLAIM_NAME).Value;
 
-            string userOrdersCacheKey = string.Format(ServiceConstant.USER_ORDER_CACHE_KEY_TEMPLATE, email);
+            string userOrdersCacheKey = string.Format(USER_ORDER_CACHE_KEY_TEMPLATE, email);
 
             UserOrderDto[] userOrderDtos = base.cacheAdapter.Get<UserOrderDto[]>(userOrdersCacheKey);
             if (userOrderDtos is null)
@@ -61,7 +63,7 @@
 
         public void Create(CreateOrderDto orderDto)
         {
-            string email = this.httpContextAccessor.HttpContext.User.FindFirst(c => c.Type == AuthorizationConstant.PREFERRED_USERNAME_CLAIM_NAME).Value;
+            string email = this.httpContextAccessor.HttpContext.User.FindFirst(c => c.Type == PREFERRED_USERNAME_CLAIM_NAME).Value;
 
             CreateOrderDtoValidator validator = new CreateOrderDtoValidator();
             validator.ValidateAndThrow(orderDto);
@@ -69,7 +71,7 @@
             Order order = base.mapper.Map<CreateOrderDto, Order>(orderDto);
 
             Item item = this.itemRepository.GetOrderItemInfoById(orderDto.ItemId);
-            if (item is null) throw new ArgumentException(ServiceConstant.SUCH_ITEM_DOES_NOT_EXIST_ERROR_MESSAGE);
+            if (item is null) throw new ArgumentException(SUCH_ITEM_DOES_NOT_EXIST_ERROR_MESSAGE);
             else
             {
                 bool isEnoughQuantity = orderDto.Quantity <= item.QuantityForSale;
@@ -87,16 +89,16 @@
 
                     this.ClearOrderItemRelatedCache(order.ItemId, email);
                 }
-                else throw new ArgumentException(ServiceConstant.NOT_ENOUGH_ITEM_QUANTITY_FOR_SALE_ERROR_MESSAGE);
+                else throw new ArgumentException(NOT_ENOUGH_ITEM_QUANTITY_FOR_SALE_ERROR_MESSAGE);
             }
         }
 
         public void Finish(string id)
         {
             Order order = base.repository.GetOrderItemIdAndQuantity(id);
-            if (order is null) throw new NotFoundException(ServiceConstant.SUCH_ORDER_DOES_NOT_EXISTS_ERROR_MESSAGE);
+            if (order is null) throw new NotFoundException(SUCH_ORDER_DOES_NOT_EXISTS_ERROR_MESSAGE);
 
-            string email = this.httpContextAccessor.HttpContext.User.FindFirst(c => c.Type == AuthorizationConstant.PREFERRED_USERNAME_CLAIM_NAME).Value;
+            string email = this.httpContextAccessor.HttpContext.User.FindFirst(c => c.Type == PREFERRED_USERNAME_CLAIM_NAME).Value;
 
             this.itemRepository.BuyItem(order.ItemId, order.Quantity);
             base.repository.Finish(id);
@@ -108,7 +110,7 @@
         {
             Order order = base.repository.GetOrderItemIdAndQuantity(id);
 
-            string email = this.httpContextAccessor.HttpContext.User.FindFirst(c => c.Type == AuthorizationConstant.PREFERRED_USERNAME_CLAIM_NAME).Value;
+            string email = this.httpContextAccessor.HttpContext.User.FindFirst(c => c.Type == PREFERRED_USERNAME_CLAIM_NAME).Value;
 
             base.repository.Delete(id);
             this.itemRepository.RestoreItemQuantitiesWhenOrderIsDeclined(order.ItemId, order.Quantity);
@@ -118,11 +120,11 @@
 
         public void ClearOrderItemRelatedCache(string itemId, string email)
         {
-            base.cacheAdapter.Remove(ServiceConstant.MARKETPLACE_CACHE_KEY);
-            base.cacheAdapter.Remove(ServiceConstant.INVENTORY_CACHE_KEY);
-            base.cacheAdapter.Remove(string.Format(ServiceConstant.ITEM_CACHE_KEY_TEMPLATE, itemId));
-            base.cacheAdapter.Remove(ServiceConstant.PENDING_ORDERS_CACHE_KEY);
-            base.cacheAdapter.Remove(string.Format(ServiceConstant.USER_ORDER_CACHE_KEY_TEMPLATE, email));
+            base.cacheAdapter.Remove(MARKETPLACE_CACHE_KEY);
+            base.cacheAdapter.Remove(INVENTORY_CACHE_KEY);
+            base.cacheAdapter.Remove(string.Format(ITEM_CACHE_KEY_TEMPLATE, itemId));
+            base.cacheAdapter.Remove(PENDING_ORDERS_CACHE_KEY);
+            base.cacheAdapter.Remove(string.Format(USER_ORDER_CACHE_KEY_TEMPLATE, email));
         }
     }
 }

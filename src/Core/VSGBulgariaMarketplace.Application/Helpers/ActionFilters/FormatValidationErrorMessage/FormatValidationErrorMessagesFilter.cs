@@ -4,9 +4,10 @@
     using Microsoft.AspNetCore.Mvc;
 
     using VSGBulgariaMarketplace.Application.Models.Exceptions;
-    using Microsoft.AspNetCore.Http;
     using System.Text.Json;
-    using VSGBulgariaMarketplace.Application.Constants;
+
+    using static Microsoft.AspNetCore.Http.StatusCodes;
+    using static VSGBulgariaMarketplace.Application.Constants.JsonConstant;
 
     public class FormatValidationErrorMessagesFilter : IActionFilter
     {
@@ -20,7 +21,7 @@
                 {
                     foreach (var error in modelStateValues.Errors)
                     {
-                        errors.Add(new ErrorModel(StatusCodes.Status400BadRequest, error.ErrorMessage));
+                        errors.Add(new ErrorModel(Status400BadRequest, error.ErrorMessage));
                     }
                 }
 
@@ -29,8 +30,8 @@
                 context.Result = new ContentResult()
                 {
                     Content = errorResponce,
-                    ContentType = JsonConstant.APPLICATION_JSON_CONTENT_TYPE,
-                    StatusCode = StatusCodes.Status400BadRequest
+                    ContentType = APPLICATION_JSON_CONTENT_TYPE,
+                    StatusCode = Status400BadRequest
                 };
             }
         }

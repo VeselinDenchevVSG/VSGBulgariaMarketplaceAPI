@@ -8,32 +8,33 @@
     using VSGBulgariaMarketplace.Application.Models.Item.Interfaces;
     using VSGBulgariaMarketplace.Application.Models.UnitOfWork;
     using VSGBulgariaMarketplace.Domain.Entities;
-    using VSGBulgariaMarketplace.Persistence.Constants;
+
+    using static VSGBulgariaMarketplace.Persistence.Constants.RepositoryConstant;
 
     public class ItemRepository : Repository<Item, string>, IItemRepository
     {
         public ItemRepository(IUnitOfWork unitOfWork)
             : base(unitOfWork)
         {
-            base.columnNamesString = RepositoryConstant.ITEM_REPOSITORY_COLUMN_NAMES_STRING;
+            base.columnNamesString = ITEM_REPOSITORY_COLUMN_NAMES_STRING;
             base.SetUpRepository();
         }
 
         public Item[] GetMarketplace()
         {
-            string sql = RepositoryConstant.GET_MARKETPLACE_SQL_QUERY;
+            string sql = GET_MARKETPLACE_SQL_QUERY;
             Item[] marketplace = base.DbConnection.Query<Item, CloudinaryImage, Item>(sql, (item, image) =>
             {
                 item.ImagePublicId = image.Id;
 
                 return item;
-            }, splitOn: RepositoryConstant.CLOUDINARY_IMAGE_ID_ALIAS, transaction: base.Transaction).ToArray();
+            }, splitOn: CLOUDINARY_IMAGE_ID_ALIAS, transaction: base.Transaction).ToArray();
 
             foreach (Item item in marketplace)
             {
                 if (item.ImagePublicId is not null)
                 {
-                    item.ImagePublicId = item.ImagePublicId.Insert(0, RepositoryConstant.CLOUDINARY_IMAGE_DIRECTORY);
+                    item.ImagePublicId = item.ImagePublicId.Insert(0, CLOUDINARY_IMAGE_DIRECTORY);
                 }
             }
 
@@ -42,7 +43,7 @@
 
         public Item[] GetInventory()
         {
-            string sql = RepositoryConstant.GET_INVENTORY_SQL_QUERY;
+            string sql = GET_INVENTORY_SQL_QUERY;
             Item[] inventory = base.DbConnection.Query<Item>(sql, transaction: this.Transaction).ToArray();
 
             return inventory;
@@ -50,17 +51,17 @@
 
         public Item GetById(string id)
         {
-            string sql = RepositoryConstant.GET_ITEM_BY_ID_SQL_QUERY;
+            string sql = GET_ITEM_BY_ID_SQL_QUERY;
             Item item = base.DbConnection.Query<Item, CloudinaryImage, Item>(sql, (item, image) =>
             {
                 item.ImagePublicId = image.Id;
 
                 return item;
-            }, new { Id = id }, splitOn: RepositoryConstant.CLOUDINARY_IMAGE_ID_ALIAS, transaction: base.Transaction).FirstOrDefault();
+            }, new { Id = id }, splitOn: CLOUDINARY_IMAGE_ID_ALIAS, transaction: base.Transaction).FirstOrDefault();
 
             if (item?.ImagePublicId is not null)
             {
-                item.ImagePublicId = item.ImagePublicId.Insert(0, RepositoryConstant.CLOUDINARY_IMAGE_DIRECTORY);
+                item.ImagePublicId = item.ImagePublicId.Insert(0, CLOUDINARY_IMAGE_DIRECTORY);
             }
 
             return item;
@@ -68,7 +69,7 @@
 
         public Item GetOrderItemInfoById(string id)
         {
-            string sql = RepositoryConstant.GET_ORDER_ITEM_INFO_BY_ID_SQL_QUERY;
+            string sql = GET_ORDER_ITEM_INFO_BY_ID_SQL_QUERY;
             Item item = base.DbConnection.QueryFirstOrDefault<Item>(sql, new { Id = id }, transaction: base.Transaction);
 
             return item;
@@ -76,12 +77,12 @@
 
         public async Task<string> GetItemImagePublicIdAsync(string id, CancellationToken cancellationToken)
         {
-            string sql = RepositoryConstant.GET_ITEM_PICTURE_PUBLIC_ID_SQL_QUERY;
+            string sql = GET_ITEM_PICTURE_PUBLIC_ID_SQL_QUERY;
             string itemImagePublicId = await this.DbConnection.QueryFirstOrDefaultAsync<string>(new CommandDefinition(sql, new { Id = id }, base.Transaction,
                                                                                                                             cancellationToken: cancellationToken));
             if (itemImagePublicId is not null)
             {
-                itemImagePublicId = RepositoryConstant.CLOUDINARY_IMAGE_DIRECTORY + itemImagePublicId;
+                itemImagePublicId = CLOUDINARY_IMAGE_DIRECTORY + itemImagePublicId;
             }
 
             return itemImagePublicId;
@@ -89,7 +90,7 @@
 
         public bool TryGetAvailableQuantity(string id, out int? avaiableQuantity)
         {
-            string sql = RepositoryConstant.TRY_GET_AVAILABLE_QUANTITY_SQL_QUERY;
+            string sql = TRY_GET_AVAILABLE_QUANTITY_SQL_QUERY;
             avaiableQuantity = base.DbConnection.ExecuteScalar<int?>(sql, new { Id = id }, transaction: base.Transaction);
 
             bool exists = avaiableQuantity != null;
@@ -99,37 +100,37 @@
 
         public void RequestItemPurchase(string id, short quantityRequested)
         {
-            string sql = RepositoryConstant.REQUEST_ITEM_PURCHASE_SQL_QUERY;
+            string sql = REQUEST_ITEM_PURCHASE_SQL_QUERY;
             base.DbConnection.Execute(sql, new { Id = id, QuantityRequested = quantityRequested }, transaction: base.Transaction);
         }
 
         public void RequestItemLoan(string id, short quantityRequested)
         {
-            string sql = RepositoryConstant.REQUEST_ITEM_LOAN_SQL_QUERY;
+            string sql = REQUEST_ITEM_LOAN_SQL_QUERY;
             base.DbConnection.Execute(sql, new { Id = id, QuantityRequested = quantityRequested }, transaction: base.Transaction);
         }
 
         public void RestoreItemQuantitiesWhenOrderIsDeclined(string id, short quantity)
         {
-            string sql = RepositoryConstant.RESTORE_ITEM_QUANTITES_WHEN_ORDER_IS_DECLINED_SQL_QUERY;
+            string sql = RESTORE_ITEM_QUANTITES_WHEN_ORDER_IS_DECLINED_SQL_QUERY;
             base.DbConnection.Execute(sql, new { Id = id, Quantity = quantity }, transaction: base.Transaction);
         }
 
         public void RestoreItemQuantitiesWhenReturningLendItems(string id, short quantity)
         {
-            string sql = RepositoryConstant.RESTORE_ITEM_QUANTITES_WHEN_RETURNING_LEND_ITEMS_SQL_QUERY;
+            string sql = RESTORE_ITEM_QUANTITES_WHEN_RETURNING_LEND_ITEMS_SQL_QUERY;
             base.DbConnection.Execute(sql, new { Id = id, Quantity = quantity }, transaction: base.Transaction);
         }
 
         public void BuyItem(string id, short quantityRequested)
         {
-            string sql = RepositoryConstant.BUY_ITEM_SQL_QUERY;
+            string sql = BUY_ITEM_SQL_QUERY;
             base.DbConnection.Execute(sql, new { Id = id, QuantitySold = quantityRequested }, transaction: base.Transaction);
         }
 
         public void Update(string id, Item item)
         {
-            string sql = string.Format(RepositoryConstant.UPDATE_ITEM_SQL_QUERY, this.parameterizedColumnsNamesUpdateString);
+            string sql = string.Format(UPDATE_ITEM_SQL_QUERY, this.parameterizedColumnsNamesUpdateString);
 
             try
             {
@@ -151,7 +152,7 @@
             }
             catch (SqlException se) when (se.Number == 2601)
             {
-                ThrowEntityAlreadyExistsException(RepositoryConstant.SIMILAR_ITEM_ALREADY_EXISTS_ERROR_MESSAGE);
+                ThrowEntityAlreadyExistsException(SIMILAR_ITEM_ALREADY_EXISTS_ERROR_MESSAGE);
             }
         }
 
@@ -165,18 +166,18 @@
             }
             catch (EntityAlreadyExistsException)
             {
-                throw new EntityAlreadyExistsException(RepositoryConstant.SIMILAR_ITEM_ALREADY_EXISTS_ERROR_MESSAGE);
+                throw new EntityAlreadyExistsException(SIMILAR_ITEM_ALREADY_EXISTS_ERROR_MESSAGE);
             }
 
         }
 
         private static void ThrowEntityAlreadyExistsException(string message) 
         {
-            string[] exceptionMessageTokens = message.Split(RepositoryConstant.EXCEPTION_MESSAGE_SEPERATORS.ToCharArray());
-            string duplicateColumn = exceptionMessageTokens[RepositoryConstant.ENTITY_ALREADY_EXISTS_EXCEPTION_MESSAGE_TOKEN_DUPLICATE_COLUMN_INDEX];
-            string duplicateValue = exceptionMessageTokens[RepositoryConstant.ENTITY_ALREADY_EXISTS_EXCEPTION_MESSAGE_TOKEN_DUPLICATE_VALUE_INDEX];
+            string[] exceptionMessageTokens = message.Split(EXCEPTION_MESSAGE_SEPERATORS.ToCharArray());
+            string duplicateColumn = exceptionMessageTokens[ENTITY_ALREADY_EXISTS_EXCEPTION_MESSAGE_TOKEN_DUPLICATE_COLUMN_INDEX];
+            string duplicateValue = exceptionMessageTokens[ENTITY_ALREADY_EXISTS_EXCEPTION_MESSAGE_TOKEN_DUPLICATE_VALUE_INDEX];
 
-            throw new EntityAlreadyExistsException(string.Format(RepositoryConstant.ITEM_WITH_THE_SAME_PROPERTY_ALREADY_EXISTS_ERROR_MESSAGE, duplicateColumn, duplicateValue));
+            throw new EntityAlreadyExistsException(string.Format(ITEM_WITH_THE_SAME_PROPERTY_ALREADY_EXISTS_ERROR_MESSAGE, duplicateColumn, duplicateValue));
         }
     }
 }

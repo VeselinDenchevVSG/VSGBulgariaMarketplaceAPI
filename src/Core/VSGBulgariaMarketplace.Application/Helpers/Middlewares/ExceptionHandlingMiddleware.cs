@@ -9,9 +9,11 @@
     using System;
     using System.Text.Json;
 
-    using VSGBulgariaMarketplace.Application.Constants;
     using VSGBulgariaMarketplace.Application.Models.Exceptions;
     using VSGBulgariaMarketplace.Application.Models.UnitOfWork;
+
+    using static Microsoft.AspNetCore.Http.StatusCodes;
+    using static VSGBulgariaMarketplace.Application.Constants.JsonConstant;
 
     public class ExceptionHandlingMiddleware
     {
@@ -49,7 +51,7 @@
             if (errors.Count > 0)
             {
                 var errorResponce = JsonSerializer.Serialize(errors);
-                httpContext.Response.ContentType = JsonConstant.APPLICATION_JSON_CONTENT_TYPE;
+                httpContext.Response.ContentType = APPLICATION_JSON_CONTENT_TYPE;
                 httpContext.Response.StatusCode = (int)errors[0].Code;
                 await httpContext.Response.WriteAsync(errorResponce);
             }
@@ -66,23 +68,23 @@
                     break;
 
                 case ValidationException validationException:
-                    errors.AddRange(validationException.Errors.Select(e => new ErrorModel(StatusCodes.Status400BadRequest, e.ErrorMessage)));
+                    errors.AddRange(validationException.Errors.Select(e => new ErrorModel(Status400BadRequest, e.ErrorMessage)));
                     break;
 
                 case NotFoundException notFoundException:
-                    errors.Add(new ErrorModel(StatusCodes.Status404NotFound, notFoundException.Message));
+                    errors.Add(new ErrorModel(Status404NotFound, notFoundException.Message));
                     break;
 
                 case FileNotFoundException fileNotFoundException:
-                    errors.Add(new ErrorModel(StatusCodes.Status404NotFound,  fileNotFoundException.Message));
+                    errors.Add(new ErrorModel(Status404NotFound,  fileNotFoundException.Message));
                     break;
 
                 case EntityAlreadyExistsException itemAlreadyExistsException:
-                    errors.Add(new ErrorModel(StatusCodes.Status422UnprocessableEntity, itemAlreadyExistsException.Message));
+                    errors.Add(new ErrorModel(Status422UnprocessableEntity, itemAlreadyExistsException.Message));
                     break;
 
                 case SqlException sqlException:
-                    errors.Add(new ErrorModel(StatusCodes.Status500InternalServerError,  sqlException.Message));
+                    errors.Add(new ErrorModel(Status500InternalServerError,  sqlException.Message));
                     break;
 
                 case OperationCanceledException:
@@ -91,7 +93,7 @@
                     break;
 
                 default:
-                    errors.Add(new ErrorModel(StatusCodes.Status500InternalServerError, exception.Message));
+                    errors.Add(new ErrorModel(Status500InternalServerError, exception.Message));
                     break;
             }
 

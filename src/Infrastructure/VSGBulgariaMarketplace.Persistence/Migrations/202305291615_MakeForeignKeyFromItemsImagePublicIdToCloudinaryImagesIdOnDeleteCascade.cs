@@ -4,28 +4,26 @@
 
     using System.Data;
 
-    using VSGBulgariaMarketplace.Persistence.Constants;
+    using static VSGBulgariaMarketplace.Persistence.Constants.DatabaseConstant;
 
-    [Migration(DatabaseConstant.MAKE_FOREIGN_KEY_FROM_ITEMS_IMAGE_PUBLIC_ID_TO_CLOUDINARY_IMAGES_ID_ON_DELETE_SET_NULL_MIGRATION_VERSION)]
+    [Migration(MAKE_FOREIGN_KEY_FROM_ITEMS_IMAGE_PUBLIC_ID_TO_CLOUDINARY_IMAGES_ID_ON_DELETE_SET_NULL_MIGRATION_VERSION)]
     public class MakeForeignKeyFromItemsImagePublicIdToCloudinaryImagesIdOnDeleteSetNull : Migration
     {
         public override void Up()
         {
-            Delete.ForeignKey(DatabaseConstant.FOREIGN_KEY_ITEMS_IMAGE_PUBLIC_ID_CLOUDINARY_IMAGES_ID_NAME).OnTable(DatabaseConstant.ITEMS_TABLE_NAME);
+            Delete.ForeignKey(FOREIGN_KEY_ITEMS_IMAGE_PUBLIC_ID_CLOUDINARY_IMAGES_ID_NAME).OnTable(ITEMS_TABLE_NAME);
 
-            Create.ForeignKey().FromTable(DatabaseConstant.ITEMS_TABLE_NAME).ForeignColumn(DatabaseConstant.IMAGE_PUBLIC_ID_COLUMN_NAME)
-                    .ToTable(DatabaseConstant.CLOUDINARY_IMAGES_TABLE_NAME).PrimaryColumn(DatabaseConstant.ID_COLUMN_NAME)
-                    .OnDelete(Rule.SetNull);
+            Create.ForeignKey().FromTable(ITEMS_TABLE_NAME).ForeignColumn(IMAGE_PUBLIC_ID_COLUMN_NAME)
+                               .ToTable(CLOUDINARY_IMAGES_TABLE_NAME).PrimaryColumn(ID_COLUMN_NAME)
+                               .OnDelete(Rule.SetNull);
         }
 
         public override void Down()
         {
-            Delete.ForeignKey(DatabaseConstant.FOREIGN_KEY_ITEMS_IMAGE_PUBLIC_ID_CLOUDINARY_IMAGES_ID_NAME).OnTable(DatabaseConstant.ITEMS_TABLE_NAME);
+            Delete.ForeignKey(FOREIGN_KEY_ITEMS_IMAGE_PUBLIC_ID_CLOUDINARY_IMAGES_ID_NAME).OnTable(ITEMS_TABLE_NAME);
 
-            Create.ForeignKey(DatabaseConstant.FOREIGN_KEY_ITEMS_IMAGE_PUBLIC_ID_CLOUDINARY_IMAGES_ID_NAME).FromTable(DatabaseConstant.ITEMS_TABLE_NAME)
-                                                                                                                .ForeignColumn(DatabaseConstant.IMAGE_PUBLIC_ID_COLUMN_NAME)
-                                                                                                                    .ToTable(DatabaseConstant.CLOUDINARY_IMAGES_TABLE_NAME)
-                                                                                                                        .PrimaryColumn(DatabaseConstant.ID_COLUMN_NAME);
+            Create.ForeignKey(FOREIGN_KEY_ITEMS_IMAGE_PUBLIC_ID_CLOUDINARY_IMAGES_ID_NAME).FromTable(ITEMS_TABLE_NAME).ForeignColumn(IMAGE_PUBLIC_ID_COLUMN_NAME)
+                                                                                          .ToTable(CLOUDINARY_IMAGES_TABLE_NAME).PrimaryColumn(ID_COLUMN_NAME);
         }
     }
 }

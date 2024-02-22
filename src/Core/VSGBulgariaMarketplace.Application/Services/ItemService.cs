@@ -4,7 +4,6 @@
 
     using Microsoft.Data.SqlClient;
 
-    using VSGBulgariaMarketplace.Application.Constants;
     using VSGBulgariaMarketplace.Application.Models.Exceptions;
     using VSGBulgariaMarketplace.Application.Models.Image.Interfaces;
     using VSGBulgariaMarketplace.Application.Models.Item.Dtos;
@@ -15,6 +14,8 @@
     using VSGBulgariaMarketplace.Application.Services.HelpServices.Cache.Interfaces;
     using VSGBulgariaMarketplace.Domain.Entities;
     using VSGBulgariaMarketplace.Domain.Enums;
+
+    using static VSGBulgariaMarketplace.Application.Constants.ServiceConstant;
 
     public class ItemService : BaseService<IItemRepository, Item>, IItemService
     {
@@ -34,7 +35,7 @@
 
         public MarketplaceItemDto[] GetMarketplace()
         {
-            MarketplaceItemDto[] itemDtos = base.cacheAdapter.Get<MarketplaceItemDto[]>(ServiceConstant.MARKETPLACE_CACHE_KEY);
+            MarketplaceItemDto[] itemDtos = base.cacheAdapter.Get<MarketplaceItemDto[]>(MARKETPLACE_CACHE_KEY);
             if (itemDtos is null)
             {
                 Item[] items = base.repository.GetMarketplace();
@@ -45,7 +46,7 @@
                     marketplaceItem.ImageUrl = this.imageService.GetImageUrlByItemId(marketplaceItem.Id);
                 }
 
-                base.cacheAdapter.Set(ServiceConstant.MARKETPLACE_CACHE_KEY, itemDtos);
+                base.cacheAdapter.Set(MARKETPLACE_CACHE_KEY, itemDtos);
             }
 
             return itemDtos;
@@ -68,7 +69,7 @@
 
         public InventoryItemDto[] GetInventory()
         {
-            InventoryItemDto[] itemDtos = base.cacheAdapter.Get<InventoryItemDto[]>(ServiceConstant.INVENTORY_CACHE_KEY);
+            InventoryItemDto[] itemDtos = base.cacheAdapter.Get<InventoryItemDto[]>(INVENTORY_CACHE_KEY);
             if (itemDtos is null)
             {
                 Item[] items = base.repository.GetInventory();
@@ -79,7 +80,7 @@
                     inventoryItem.ImageUrl = this.imageService.GetImageUrlByItemId(inventoryItem.Id);
                 }
 
-                base.cacheAdapter.Set(ServiceConstant.INVENTORY_CACHE_KEY, itemDtos);
+                base.cacheAdapter.Set(INVENTORY_CACHE_KEY, itemDtos);
             }
 
             return itemDtos;
@@ -87,14 +88,14 @@
 
         public ItemDetailsDto GetById(string id)
         {
-            string itemCacheKey = string.Format(ServiceConstant.ITEM_CACHE_KEY_TEMPLATE, id);
+            string itemCacheKey = string.Format(ITEM_CACHE_KEY_TEMPLATE, id);
 
             ItemDetailsDto itemDto = base.cacheAdapter.Get<ItemDetailsDto>(itemCacheKey);
             if (itemDto is null)
             {
                 Item item = base.repository.GetById(id);
 
-                if (item is null) throw new NotFoundException(ServiceConstant.SUCH_ITEM_DOES_NOT_EXIST_ERROR_MESSAGE);
+                if (item is null) throw new NotFoundException(SUCH_ITEM_DOES_NOT_EXIST_ERROR_MESSAGE);
 
                 itemDto = base.mapper.Map<Item, ItemDetailsDto>(item);
                 itemDto.ImageUrl = this.imageService.GetImageUrlByItemId(id);
@@ -125,8 +126,8 @@
                 throw;
             }
 
-            base.cacheAdapter.Remove(ServiceConstant.MARKETPLACE_CACHE_KEY);
-            base.cacheAdapter.Remove(ServiceConstant.INVENTORY_CACHE_KEY);
+            base.cacheAdapter.Remove(MARKETPLACE_CACHE_KEY);
+            base.cacheAdapter.Remove(INVENTORY_CACHE_KEY);
         }
 
         public async Task UpdateAsync(string id, UpdateItemDto updateItemDto, CancellationToken cancellationToken) 
@@ -134,13 +135,13 @@
             short pendingOrderdTotalItemQuantity = await this.orderRepository.GetPendingOrdersTotalItemQuantityByItemIdAsync(id, cancellationToken);
             if (updateItemDto.QuantityForSale <= pendingOrderdTotalItemQuantity)
             {
-                throw new ArgumentException(ServiceConstant.NOT_ENOUGH_QUANTITY_FOR_SALE_IN_ORDER_TO_COMPLETE_PENDING_ORDERS_WITH_THIS_ITEM_ERROR_MESSAGE);
+                throw new ArgumentException(NOT_ENOUGH_QUANTITY_FOR_SALE_IN_ORDER_TO_COMPLETE_PENDING_ORDERS_WITH_THIS_ITEM_ERROR_MESSAGE);
             }
 
             short itemLoansTotalItemQuantity = await this.itemLoanRepository.GetItemLoansTotalQuantityForItemAsync(id, cancellationToken);
             if (updateItemDto.Quantity <= itemLoansTotalItemQuantity)
             {
-                throw new ArgumentException(ServiceConstant.QUANTITY_COMBINED_MUST_NOT_BE_LOWER_THAN_THE_ACTIVE_LOANS_ITEM_QUANTITY_ERROR_MESSAGE);
+                throw new ArgumentException(QUANTITY_COMBINED_MUST_NOT_BE_LOWER_THAN_THE_ACTIVE_LOANS_ITEM_QUANTITY_ERROR_MESSAGE);
             }
 
             Item item = base.mapper.Map<UpdateItemDto, Item>(updateItemDto);
@@ -162,7 +163,7 @@
                     if (updateItemDto.Image is null)
                     {
                         string deletionResult = await this.imageService.DeleteAsync(itemImagePublicId);
-                        imageIsDeleted = deletionResult == ServiceConstant.CLOUDINARY_DELETION_RESULT_OK;
+                        imageIsDeleted = deletionResult == CLOUDINARY_DELETION_RESULT_OK;
                     }
                     else
                     {
@@ -187,9 +188,9 @@
                 throw;
             }
 
-            base.cacheAdapter.Remove(ServiceConstant.MARKETPLACE_CACHE_KEY);
-            base.cacheAdapter.Remove(ServiceConstant.INVENTORY_CACHE_KEY);
-            base.cacheAdapter.Remove(string.Format(ServiceConstant.ITEM_CACHE_KEY_TEMPLATE, id));
+            base.cacheAdapter.Remove(MARKETPLACE_CACHE_KEY);
+            base.cacheAdapter.Remove(INVENTORY_CACHE_KEY);
+            base.cacheAdapter.Remove(string.Format(ITEM_CACHE_KEY_TEMPLATE, id));
         }
 
         public async Task DeleteAsync(string id, CancellationToken cancellationToken)
@@ -210,7 +211,7 @@
 
                 base.cacheAdapter.Clear();
             }
-            else throw new InvalidOperationException(ServiceConstant.CAN_NOT_DELETE_ITEM_BECAUSE_IT_IS_LENT_TO_SOMEONE_ERROR_MESSAGE);
+            else throw new InvalidOperationException(CAN_NOT_DELETE_ITEM_BECAUSE_IT_IS_LENT_TO_SOMEONE_ERROR_MESSAGE);
         }
     }
 }

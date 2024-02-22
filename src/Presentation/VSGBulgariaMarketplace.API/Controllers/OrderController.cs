@@ -3,11 +3,12 @@
     using Microsoft.AspNetCore.Authorization;
     using Microsoft.AspNetCore.Mvc;
 
-    using VSGBulgariaMarketplace.API.Constants;
-    using VSGBulgariaMarketplace.Application.Constants;
     using VSGBulgariaMarketplace.Application.Helpers.ActionFilters.Validation;
     using VSGBulgariaMarketplace.Application.Models.Order.Dtos;
     using VSGBulgariaMarketplace.Application.Models.Order.Interfaces;
+
+    using static VSGBulgariaMarketplace.API.Constants.ControllerConstant;
+    using static VSGBulgariaMarketplace.Application.Constants.AuthorizationConstant;
 
     //[Route("api/[controller]")]
     [ApiController]
@@ -22,9 +23,9 @@
         }
 
         [HttpGet]
-        //[Route(ControllerConstant.GET_PENDING_ORDERS_ROUTE)]
-        [Route(ControllerConstant.GET_PENDING_ORDERS_ROUTE_SPARTAK)]
-        [Authorize(Policy = AuthorizationConstant.AUTHORIZATION_ADMIN_POLICY_NAME)]
+        //[Route(GET_PENDING_ORDERS_ROUTE)]
+        [Route(GET_PENDING_ORDERS_ROUTE_SPARTAK)]
+        [Authorize(Policy = AUTHORIZATION_ADMIN_POLICY_NAME)]
         public IActionResult GetPendingOrders()
         {
             PendingOrderDto[] orders = this.orderService.GetPendingOrders();
@@ -33,8 +34,8 @@
         }
 
         [HttpGet]
-        //[Route(ControllerConstant.GET_USER_ORDERS_ROUTE)]
-        [Route(ControllerConstant.GET_USER_ORDERS_ROUTE_SPARTAK)]
+        //[Route(GET_USER_ORDERS_ROUTE)]
+        [Route(GET_USER_ORDERS_ROUTE_SPARTAK)]
         public IActionResult GetUserOrders()
         {
             UserOrderDto[] orders = this.orderService.GetUserOrders();
@@ -43,38 +44,38 @@
         }
 
         [HttpPost]
-        //[Route(ControllerConstant.CREATE_ORDER_ROUTE)]
-        [Route(ControllerConstant.CREATE_ORDER_ROUTE_SPARTAK)]
+        //[Route(CREATE_ORDER_ROUTE)]
+        [Route(CREATE_ORDER_ROUTE_SPARTAK)]
         [FormatValidationErrorMessagesFilter]
         public IActionResult Create([FromBody] CreateOrderDto orderDto)
         {
             this.orderService.Create(orderDto);
 
-            return Ok(new { Message = ControllerConstant.ORDER_CREATED_SUCCESSFULLY_MESSAGE });
+            return Ok(new { Message = ORDER_CREATED_SUCCESSFULLY_MESSAGE });
         }
 
         //[HttpPatch]
         [HttpPut]
-        //[Route(ControllerConstant.FINISH_ORDER_ROUTE)]
-        [Route(ControllerConstant.FINISH_ORDER_ROUTE_SPARTAK)]
-        [Authorize(Policy = AuthorizationConstant.AUTHORIZATION_ADMIN_POLICY_NAME)]
+        //[Route(FINISH_ORDER_ROUTE)]
+        [Route(FINISH_ORDER_ROUTE_SPARTAK)]
+        [Authorize(Policy = AUTHORIZATION_ADMIN_POLICY_NAME)]
         public IActionResult Finish([FromRoute] string code)
         {
             this.orderService.Finish(code);
 
-            return Ok(new { Message = ControllerConstant.ORDER_FINISHED_SUCCESSFULLY_MESSAGE });
+            return Ok(new { Message = ORDER_FINISHED_SUCCESSFULLY_MESSAGE });
         }
 
         //[HttpDelete]
         [HttpPut]
         //[Route(ontrollerConstant.DECLINE_ORDER_ROUTE)]
-        [Route(ControllerConstant.DECLINE_ORDER_ROUTE_SPARTAK)]
-        [Authorize(Policy = AuthorizationConstant.AUTHORIZATION_ADMIN_POLICY_NAME)]
+        [Route(DECLINE_ORDER_ROUTE_SPARTAK)]
+        [Authorize(Policy = AUTHORIZATION_ADMIN_POLICY_NAME)]
         public IActionResult Decline([FromRoute] string code)
         {
             this.orderService.Decline(code);
 
-            return Ok(new { Message = ControllerConstant.ORDER_DECLINED_SUCCESSFULLY_MESSAGE });
+            return Ok(new { Message = ORDER_DECLINED_SUCCESSFULLY_MESSAGE });
         }
     }
 }

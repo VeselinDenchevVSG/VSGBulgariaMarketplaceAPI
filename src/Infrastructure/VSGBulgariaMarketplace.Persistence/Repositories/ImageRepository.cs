@@ -5,31 +5,32 @@
     using VSGBulgariaMarketplace.Application.Models.Image.Interfaces;
     using VSGBulgariaMarketplace.Application.Models.UnitOfWork;
     using VSGBulgariaMarketplace.Domain.Entities;
-    using VSGBulgariaMarketplace.Persistence.Constants;
+
+    using static VSGBulgariaMarketplace.Persistence.Constants.RepositoryConstant;
 
     public class ImageRepository : Repository<CloudinaryImage, string>, IImageRepository
     {
         public ImageRepository(IUnitOfWork unitOfWork) 
             : base(unitOfWork)
         {
-            base.columnNamesString = RepositoryConstant.IMAGE_REPOSITORY_COLUMN_NAMES_STRING;
+            base.columnNamesString = IMAGE_REPOSITORY_COLUMN_NAMES_STRING;
             base.SetUpRepository();
         }
 
         public CloudinaryImage GetImageBuildUrlInfoByItemId(string itemId)
         {
-            string sql = RepositoryConstant.GET_IMAGE_BUILD_URL_INFO_BY_ITEM_ID_SQL_QUERY;
+            string sql = GET_IMAGE_BUILD_URL_INFO_BY_ITEM_ID_SQL_QUERY;
             CloudinaryImage image = base.DbConnection.Query<CloudinaryImage, Item, CloudinaryImage>(sql, (image, item) =>
             {
                 return image;
-            }, new { ItemId = itemId }, splitOn: RepositoryConstant.CLOUDINARY_IMAGE_ID_ALIAS, transaction: base.Transaction).FirstOrDefault();
+            }, new { ItemId = itemId }, splitOn: CLOUDINARY_IMAGE_ID_ALIAS, transaction: base.Transaction).FirstOrDefault();
 
             return image;
         }
 
         public void UpdateImageFileInfo(string publicId, CloudinaryImage image)
         {
-            string sql = RepositoryConstant.UPDATE_IMAGE_FILE_INFO_SQL_QUERY;
+            string sql = UPDATE_IMAGE_FILE_INFO_SQL_QUERY;
             base.DbConnection.Execute(sql, new { PublicId = publicId, FileExtension = image.FileExtension, Version = image.Version }, transaction: this.Transaction);
         }
     }

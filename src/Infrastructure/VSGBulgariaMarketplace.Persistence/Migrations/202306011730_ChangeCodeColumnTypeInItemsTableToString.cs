@@ -2,45 +2,35 @@
 {
     using FluentMigrator;
 
-    using VSGBulgariaMarketplace.Persistence.Constants;
+    using static VSGBulgariaMarketplace.Persistence.Constants.DatabaseConstant;
 
-    [Migration(DatabaseConstant.CHANGE_CODE_COLUMN_TYPE_IN_ITEMS_TABLE_TO_STRING_MIGRATION_VERSION)]
+    [Migration(CHANGE_CODE_COLUMN_TYPE_IN_ITEMS_TABLE_TO_STRING_MIGRATION_VERSION)]
     public class ChangeCodeColumnTypeInItemsTableToString : Migration
     {
         public override void Up()
         {
-            Delete.UniqueConstraint().FromTable(DatabaseConstant.ITEMS_TABLE_NAME)
-                                        .Columns(DatabaseConstant.CODE_COLUMN_NAME, DatabaseConstant.LOCATION_COLUMN_NAME);
-            Delete.UniqueConstraint().FromTable(DatabaseConstant.ITEMS_TABLE_NAME)
-                                        .Columns(DatabaseConstant.NAME_COLUMN_NAME, DatabaseConstant.CODE_COLUMN_NAME, DatabaseConstant.LOCATION_COLUMN_NAME);
+            Delete.UniqueConstraint().FromTable(ITEMS_TABLE_NAME).Columns(CODE_COLUMN_NAME, LOCATION_COLUMN_NAME);
+            Delete.UniqueConstraint().FromTable(ITEMS_TABLE_NAME).Columns(NAME_COLUMN_NAME, CODE_COLUMN_NAME, LOCATION_COLUMN_NAME);
 
-            Alter.Table(DatabaseConstant.ITEMS_TABLE_NAME).AlterColumn(DatabaseConstant.CODE_COLUMN_NAME).AsString(DatabaseConstant.ITEM_CODE_COLUMN_SIZE)
-                                                                                                                            .NotNullable();
+            Alter.Table(ITEMS_TABLE_NAME).AlterColumn(CODE_COLUMN_NAME).AsString(ITEM_CODE_COLUMN_SIZE).NotNullable();
 
-            Create.UniqueConstraint().OnTable(DatabaseConstant.ITEMS_TABLE_NAME)
-                                        .Columns(DatabaseConstant.CODE_COLUMN_NAME, DatabaseConstant.LOCATION_COLUMN_NAME);
-            Create.UniqueConstraint().OnTable(DatabaseConstant.ITEMS_TABLE_NAME)
-                                        .Columns(DatabaseConstant.NAME_COLUMN_NAME, DatabaseConstant.CODE_COLUMN_NAME, DatabaseConstant.LOCATION_COLUMN_NAME);
+            Create.UniqueConstraint().OnTable(ITEMS_TABLE_NAME).Columns(CODE_COLUMN_NAME, LOCATION_COLUMN_NAME);
+            Create.UniqueConstraint().OnTable(ITEMS_TABLE_NAME).Columns(NAME_COLUMN_NAME, CODE_COLUMN_NAME, LOCATION_COLUMN_NAME);
 
-            Alter.Table(DatabaseConstant.ORDERS_TABLE_NAME).AlterColumn(DatabaseConstant.ITEM_CODE_COLUMN_NAME).AsString(DatabaseConstant.ITEM_CODE_COLUMN_SIZE)
-                                                                                                                                .NotNullable();
+            Alter.Table(ORDERS_TABLE_NAME).AlterColumn(ITEM_CODE_COLUMN_NAME).AsString(ITEM_CODE_COLUMN_SIZE).NotNullable();
         }
 
         public override void Down()
         {
-            Alter.Table(DatabaseConstant.ORDERS_TABLE_NAME).AlterColumn(DatabaseConstant.ITEM_CODE_COLUMN_NAME).AsInt32().NotNullable();
+            Alter.Table(ORDERS_TABLE_NAME).AlterColumn(ITEM_CODE_COLUMN_NAME).AsInt32().NotNullable();
 
-            Delete.UniqueConstraint().FromTable(DatabaseConstant.ITEMS_TABLE_NAME)
-                                        .Columns(DatabaseConstant.CODE_COLUMN_NAME, DatabaseConstant.LOCATION_COLUMN_NAME);
-            Delete.UniqueConstraint().FromTable(DatabaseConstant.ITEMS_TABLE_NAME)
-                                        .Columns(DatabaseConstant.NAME_COLUMN_NAME, DatabaseConstant.CODE_COLUMN_NAME, DatabaseConstant.LOCATION_COLUMN_NAME);
+            Delete.UniqueConstraint().FromTable(ITEMS_TABLE_NAME).Columns(CODE_COLUMN_NAME, LOCATION_COLUMN_NAME);
+            Delete.UniqueConstraint().FromTable(ITEMS_TABLE_NAME).Columns(NAME_COLUMN_NAME, CODE_COLUMN_NAME, LOCATION_COLUMN_NAME);
 
-            Alter.Table(DatabaseConstant.ITEMS_TABLE_NAME).AlterColumn(DatabaseConstant.CODE_COLUMN_NAME).AsInt32().Unique().NotNullable();
+            Alter.Table(ITEMS_TABLE_NAME).AlterColumn(CODE_COLUMN_NAME).AsInt32().Unique().NotNullable();
 
-            Create.UniqueConstraint().OnTable(DatabaseConstant.ITEMS_TABLE_NAME)
-                                        .Columns(DatabaseConstant.CODE_COLUMN_NAME, DatabaseConstant.LOCATION_COLUMN_NAME);
-            Create.UniqueConstraint().OnTable(DatabaseConstant.ITEMS_TABLE_NAME)
-                                        .Columns(DatabaseConstant.NAME_COLUMN_NAME, DatabaseConstant.CODE_COLUMN_NAME, DatabaseConstant.LOCATION_COLUMN_NAME);
+            Create.UniqueConstraint().OnTable(ITEMS_TABLE_NAME).Columns(CODE_COLUMN_NAME, LOCATION_COLUMN_NAME);
+            Create.UniqueConstraint().OnTable(ITEMS_TABLE_NAME).Columns(NAME_COLUMN_NAME, CODE_COLUMN_NAME, LOCATION_COLUMN_NAME);
         }
     }
 }

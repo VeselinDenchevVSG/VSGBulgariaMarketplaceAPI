@@ -3,7 +3,7 @@
     using System.ComponentModel.DataAnnotations;
     using System.Reflection;
 
-    using VSGBulgariaMarketplace.Application.Constants;
+    using static VSGBulgariaMarketplace.Application.Constants.ServiceConstant;
 
     public static class EnumService
     {
@@ -51,7 +51,7 @@
                     }
                 }
             }
-            throw new ArgumentException(string.Format(ServiceConstant.NO_ENUM_WITH_DISPLAY_NAME_FOUND_ERROR_MESSAGE, typeof(T).Name, displayName));
+            throw new ArgumentException(string.Format(NO_ENUM_WITH_DISPLAY_NAME_FOUND_ERROR_MESSAGE, typeof(T).Name, displayName));
         }
     }
 }

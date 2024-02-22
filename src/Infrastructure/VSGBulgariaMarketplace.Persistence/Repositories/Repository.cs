@@ -12,7 +12,8 @@
     using VSGBulgariaMarketplace.Application.Models.Repositories;
     using VSGBulgariaMarketplace.Application.Models.UnitOfWork;
     using VSGBulgariaMarketplace.Domain.Entities;
-    using VSGBulgariaMarketplace.Persistence.Constants;
+
+    using static VSGBulgariaMarketplace.Persistence.Constants.DatabaseConstant;
 
     public abstract class Repository<T, U> : IRepository<T, U> where T : BaseEntity<U>
     {
@@ -32,8 +33,8 @@
             this.tableName = this.entityName + 's';
             this.updateStringSkipProperties = new List<string>()
             {
-                DatabaseConstant.ID_COLUMN_NAME,
-                DatabaseConstant.CREATED_AT_UTC_COLUMN_NAME,
+                ID_COLUMN_NAME,
+                CREATED_AT_UTC_COLUMN_NAME,
             };
         }
 

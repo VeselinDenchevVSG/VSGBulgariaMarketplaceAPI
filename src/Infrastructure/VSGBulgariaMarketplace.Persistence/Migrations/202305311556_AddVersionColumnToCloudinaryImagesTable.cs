@@ -2,20 +2,20 @@
 {
     using FluentMigrator;
 
-    using VSGBulgariaMarketplace.Persistence.Constants;
+    using static VSGBulgariaMarketplace.Persistence.Constants.DatabaseConstant;
 
-    [Migration(DatabaseConstant.ADD_VERSION_COLUMN_TO_CLOUDINARY_IMAGES_TABLE_MIGRATION_VERSION)]
+    [Migration(ADD_VERSION_COLUMN_TO_CLOUDINARY_IMAGES_TABLE_MIGRATION_VERSION)]
     public class AddVersionColumnToCloudinaryImagesTable : Migration
     {
         public override void Up()
         {
-            Create.Column(DatabaseConstant.VERSION_COLUMN_NAME).OnTable(DatabaseConstant.CLOUDINARY_IMAGES_TABLE_NAME).AsInt32().Unique().NotNullable();
+            Create.Column(VERSION_COLUMN_NAME).OnTable(CLOUDINARY_IMAGES_TABLE_NAME).AsInt32().Unique().NotNullable();
         }
 
         public override void Down()
         {
-            Delete.UniqueConstraint().FromTable(DatabaseConstant.CLOUDINARY_IMAGES_TABLE_NAME).Column(DatabaseConstant.VERSION_COLUMN_NAME);
-            Delete.Column(DatabaseConstant.VERSION_COLUMN_NAME).FromTable(DatabaseConstant.CLOUDINARY_IMAGES_TABLE_NAME);
+            Delete.UniqueConstraint().FromTable(CLOUDINARY_IMAGES_TABLE_NAME).Column(VERSION_COLUMN_NAME);
+            Delete.Column(VERSION_COLUMN_NAME).FromTable(CLOUDINARY_IMAGES_TABLE_NAME);
         }
 
     }

@@ -7,21 +7,23 @@ using NLog.Web;
 
 using System.Reflection;
 
-using VSGBulgariaMarketplace.API.Constants;
-using VSGBulgariaMarketplace.Application.Constants;
 using VSGBulgariaMarketplace.Application.Helpers.Configurations;
 using VSGBulgariaMarketplace.Application.Helpers.Middlewares;
 using VSGBulgariaMarketplace.Persistence.Configurations;
 using VSGBulgariaMarketplace.Persistence.Migrations;
 
-var logger = LogManager.Setup().LoadConfigurationFromAssemblyResource(Assembly.GetEntryAssembly(), NLogConstant.NLOG_CONFIG_FILE_NAME)
+using static VSGBulgariaMarketplace.API.Constants.NLogConstant;
+using static VSGBulgariaMarketplace.API.Constants.BuilderConstant;
+using static VSGBulgariaMarketplace.Application.Constants.AuthorizationConstant;
+
+var logger = LogManager.Setup().LoadConfigurationFromAssemblyResource(Assembly.GetEntryAssembly(), NLOG_CONFIG_FILE_NAME)
                                 .GetCurrentClassLogger();
 try
 {
     var builder = WebApplication.CreateBuilder(args);
 
-    builder.Configuration.AddJsonFile(BuilderConstant.BUILDER_CONFIGURATION_APP_SETTINGS_JSON_FILE_NAME, optional: false, reloadOnChange: true)
-                         .AddJsonFile(string.Format(BuilderConstant.BUILDER_CONFIGURATION_APP_SETTINGS_ENVIRONMENT_JSON_FILE_NAME_TEMPLATE, 
+    builder.Configuration.AddJsonFile(BUILDER_CONFIGURATION_APP_SETTINGS_JSON_FILE_NAME, optional: false, reloadOnChange: true)
+                         .AddJsonFile(string.Format(BUILDER_CONFIGURATION_APP_SETTINGS_ENVIRONMENT_JSON_FILE_NAME_TEMPLATE, 
                                                             builder.Environment.EnvironmentName), optional: true, reloadOnChange: true)
                          .AddEnvironmentVariables();
 
@@ -29,31 +31,31 @@ try
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen(c =>
     {
-        c.SwaggerDoc(BuilderConstant.SWAGGER_GEN_SWAGGER_DOC_VERSION_NAME, new OpenApiInfo 
+        c.SwaggerDoc(SWAGGER_GEN_SWAGGER_DOC_VERSION_NAME, new OpenApiInfo 
         { 
-            Title = BuilderConstant.SWAGGER_GEN_SWAGGER_DOC_TITLE, 
-            Version = BuilderConstant.SWAGGER_GEN_SWAGGER_DOC_VERSION_NAME 
+            Title = SWAGGER_GEN_SWAGGER_DOC_TITLE, 
+            Version = SWAGGER_GEN_SWAGGER_DOC_VERSION_NAME 
         });
 
         var securitySchema = new OpenApiSecurityScheme
         {
-            Description = AuthorizationConstant.SWAGGER_GEN_OPEN_API_SECURITY_SCHEMA_DESCRIPTION,
-            Name = AuthorizationConstant.SWAGGER_GEN_OPEN_API_SECURITY_SCHEMA_NAME,
+            Description = SWAGGER_GEN_OPEN_API_SECURITY_SCHEMA_DESCRIPTION,
+            Name = SWAGGER_GEN_OPEN_API_SECURITY_SCHEMA_NAME,
             In = ParameterLocation.Header,
             Type = SecuritySchemeType.Http,
-            Scheme = AuthorizationConstant.OPEN_API_SECURITY_SCHEMA_SCHEME_NAME,
+            Scheme = OPEN_API_SECURITY_SCHEMA_SCHEME_NAME,
             Reference = new OpenApiReference
             {
                 Type = ReferenceType.SecurityScheme,
-                Id = AuthorizationConstant.OPEN_API_SECURITY_SCHEMA_REFERENCE_ID
+                Id = OPEN_API_SECURITY_SCHEMA_REFERENCE_ID
             }
         };
-        c.AddSecurityDefinition(AuthorizationConstant.SWAGGER_GEN_SECURITY_DEFINITION_NAME, securitySchema);
+        c.AddSecurityDefinition(SWAGGER_GEN_SECURITY_DEFINITION_NAME, securitySchema);
         c.AddSecurityRequirement(new OpenApiSecurityRequirement
         {
             {
                 securitySchema, 
-                new[] { AuthorizationConstant.SWAGGER_GEN_SECURITY_REQUIREMENT_NAME } 
+                new[] { SWAGGER_GEN_SECURITY_REQUIREMENT_NAME } 
             }
         });
     });
@@ -74,10 +76,10 @@ try
         })
         .AddJwtBearer(options =>
         {
-            string clientId = builder.Configuration[AuthorizationConstant.AZURE_AD_CONFIGURATION_CLIENT_ID];
-            string tenantId = builder.Configuration[AuthorizationConstant.AZURE_AD_CONFIGURATION_TENANT_ID];
+            string clientId = builder.Configuration[AZURE_AD_CONFIGURATION_CLIENT_ID];
+            string tenantId = builder.Configuration[AZURE_AD_CONFIGURATION_TENANT_ID];
 
-            options.Authority = string.Format(AuthorizationConstant.JWT_BEARER_AUTHORITY_TEMPLATE, tenantId);
+            options.Authority = string.Format(JWT_BEARER_AUTHORITY_TEMPLATE, tenantId);
             options.TokenValidationParameters = new TokenValidationParameters
             {
                 ValidateIssuer = true,
@@ -89,10 +91,9 @@ try
 
     builder.Services.AddAuthorization(options =>
     {
-        string adminGroupId = builder.Configuration[AuthorizationConstant.CONFIGURATION_AZURE_AD_ADMIN_GROUP_ID];
+        string adminGroupId = builder.Configuration[CONFIGURATION_AZURE_AD_ADMIN_GROUP_ID];
 
-        options.AddPolicy(AuthorizationConstant.AUTHORIZATION_ADMIN_POLICY_NAME, policy => policy.RequireClaim(AuthorizationConstant.GROUPS_CLAIM_TYPE_NAME,
-                                                                                                                                 adminGroupId));
+        options.AddPolicy(AUTHORIZATION_ADMIN_POLICY_NAME, policy => policy.RequireClaim(GROUPS_CLAIM_TYPE_NAME, adminGroupId));
     });
 
     builder.Logging.ClearProviders();
@@ -129,7 +130,7 @@ try
 catch (Exception exception)
 {
     // NLog: catch setup errors
-    logger.Error(exception, NLogConstant.NLOG_GLOBAL_ERROR_MESSAGE);
+    logger.Error(exception, NLOG_GLOBAL_ERROR_MESSAGE);
     throw;
 }
 finally

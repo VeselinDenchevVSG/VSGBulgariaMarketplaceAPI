@@ -2,21 +2,19 @@
 {
     using FluentMigrator;
 
-    using VSGBulgariaMarketplace.Persistence.Constants;
+    using static VSGBulgariaMarketplace.Persistence.Constants.DatabaseConstant;
 
-    [Migration(DatabaseConstant.MAKE_PRICE_IN_ITEMS_TABLE_NULLABLE_MIGRATION_VERSION)]
+    [Migration(MAKE_PRICE_IN_ITEMS_TABLE_NULLABLE_MIGRATION_VERSION)]
     public class MakePriceColumnInItemsTableNullable : Migration
     {
         public override void Up()
         {
-            Alter.Table(DatabaseConstant.ITEMS_TABLE_NAME).AlterColumn(DatabaseConstant.PRICE_COLUMN_NAME)
-                                                                    .AsCustom(DatabaseConstant.MONEY_DATA_TYPE).Nullable();
+            Alter.Table(ITEMS_TABLE_NAME).AlterColumn(PRICE_COLUMN_NAME).AsCustom(MONEY_DATA_TYPE).Nullable();
         }
 
         public override void Down()
         {
-            Alter.Table(DatabaseConstant.ITEMS_TABLE_NAME).AlterColumn(DatabaseConstant.PRICE_COLUMN_NAME)
-                                                        .AsCustom(DatabaseConstant.MONEY_DATA_TYPE).NotNullable();
+            Alter.Table(ITEMS_TABLE_NAME).AlterColumn(PRICE_COLUMN_NAME).AsCustom(MONEY_DATA_TYPE).NotNullable();
         }
 
     }
