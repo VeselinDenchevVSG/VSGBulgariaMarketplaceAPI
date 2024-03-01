@@ -18,11 +18,11 @@
 
     public class CloudinaryImageService : ICloudImageService
     {
-        private IImageRepository imageRepository;
-        private IMapper mapper;
+        private readonly IImageRepository imageRepository;
+        private readonly IMapper mapper;
 
-        private Account cloudinaryAccount;
-        private Cloudinary cloudinary;
+        private readonly Account cloudinaryAccount;
+        private readonly Cloudinary cloudinary;
 
         public CloudinaryImageService(IImageRepository imageRepository, IMapper mapper, IConfiguration configuration)
         {
@@ -81,14 +81,14 @@
             return image.Id;
         }
 
-        public async Task UpdateAsync(string publicId, IFormFile newimageFile, CancellationToken cancellationToken)
+        public async Task UpdateAsync(string publicId, IFormFile newImageFile, CancellationToken cancellationToken)
         {
             publicId = publicId.Replace(SLASH_URL_ENCODING, "/");
 
             bool exists = await ExistsAsync(publicId, cancellationToken);
             if (exists)
             {
-                using Stream stream = ConvertIFormFileToStream(newimageFile);
+                using Stream stream = ConvertIFormFileToStream(newImageFile);
                 string uniqueFileName = GenerateUniqueFileName();
 
                 var uploadParams = new ImageUploadParams()

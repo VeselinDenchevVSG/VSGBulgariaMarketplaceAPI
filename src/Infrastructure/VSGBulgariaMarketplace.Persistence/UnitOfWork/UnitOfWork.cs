@@ -11,10 +11,10 @@
 
     public class UnitOfWork : IUnitOfWork
     {
-        public UnitOfWork(IConfiguration configuration)
+        public UnitOfWork(IConfiguration configuration, string connectionStringName = DEFAULT_CONNECTION_STRING_NAME)
         {
-            this.DbConnection = new SqlConnection(configuration.GetConnectionString(DEFAULT_CONNECTION_STRING_NAME));
-            this.DbConnection.Open();
+            this.DbConnection = new SqlConnection(configuration.GetConnectionString(connectionStringName));
+            this.DbConnection?.Open();
         }
 
         public IDbConnection DbConnection { get; set; }

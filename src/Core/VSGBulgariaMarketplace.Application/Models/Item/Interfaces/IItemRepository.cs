@@ -9,11 +9,11 @@
 
         Item[] GetInventory();
 
-        Item GetById(string id);
+        Item? GetById(string id);
 
         Item GetOrderItemInfoById(string id);
 
-        Task<string> GetItemImagePublicIdAsync(string id, CancellationToken cancellationToken);
+        Task<string?> GetItemImagePublicIdAsync(string id, CancellationToken cancellationToken);
 
         bool TryGetAvailableQuantity(string id, out int? avaiableQuantity);
 

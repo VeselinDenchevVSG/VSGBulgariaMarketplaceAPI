@@ -16,7 +16,7 @@
 
     public class ItemLoanService : BaseService<IItemLoanRepository, ItemLoan>, IItemLoanService
     {
-        private IItemRepository itemRepository;
+        private readonly IItemRepository itemRepository;
 
         public ItemLoanService(IItemLoanRepository repository, IItemRepository itemRepository, IMemoryCacheAdapter cacheAdapter, IMapper mapper)
             : base(repository, cacheAdapter, mapper)

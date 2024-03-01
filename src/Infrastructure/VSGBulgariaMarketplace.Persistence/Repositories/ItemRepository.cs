@@ -23,20 +23,7 @@
         public Item[] GetMarketplace()
         {
             string sql = GET_MARKETPLACE_SQL_QUERY;
-            Item[] marketplace = base.DbConnection.Query<Item, CloudinaryImage, Item>(sql, (item, image) =>
-            {
-                item.ImagePublicId = image.Id;
-
-                return item;
-            }, splitOn: CLOUDINARY_IMAGE_ID_ALIAS, transaction: base.Transaction).ToArray();
-
-            foreach (Item item in marketplace)
-            {
-                if (item.ImagePublicId is not null)
-                {
-                    item.ImagePublicId = item.ImagePublicId.Insert(0, CLOUDINARY_IMAGE_DIRECTORY);
-                }
-            }
+            Item[] marketplace = base.DbConnection.Query<Item>(sql, transaction: base.Transaction).ToArray();
 
             return marketplace;
         }
@@ -49,20 +36,10 @@
             return inventory;
         }
 
-        public Item GetById(string id)
+        public Item? GetById(string id)
         {
             string sql = GET_ITEM_BY_ID_SQL_QUERY;
-            Item item = base.DbConnection.Query<Item, CloudinaryImage, Item>(sql, (item, image) =>
-            {
-                item.ImagePublicId = image.Id;
-
-                return item;
-            }, new { Id = id }, splitOn: CLOUDINARY_IMAGE_ID_ALIAS, transaction: base.Transaction).FirstOrDefault();
-
-            if (item?.ImagePublicId is not null)
-            {
-                item.ImagePublicId = item.ImagePublicId.Insert(0, CLOUDINARY_IMAGE_DIRECTORY);
-            }
+            Item? item = base.DbConnection.Query<Item>(sql, new { Id = id }, transaction: base.Transaction).FirstOrDefault();
 
             return item;
         }
@@ -75,15 +52,11 @@
             return item;
         }
 
-        public async Task<string> GetItemImagePublicIdAsync(string id, CancellationToken cancellationToken)
+        public async Task<string?> GetItemImagePublicIdAsync(string id, CancellationToken cancellationToken)
         {
             string sql = GET_ITEM_PICTURE_PUBLIC_ID_SQL_QUERY;
-            string itemImagePublicId = await this.DbConnection.QueryFirstOrDefaultAsync<string>(new CommandDefinition(sql, new { Id = id }, base.Transaction,
+            string? itemImagePublicId = await this.DbConnection.QueryFirstOrDefaultAsync<string>(new CommandDefinition(sql, new { Id = id }, base.Transaction,
                                                                                                                             cancellationToken: cancellationToken));
-            if (itemImagePublicId is not null)
-            {
-                itemImagePublicId = CLOUDINARY_IMAGE_DIRECTORY + itemImagePublicId;
-            }
 
             return itemImagePublicId;
         }

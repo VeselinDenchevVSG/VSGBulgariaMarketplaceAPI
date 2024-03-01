@@ -9,21 +9,20 @@
 
     public static class DatabaseCreator
     {
-        public static void Create(IConfiguration configuration)
+        public static void Create(IConfiguration configuration, string connectionStringName, string masterConnectionStringName)
         {
-            SqlConnectionStringBuilder defaultConnectionStringBuilder = new SqlConnectionStringBuilder(configuration.GetConnectionString(DEFAULT_CONNECTION_STRING_NAME));
+            SqlConnectionStringBuilder defaultConnectionStringBuilder = new(configuration.GetConnectionString(connectionStringName));
             string dbName = defaultConnectionStringBuilder.InitialCatalog;
 
-            DynamicParameters parameters = new DynamicParameters();
+            DynamicParameters parameters = new();
             parameters.Add(DB_NAME_PARAMETER_NAME, dbName);
 
-            using SqlConnection connection = new SqlConnection(configuration.GetConnectionString(MASTER_CONNECTION_STRING_NAME));
+            using SqlConnection connection = new(configuration.GetConnectionString(masterConnectionStringName));
             var records = connection.Query(CHECK_IF_DATABASE_EXISTS_SQL_QUERY, parameters);
 
-            if (records.Any() == false)
-            {
-                connection.Execute(string.Format(CREATE_DATABASE_SQL_QUERY_TEMPLATE, dbName));
-            }
+            if (records.Any()) return;
+
+            connection.Execute(string.Format(CREATE_DATABASE_SQL_QUERY_TEMPLATE, dbName));
         }
     }
 }

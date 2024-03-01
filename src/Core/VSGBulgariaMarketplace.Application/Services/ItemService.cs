@@ -19,10 +19,10 @@
 
     public class ItemService : BaseService<IItemRepository, Item>, IItemService
     {
-        private IOrderRepository orderRepository;
-        private IItemLoanRepository itemLoanRepository;
+        private readonly IOrderRepository orderRepository;
+        private readonly IItemLoanRepository itemLoanRepository;
 
-        private ICloudImageService imageService;
+        private readonly ICloudImageService imageService;
 
         public ItemService(IItemRepository itemRepository, IOrderRepository orderRepository, IItemLoanRepository itemLoanRepository,  ICloudImageService imageService, 
                             IMemoryCacheAdapter cacheAdapter, IMapper mapper)
@@ -39,6 +39,11 @@
             if (itemDtos is null)
             {
                 Item[] items = base.repository.GetMarketplace();
+                foreach (Item item in items)
+                {
+                    item?.ImagePublicId?.Insert(0, CLOUDINARY_IMAGE_DIRECTORY);
+                }
+
                 itemDtos = base.mapper.Map<Item[], MarketplaceItemDto[]>(items);
 
                 foreach (MarketplaceItemDto marketplaceItem in itemDtos)
@@ -94,6 +99,7 @@
             if (itemDto is null)
             {
                 Item item = base.repository.GetById(id);
+                item?.ImagePublicId?.Insert(0, CLOUDINARY_IMAGE_DIRECTORY);
 
                 if (item is null) throw new NotFoundException(SUCH_ITEM_DOES_NOT_EXIST_ERROR_MESSAGE);
 
@@ -148,13 +154,10 @@
 
             bool imageIsDeleted = false;
 
-            string itemImagePublicId = await this.repository.GetItemImagePublicIdAsync(id, cancellationToken);
-            if (itemImagePublicId is null)
+            string itemImagePublicId = (await this.repository.GetItemImagePublicIdAsync(id, cancellationToken))?.Insert(0, CLOUDINARY_IMAGE_DIRECTORY);
+            if (itemImagePublicId is null && updateItemDto.Image is not null)
             {
-                if (updateItemDto.Image is not null)
-                {
-                    item.ImagePublicId = await this.imageService.UploadAsync(updateItemDto.Image, cancellationToken);
-                }
+                item.ImagePublicId = await this.imageService.UploadAsync(updateItemDto.Image, cancellationToken);
             }
             else
             {
@@ -173,7 +176,7 @@
                 }
                 else
                 {
-                    item.ImagePublicId = itemImagePublicId.Split("/")[1];
+                    item.ImagePublicId = itemImagePublicId?.Split("/")[1];
                 }
             }
 
@@ -198,7 +201,7 @@
             bool isLoanWithItem = await this.itemLoanRepository.IsLoanWithItemAsync(id, cancellationToken);
             if (!isLoanWithItem)
             {
-                string itemPicturePublicId = await this.repository.GetItemImagePublicIdAsync(id, cancellationToken);
+                string? itemPicturePublicId = (await this.repository.GetItemImagePublicIdAsync(id, cancellationToken))?.Insert(0, CLOUDINARY_IMAGE_DIRECTORY);
 
                 await this.orderRepository.DeclineAllPendingOrdersWithDeletedItemAsync(id, cancellationToken);
 

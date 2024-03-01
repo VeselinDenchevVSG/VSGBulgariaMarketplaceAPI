@@ -9,9 +9,9 @@
     public abstract class BaseService<T, U> where T : IRepository<U, string>
                                             where U : BaseEntity<string>
     {
-        protected T repository;
-        protected IMemoryCacheAdapter cacheAdapter;
-        protected IMapper mapper;
+        protected readonly T repository;
+        protected readonly IMemoryCacheAdapter cacheAdapter;
+        protected readonly IMapper mapper;
 
         public BaseService(T repository, IMemoryCacheAdapter cacheAdapter, IMapper mapper)
         {

@@ -19,8 +19,8 @@
 
     public class OrderService : BaseService<IOrderRepository, Order>, IOrderService
     {
-        private IItemRepository itemRepository;
-        private IHttpContextAccessor httpContextAccessor;
+        private readonly IItemRepository itemRepository;
+        private readonly IHttpContextAccessor httpContextAccessor;
 
         public OrderService(IOrderRepository repository, IItemRepository itemRepository, IMemoryCacheAdapter cacheAdapter, IMapper mapper, IHttpContextAccessor httpContextAccessor) 
             : base(repository, cacheAdapter, mapper)
