@@ -18,19 +18,12 @@
         #endregion
 
         #region ITEM REPOSITORY SQL QUERIES
-        internal const string GET_MARKETPLACE_SQL_QUERY = "SELECT i.Id, i.Code, i.Price, i.Category, i.QuantityForSale, i.ImagePublicId, ci.Id AS CloudinaryImageId " +
-                                                            "FROM Items AS i " +
-                                                            "LEFT JOIN CloudinaryImages AS ci " +
-                                                            "ON i.ImagePublicId = ci.Id " +
-                                                            "WHERE i.QuantityForSale IS NOT NULL AND i.QuantityForSale > 0";
+        internal const string GET_MARKETPLACE_SQL_QUERY = "SELECT Id, Code, Price, Category, QuantityForSale, ImagePublicId FROM Items " +
+                                                          "WHERE QuantityForSale > 0";
 
         internal const string GET_INVENTORY_SQL_QUERY = "SELECT Id, Code, Name, Description, Category, QuantityCombined, QuantityForSale, AvailableQuantity, Price, ImagePublicId, " +
                                                         "Location FROM Items";
-        internal const string GET_ITEM_BY_ID_SQL_QUERY = "SELECT i.Name, i.Price, i.Category, i.QuantityForSale, i.Description, i.ImagePublicId, ci.Id AS CloudinaryImageId " +
-                                                            "FROM Items AS i " +
-                                                            "LEFT JOIN CloudinaryImages AS ci " +
-                                                            "ON i.ImagePublicId = ci.Id " +
-                                                            "WHERE i.Id = @Id AND i.QuantityForSale IS NOT NULL";
+        internal const string GET_ITEM_BY_ID_SQL_QUERY = "SELECT Name, Price, Category, QuantityForSale, Description FROM Items WHERE Id = @Id AND QuantityForSale IS NOT NULL";
         internal const string GET_ORDER_ITEM_INFO_BY_ID_SQL_QUERY = "SELECT Id, Code, Name, QuantityForSale, Price FROM Items WHERE Id = @Id";
         internal const string GET_ITEM_PICTURE_PUBLIC_ID_SQL_QUERY = "SELECT ImagePublicId FROM Items WHERE Id = @Id";
         internal const string TRY_GET_AVAILABLE_QUANTITY_SQL_QUERY = "SELECT ISNULL(AvailableQuantity, 0) FROM Items WHERE Id = @Id";
@@ -80,6 +73,10 @@
         internal const string ITEM_ID_ALIAS = "ItemId";
         #endregion
 
+        #region SQL ERRORS
+        internal const int SQL_VIOLATION_OF_PRIMARY_KEY_ERROR_NUMBER = 2627;
+        #endregion
+
         #region ERROR MESSAGES
         internal const string ENTITY_ALREADY_EXISTS_ERROR_MESSAGE = "{0} already exists!";
         internal const string ENTITY_DOES_NOT_EXIST_ERROR_MESSAGE = "{0} doesn't exist!";
@@ -93,7 +90,5 @@
         internal const int ENTITY_ALREADY_EXISTS_EXCEPTION_MESSAGE_TOKEN_DUPLICATE_VALUE_INDEX = 26;
         internal const string EXCEPTION_MESSAGE_SEPERATORS = " _()'.";
         #endregion
-
-        internal const string CLOUDINARY_IMAGE_DIRECTORY = "VSG_Marketplace/";
     }
 }

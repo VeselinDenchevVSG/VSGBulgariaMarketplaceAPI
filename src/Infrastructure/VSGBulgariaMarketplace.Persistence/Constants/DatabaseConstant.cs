@@ -1,89 +1,90 @@
 ﻿namespace VSGBulgariaMarketplace.Persistence.Constants
 {
-    internal static class DatabaseConstant
+    public static class DatabaseConstant
     {
         #region TABLE NAMES
-        internal const string LOGS_TABLE_NAME = "Logs";
-        internal const string CLOUDINARY_IMAGES_TABLE_NAME = "CloudinaryImages";
-        internal const string ITEMS_TABLE_NAME = "Items";
-        internal const string ORDERS_TABLE_NAME = "Orders";
-        internal const string ITEM_LOANS_TABLE_NAME = "ItemLoans";
+        public const string LOGS_TABLE_NAME = "Logs";
+        public const string CLOUDINARY_IMAGES_TABLE_NAME = "CloudinaryImages";
+        public const string ITEMS_TABLE_NAME = "Items";
+        public const string ORDERS_TABLE_NAME = "Orders";
+        public const string ITEM_LOANS_TABLE_NAME = "ItemLoans";
         #endregion
 
         #region TABLE COLUMNS
-        internal const string ID_COLUMN_NAME = "Id";
-        internal const string CREATED_AT_UTC_COLUMN_NAME = "CreatedAtUtc";
-        internal const string MODIFIED_AT_UTC_COLUMN_NAME = "ModifiedAtUtc";
-        internal const string DELETED_AT_UTC_COLUMN_NAME = "DeletedAtUtc";
-        internal const string IS_DELETED_COLUMN_NAME = "IsDeleted";
-        internal const string LEVEL_COLUMN_NAME = "Level";
-        internal const string CALL_SITE_COLUMN_NAME = "CallSite";
-        internal const string TYPE_COLUMN_NAME = "Type";
-        internal const string MESSAGE_COLUMN_NAME = "Message";
-        internal const string STACK_TRACE_COLUMN_NAME = "StackTrace";
-        internal const string INNER_EXCEPTION_COLUMN_NAME = "InnerException";
-        internal const string ADDITIONAL_INFO_COLUMN_NAME = "AdditionalInfo";
-        internal const string LOGGED_ON_DATETIME_UTC_COLUMN_NAME = "LoggedOnDatetimeUtc";
-        internal const string SECURE_URL_COLUMN_NAME = "SecureUrl";
-        internal const string FILE_EXTENSION_COLUMN_NAME = "FileExtension";
-        internal const string VERSION_COLUMN_NAME = "Version";
-        internal const string NAME_COLUMN_NAME = "Name";
-        internal const string IMAGE_PUBLIC_ID_COLUMN_NAME = "ImagePublicId";
-        internal const string PRICE_COLUMN_NAME = "Price";
-        internal const string CATEGORY_COLUMN_NAME = "Category";
-        internal const string QUANTITY_COMBINED_COLUMN_NAME = "QuantityCombined";
-        internal const string QUANTITY_FOR_SALE_COLUMN_NAME = "QuantityForSale";
-        internal const string AVAILABLE_QUANTITY_COLUMN_NAME = "AvailableQuantity";
-        internal const string DESCRIPTION_COLUMN_NAME = "Description";
-        internal const string LOCATION_COLUMN_NAME = "Location";
-        internal const string ITEM_ID_COLUMN_NAME = "ItemId";
-        internal const string CODE_COLUMN_NAME = "Code";
-        internal const string QUANTITY_COLUMN_NAME = "Quantity";
-        internal const string EMAIL_COLUMN_NAME = "Email";
-        internal const string STATUS_COLUMN_NAME = "Status";
-        internal const string ITEM_CODE_COLUMN_NAME = "ItemCode";
-        internal const string ITEM_NAME_COLUMN_NAME = "ItemName";
-        internal const string ITEM_PRICE_COLUMN_NAME = "ItemPrice";
-        internal const string END_DATE_TIME_UTC_COLUMN_NAME = "EndDatetimeUtc";
+        public const string ID_COLUMN_NAME = "Id";
+        public const string CREATED_AT_UTC_COLUMN_NAME = "CreatedAtUtc";
+        public const string MODIFIED_AT_UTC_COLUMN_NAME = "ModifiedAtUtc";
+        public const string DELETED_AT_UTC_COLUMN_NAME = "DeletedAtUtc";
+        public const string IS_DELETED_COLUMN_NAME = "IsDeleted";
+        public const string LEVEL_COLUMN_NAME = "Level";
+        public const string CALL_SITE_COLUMN_NAME = "CallSite";
+        public const string TYPE_COLUMN_NAME = "Type";
+        public const string MESSAGE_COLUMN_NAME = "Message";
+        public const string STACK_TRACE_COLUMN_NAME = "StackTrace";
+        public const string INNER_EXCEPTION_COLUMN_NAME = "InnerException";
+        public const string ADDITIONAL_INFO_COLUMN_NAME = "AdditionalInfo";
+        public const string LOGGED_ON_DATETIME_UTC_COLUMN_NAME = "LoggedOnDatetimeUtc";
+        public const string SECURE_URL_COLUMN_NAME = "SecureUrl";
+        public const string FILE_EXTENSION_COLUMN_NAME = "FileExtension";
+        public const string VERSION_COLUMN_NAME = "Version";
+        public const string NAME_COLUMN_NAME = "Name";
+        public const string IMAGE_PUBLIC_ID_COLUMN_NAME = "ImagePublicId";
+        public const string PRICE_COLUMN_NAME = "Price";
+        public const string CATEGORY_COLUMN_NAME = "Category";
+        public const string QUANTITY_COMBINED_COLUMN_NAME = "QuantityCombined";
+        public const string QUANTITY_FOR_SALE_COLUMN_NAME = "QuantityForSale";
+        public const string AVAILABLE_QUANTITY_COLUMN_NAME = "AvailableQuantity";
+        public const string DESCRIPTION_COLUMN_NAME = "Description";
+        public const string LOCATION_COLUMN_NAME = "Location";
+        public const string ITEM_ID_COLUMN_NAME = "ItemId";
+        public const string CODE_COLUMN_NAME = "Code";
+        public const string QUANTITY_COLUMN_NAME = "Quantity";
+        public const string EMAIL_COLUMN_NAME = "Email";
+        public const string STATUS_COLUMN_NAME = "Status";
+        public const string ITEM_CODE_COLUMN_NAME = "ItemCode";
+        public const string ITEM_NAME_COLUMN_NAME = "ItemName";
+        public const string ITEM_PRICE_COLUMN_NAME = "ItemPrice";
+        public const string END_DATE_TIME_UTC_COLUMN_NAME = "EndDatetimeUtc";
         #endregion
 
         #region DATA TYPES
-        internal const string DATETIME2_DATA_TYPE_TEMPLATE = "DATETIME2({0})";
-        internal const string NVARCHAR_DATA_TYPE_TEMPLATE = "NVARCHAR({0})";
-        internal const string MONEY_DATA_TYPE = "MONEY";
+        public const string DATETIME2_DATA_TYPE_TEMPLATE = "DATETIME2({0})";
+        public const string NVARCHAR_DATA_TYPE_TEMPLATE = "NVARCHAR({0})";
+        public const string MONEY_DATA_TYPE = "MONEY";
         #endregion
 
         #region COLUMN SIZES
-        internal const byte LEVEL_COLUMN_SIZE = 11;
-        internal const byte LOGGED_ON_DATETIME_UTC_COLUMN_SIZE = 7;
-        internal const byte INT_ID_COLUMN_SIZE = 20;
-        internal const byte STRING_ID_COLUMN_SIZE = 36;
-        internal const byte SECURE_URL_COLUMN_SIZE = 150;
-        internal const byte FILE_EXTENSION_COLUMN_SIZE = 5;
-        internal const byte ITEM_NAME_COLUMN_SIZE = 150;
-        internal const short DESCRIPTION_COLUMN_SIZE = 1_000;
-        internal const byte EMAIL_COLUMN_SIZE = 30;
-        internal const byte ITEM_CODE_COLUMN_SIZE = 50;
+        public const byte LEVEL_COLUMN_SIZE = 11;
+        public const byte LOGGED_ON_DATETIME_UTC_COLUMN_SIZE = 7;
+        public const byte INT_ID_COLUMN_SIZE = 20;
+        public const byte STRING_ID_COLUMN_SIZE = 36;
+        public const byte SECURE_URL_COLUMN_SIZE = 150;
+        public const byte FILE_EXTENSION_COLUMN_SIZE = 5;
+        public const byte ITEM_NAME_COLUMN_SIZE = 150;
+        public const short DESCRIPTION_COLUMN_SIZE = 1_000;
+        public const byte EMAIL_COLUMN_SIZE = 30;
+        public const byte ITEM_CODE_COLUMN_SIZE = 50;
         #endregion
 
         #region CHECK CONSTRAINTS
         internal const string ADD_CONSTRAINT_SQL_QUERY_TEMPLATE = "ALTER TABLE {0} ADD CONSTRAINT {1} CHECK {2}";
         internal const string DROP_CONSTRAINT_SQL_QUERY_TEMPLATE = "ALTER TABLE {0} DROP CONSTRAINT {1}";
-        internal const string CHECK_ITEM_QUANTITY_COMBINED_CONSTRAINT_NAME = "CK_Item_QuantityCombined";
-        internal const string CHECK_ITEM_QUANTITY_FOR_SALE_CONSTRAINT_NAME = "CK_Item_QuantityForSale";
-        internal const string CHECK_ORDER_QUANTITY_CONSTRAINT_NAME = "CK_Order_Quantity";
-        internal const string CHECK_AVAILABLE_QUANTITY_CONSTRAINT_NAME = "CK_Item_AvailableQuantity";
+        public const string CHECK_ITEM_QUANTITY_COMBINED_CONSTRAINT_NAME = "CK_Item_QuantityCombined";
+        public const string CHECK_ITEM_QUANTITY_FOR_SALE_CONSTRAINT_NAME = "CK_Item_QuantityForSale";
+        public const string CHECK_ORDER_QUANTITY_CONSTRAINT_NAME = "CK_Order_Quantity";
+        public const string CHECK_AVAILABLE_QUANTITY_CONSTRAINT_NAME = "CK_Item_AvailableQuantity";
         #endregion
 
         #region PRIMARY KEYS
-        internal const string PRIMARY_KEY_ITEMS = "PK_Items";
-        internal const string PRIMARY_KEY_ORDERS = "PK_Orders";
+        public const string PRIMARY_KEY_ITEMS = "PK_Items";
+        public const string PRIMARY_KEY_ORDERS = "PK_Orders";
+        public const string PRIMARY_KEY_ITEM_LOANS= "PK_ItemLoans";
         #endregion
 
         #region FOREIGN KEYS
-        internal const string FOREIGN_KEY_ORDERS_ITEM_ID_ITEMS_ID = "FK_Orders_ItemId_Items_Id";
-        internal const string FOREIGN_KEY_ITEMS_IMAGE_PUBLIC_ID_CLOUDINARY_IMAGES_ID_NAME = "FK_Items_ImagePublicId_CloudinaryImages_Id";
-        internal const string FOREIGN_KEY_ORDERS_ITEM_ID_ITEMS_ID_NAME = "FK_Orders_ItemId_Items_Id";
+        public const string FOREIGN_KEY_ORDERS_ITEM_ID_ITEMS_ID = "FK_Orders_ItemId_Items_Id";
+        public const string FOREIGN_KEY_ITEMS_IMAGE_PUBLIC_ID_CLOUDINARY_IMAGES_ID_NAME = "FK_Items_ImagePublicId_CloudinaryImages_Id";
+        public const string FOREIGN_KEY_ORDERS_ITEM_ID_ITEMS_ID_NAME = "FK_Orders_ItemId_Items_Id";
         #endregion
 
         #region MIGRATION VERSIONS

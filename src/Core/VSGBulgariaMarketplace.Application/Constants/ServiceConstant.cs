@@ -1,8 +1,9 @@
 ﻿namespace VSGBulgariaMarketplace.Application.Constants
 {
-    internal static class ServiceConstant
+    public static class ServiceConstant
     {
         #region CLOUDINARY
+        public const string CLOUDINARY_IMAGE_DIRECTORY = "VSG_Marketplace/";
         internal const string CLOUDINARY_CONFIGURATION_CLOUD = "Cloudinary:Cloud";
         internal const string CLOUDINARY_CONFIGURATION_API_KEY = "Cloudinary:ApiKey";
         internal const string CLOUDINARY_CONFIGURATION_API_SECRET = "Cloudinary:ApiSecret";
