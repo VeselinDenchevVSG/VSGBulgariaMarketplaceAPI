@@ -6,6 +6,7 @@ using NLog;
 using NLog.Web;
 
 using System.Reflection;
+using System.Runtime.CompilerServices;
 
 using VSGBulgariaMarketplace.Application.Helpers.Configurations;
 using VSGBulgariaMarketplace.Application.Helpers.Middlewares;
@@ -15,9 +16,14 @@ using VSGBulgariaMarketplace.Persistence.Migrations;
 using static VSGBulgariaMarketplace.API.Constants.NLogConstant;
 using static VSGBulgariaMarketplace.API.Constants.BuilderConstant;
 using static VSGBulgariaMarketplace.Application.Constants.AuthorizationConstant;
+using static VSGBulgariaMarketplace.Persistence.Constants.DatabaseConnectionConstant;
+
+
+[assembly: InternalsVisibleTo("Test.IntegrationTests")]
+
 
 var logger = LogManager.Setup().LoadConfigurationFromAssemblyResource(Assembly.GetEntryAssembly(), NLOG_CONFIG_FILE_NAME)
-                                .GetCurrentClassLogger();
+                               .GetCurrentClassLogger();
 try
 {
     var builder = WebApplication.CreateBuilder(args);
@@ -62,7 +68,7 @@ try
 
     builder.Services.AddApplicationLayerConfiguration();
     builder.Services.AddRepositoriesConfiguration();
-    builder.Services.AddMigrationsConfiguration();
+    builder.Services.AddMigrationsConfiguration(DEFAULT_CONNECTION_STRING_NAME);
 
     builder.Services.AddMemoryCache();
 
@@ -111,7 +117,7 @@ try
     app.UseSwagger();
     app.UseSwaggerUI();
 
-    DatabaseCreator.Create(builder.Configuration);
+    DatabaseCreator.Create(builder.Configuration, DEFAULT_CONNECTION_STRING_NAME, MASTER_CONNECTION_STRING_NAME);
 
     app.MigrateUpDatabase();
 

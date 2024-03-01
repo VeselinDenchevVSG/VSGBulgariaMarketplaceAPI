@@ -1,0 +1,52 @@
+﻿TableName,ColumnName,DataType,ConstraintType,ConstraintName
+CloudinaryImages,CreatedAtUtc,datetime2,NULL,NULL
+CloudinaryImages,FileExtension,varchar,NULL,NULL
+CloudinaryImages,Id,nvarchar,PRIMARY KEY,PK_CloudinaryImages
+CloudinaryImages,ModifiedAtUtc,datetime2,NULL,NULL
+CloudinaryImages,Version,int,NULL,NULL
+ItemLoans,CreatedAtUtc,datetime2,NULL,NULL
+ItemLoans,Email,nvarchar,NULL,NULL
+ItemLoans,EndDatetimeUtc,datetime2,NULL,NULL
+ItemLoans,Id,nvarchar,PRIMARY KEY,PK_ItemLoans
+ItemLoans,ItemId,nvarchar,FOREIGN KEY,FK_ItemLoans_ItemId_Items_Id
+ItemLoans,ModifiedAtUtc,datetime2,NULL,NULL
+ItemLoans,Quantity,smallint,NULL,NULL
+Items,AvailableQuantity,smallint,CHECK,CK_Item_AvailableQuantity
+Items,Category,int,NULL,NULL
+Items,Code,nvarchar,UNIQUE,UC_Items_Code_Location
+Items,CreatedAtUtc,datetime2,NULL,NULL
+Items,Description,nvarchar,NULL,NULL
+Items,Id,nvarchar,PRIMARY KEY,PK_Items
+Items,ImagePublicId,nvarchar,FOREIGN KEY,FK_Items_ImagePublicId_CloudinaryImages_Id
+Items,Location,int,UNIQUE,UC_Items_Code_Location
+Items,Location,int,UNIQUE,UC_Items_Name_Location
+Items,ModifiedAtUtc,datetime2,NULL,NULL
+Items,Name,nvarchar,UNIQUE,UC_Items_Name_Location
+Items,Price,money,NULL,NULL
+Items,QuantityCombined,smallint,CHECK,CK_Item_QuantityCombined
+Items,QuantityCombined,smallint,CHECK,CK_Item_QuantityForSale
+Items,QuantityCombined,smallint,CHECK,CK_Item_AvailableQuantity
+Items,QuantityForSale,smallint,CHECK,CK_Item_QuantityForSale
+Items,QuantityForSale,smallint,CHECK,CK_Item_AvailableQuantity
+Logs,AdditionalInfo,nvarchar,NULL,NULL
+Logs,CallSite,nvarchar,NULL,NULL
+Logs,Id,int,PRIMARY KEY,PK_Logs
+Logs,InnerException,nvarchar,NULL,NULL
+Logs,Level,nvarchar,NULL,NULL
+Logs,LoggedOnDatetimeUtc,datetime2,NULL,NULL
+Logs,Message,nvarchar,NULL,NULL
+Logs,StackTrace,nvarchar,NULL,NULL
+Logs,Type,nvarchar,NULL,NULL
+Orders,CreatedAtUtc,datetime2,NULL,NULL
+Orders,Email,nvarchar,NULL,NULL
+Orders,Id,nvarchar,PRIMARY KEY,PK_Orders
+Orders,ItemCode,nvarchar,NULL,NULL
+Orders,ItemId,nvarchar,FOREIGN KEY,FK_Orders_ItemId_Items_Id
+Orders,ItemName,nvarchar,NULL,NULL
+Orders,ItemPrice,money,NULL,NULL
+Orders,ModifiedAtUtc,datetime2,NULL,NULL
+Orders,Quantity,smallint,CHECK,CK_Order_Quantity
+Orders,Status,int,NULL,NULL
+VersionInfo,AppliedOn,datetime,NULL,NULL
+VersionInfo,Description,nvarchar,NULL,NULL
+VersionInfo,Version,bigint,NULL,NULL

@@ -11,7 +11,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSGBulgariaMarketplace.Doma
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VSGBulgariaMarketplace.Application", "src\Core\VSGBulgariaMarketplace.Application\VSGBulgariaMarketplace.Application.csproj", "{98EE8647-192A-4618-9235-3EC32AA075AF}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test", "Test\Test.csproj", "{4BB0EB76-9BC2-4B45-B363-6BA477439DBD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.UnitTests", "Test\Test.UnitTests\Test.UnitTests.csproj", "{4BB0EB76-9BC2-4B45-B363-6BA477439DBD}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.IntegrationTests", "Test\Test.IntegrationTests\Test.IntegrationTests.csproj", "{AF29F101-2DA6-4ADE-B528-74E50454AB9E}"
+	ProjectSection(ProjectDependencies) = postProject
+		{3435850D-FFBD-495C-92DC-22B462A33481} = {3435850D-FFBD-495C-92DC-22B462A33481}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +44,10 @@ Global
 		{4BB0EB76-9BC2-4B45-B363-6BA477439DBD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4BB0EB76-9BC2-4B45-B363-6BA477439DBD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4BB0EB76-9BC2-4B45-B363-6BA477439DBD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AF29F101-2DA6-4ADE-B528-74E50454AB9E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AF29F101-2DA6-4ADE-B528-74E50454AB9E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AF29F101-2DA6-4ADE-B528-74E50454AB9E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AF29F101-2DA6-4ADE-B528-74E50454AB9E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
