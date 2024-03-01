@@ -20,8 +20,8 @@
   </ItemGroup>
 
 	<ItemGroup>
-		<ProjectReference Include="..\src\Core\VSGBulgariaMarketplace.Application\VSGBulgariaMarketplace.Application.csproj" />
-		<ProjectReference Include="..\src\Infrastructure\VSGBulgariaMarketplace.Persistence\VSGBulgariaMarketplace.Persistence.csproj" />
+		<ProjectReference Include="..\..\src\Core\VSGBulgariaMarketplace.Application\VSGBulgariaMarketplace.Application.csproj" />
+		<ProjectReference Include="..\..\src\Infrastructure\VSGBulgariaMarketplace.Persistence\VSGBulgariaMarketplace.Persistence.csproj" />
     </ItemGroup>
 
 </Project>

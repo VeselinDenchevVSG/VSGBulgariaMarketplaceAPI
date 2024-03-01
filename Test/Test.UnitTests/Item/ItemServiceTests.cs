@@ -1,4 +1,4 @@
-﻿namespace Test.ItemTests
+﻿namespace Test.UnitTests.Item
 {
     using AutoMapper;
     using FluentAssertions;
@@ -19,6 +19,7 @@
     using VSGBulgariaMarketplace.Application.Models.ItemLoan.Interfaces;
 
     using static Constants.ItemConstant;
+    using static VSGBulgariaMarketplace.Application.Constants.ServiceConstant;
 
     [TestOf(typeof(ItemService))]
     public class ItemServiceTests
@@ -41,15 +42,15 @@
 
         public ItemServiceTests()
         {
-            this.itemRepository = new Mock<IItemRepository>();
-            this.orderRepository = new Mock<IOrderRepository>();
-            this.itemLoanRepository = new Mock<IItemLoanRepository>();
-            this.imageService = new Mock<ICloudImageService>();
-            this.memoryCache = new Mock<IMemoryCacheAdapter>();
-            this.mapper = new Mock<IMapper>();
-            this.itemService = new ItemService(this.itemRepository.Object, this.orderRepository.Object, this.itemLoanRepository.Object, this.imageService.Object, 
-                                                this.memoryCache.Object, this.mapper.Object);
-            this.item = new Item()
+            itemRepository = new Mock<IItemRepository>();
+            orderRepository = new Mock<IOrderRepository>();
+            itemLoanRepository = new Mock<IItemLoanRepository>();
+            imageService = new Mock<ICloudImageService>();
+            memoryCache = new Mock<IMemoryCacheAdapter>();
+            mapper = new Mock<IMapper>();
+            itemService = new ItemService(itemRepository.Object, orderRepository.Object, itemLoanRepository.Object, imageService.Object,
+                                                memoryCache.Object, mapper.Object);
+            item = new Item()
             {
                 Id = ITEM_ID,
                 Code = ITEM_CODE,
@@ -61,91 +62,92 @@
                 AvailableQuantity = ITEM_AVAILABLE_QUANTITY
             };
 
-            this.marketplace = new MarketplaceItemDto[] 
+            Item[] items = new Item[] { item };
+
+            marketplace = new MarketplaceItemDto[]
             {
                 new MarketplaceItemDto()
                 {
                     Code = ITEM_CODE,
                     ImageUrl = ITEM_IMAGE_URL,
                     Price = ITEM_PRICE,
-                    Category = Category.Laptops.ToString(),
+                    Category = nameof(Category.Laptops),
                     QuantityForSale = ITEM_QUANTITY_FOR_SALE
                 }
             };
-            this.mapper.Setup(m => m.Map<Item[], MarketplaceItemDto[]>(It.IsAny<Item[]>())).Returns(this.marketplace);
+            mapper.Setup(m => m.Map<Item[], MarketplaceItemDto[]>(items)).Returns(marketplace);
 
-            this.inventory = new InventoryItemDto[] 
+            inventory = new InventoryItemDto[]
             {
                 new InventoryItemDto()
                 {
                     Code = ITEM_CODE,
                     Name = ITEM_NAME,
-                    Category = Category.Laptops.ToString(),
+                    Category = nameof(Category.Laptops),
                     QuantityForSale = ITEM_QUANTITY_FOR_SALE,
                     AvailableQuantity = ITEM_AVAILABLE_QUANTITY,
                     QuantityCombined = ITEM_QUANTITY_COMBINED
                 }
             };
-            this.mapper.Setup(m => m.Map<Item[], InventoryItemDto[]>(It.IsAny<Item[]>())).Returns(this.inventory);
+            mapper.Setup(m => m.Map<Item[], InventoryItemDto[]>(items)).Returns(inventory);
 
-            this.itemDetailsDto = new ItemDetailsDto()
+            itemDetailsDto = new ItemDetailsDto()
             {
                 ImageUrl = ITEM_IMAGE_URL,
                 Name = ITEM_NAME,
                 Price = ITEM_PRICE,
-                Category = Category.Laptops.ToString(),
+                Category = nameof(Category.Laptops),
                 QuantityForSale = ITEM_QUANTITY_FOR_SALE,
                 Description = ITEM_DESCRIPTION
             };
-            this.mapper.Setup(m => m.Map<Item, ItemDetailsDto>(this.item)).Returns(this.itemDetailsDto);
+            mapper.Setup(m => m.Map<Item, ItemDetailsDto>(item)).Returns(itemDetailsDto);
 
-            this.createItemDto = new CreateItemDto()
+            createItemDto = new CreateItemDto()
             {
                 Code = ITEM_CODE,
                 Name = ITEM_NAME,
                 Price = ITEM_PRICE,
-                Category = Category.Laptops.ToString(),
+                Category = nameof(Category.Laptops),
                 Quantity = ITEM_QUANTITY_COMBINED,
                 QuantityForSale = ITEM_QUANTITY_FOR_SALE,
                 AvailableQuantity = ITEM_AVAILABLE_QUANTITY,
                 Description = ITEM_DESCRIPTION
             };
-            this.mapper.Setup(m => m.Map<CreateItemDto, Item>(this.createItemDto)).Returns(this.item);
-            this.mapper.Setup(m => m.Map<Item, CreateItemDto>(this.item)).Returns(this.createItemDto);
+            mapper.Setup(m => m.Map<CreateItemDto, Item>(createItemDto)).Returns(item);
+            mapper.Setup(m => m.Map<Item, CreateItemDto>(item)).Returns(createItemDto);
 
-            this.updateItemDto = new UpdateItemDto()
+            updateItemDto = new UpdateItemDto()
             {
                 Code = ITEM_CODE,
                 Name = ITEM_NAME,
                 Price = ITEM_PRICE,
-                Category = Category.Laptops.ToString(),
+                Category = nameof(Category.Laptops),
                 Quantity = ITEM_QUANTITY_COMBINED,
                 QuantityForSale = ITEM_QUANTITY_FOR_SALE,
                 AvailableQuantity = ITEM_AVAILABLE_QUANTITY,
                 Description = ITEM_DESCRIPTION
             };
-            this.mapper.Setup(m => m.Map<UpdateItemDto, Item>(this.updateItemDto)).Returns(this.item);
-            this.mapper.Setup(m => m.Map<Item, UpdateItemDto>(this.item)).Returns(this.updateItemDto);
+            mapper.Setup(m => m.Map<UpdateItemDto, Item>(updateItemDto)).Returns(item);
+            mapper.Setup(m => m.Map<Item, UpdateItemDto>(item)).Returns(updateItemDto);
 
-            Item[] items = new Item[] { this.item };
 
-            this.itemRepository.Setup(ir => ir.GetMarketplace()).Returns(items);
-            this.itemRepository.Setup(ir => ir.GetInventory()).Returns(items);
+            itemRepository.Setup(ir => ir.GetMarketplace()).Returns(items);
+            itemRepository.Setup(ir => ir.GetInventory()).Returns(items);
 
-            this.orderRepository.Setup(or => or.DeclineAllPendingOrdersWithDeletedItemAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()));
+            orderRepository.Setup(or => or.DeclineAllPendingOrdersWithDeletedItemAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()));
 
-            this.imageService.Setup(s => s.ExistsAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(true);
-            this.imageService.Setup(s => s.UploadAsync(It.IsAny<IFormFile>(), It.IsAny<CancellationToken>())).ReturnsAsync(ITEM_IMAGE_PUBLIC_ID);
+            imageService.Setup(s => s.ExistsAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(true);
+            imageService.Setup(s => s.UploadAsync(It.IsAny<IFormFile>(), It.IsAny<CancellationToken>())).ReturnsAsync(ITEM_IMAGE_PUBLIC_ID);
         }
 
         [Test]
         public void GetMarketplace_Cached_ReturnsMarkeplaceItemDtoArrayMappedFromRepository()
         {
             // Arrange
-            this.memoryCache.Setup(mc => mc.Get<MarketplaceItemDto[]>(It.IsAny<string>())).Returns((MarketplaceItemDto[])null);
+            memoryCache.Setup(mc => mc.Get<MarketplaceItemDto[]>(It.IsAny<string>())).Returns((MarketplaceItemDto[])null);
 
             // Act
-            MarketplaceItemDto[] marketplace = this.itemService.GetMarketplace();
+            MarketplaceItemDto[] marketplace = itemService.GetMarketplace();
 
             // Assert
             marketplace.Should().BeEquivalentTo(this.marketplace);
@@ -155,10 +157,10 @@
         public void GetMarketplace_NotCached_ReturnsMarkeplaceItemDtoArrayFromCache()
         {
             // Arrange
-            this.memoryCache.Setup(mc => mc.Get<MarketplaceItemDto[]>(It.IsAny<string>())).Returns(this.marketplace);
+            memoryCache.Setup(mc => mc.Get<MarketplaceItemDto[]>(It.IsAny<string>())).Returns(this.marketplace);
 
             // Act
-            MarketplaceItemDto[] marketplace = this.itemService.GetMarketplace();
+            MarketplaceItemDto[] marketplace = itemService.GetMarketplace();
 
             // Assert
             marketplace.Should().BeEquivalentTo(this.marketplace);
@@ -168,10 +170,10 @@
         public void GetInventory_NotCached_ReturnsInventoryItemDtoArrayMappedFromRepository()
         {
             // Arrange
-            this.memoryCache.Setup(mc => mc.Get<InventoryItemDto[]>(It.IsAny<string>())).Returns((InventoryItemDto[])null);
+            memoryCache.Setup(mc => mc.Get<InventoryItemDto[]>(It.IsAny<string>())).Returns((InventoryItemDto[])null);
 
             // Act
-            InventoryItemDto[] inventory = this.itemService.GetInventory();
+            InventoryItemDto[] inventory = itemService.GetInventory();
 
             // Assert
             inventory.Should().BeEquivalentTo(this.inventory);
@@ -181,10 +183,10 @@
         public void GetInventory_Cached_ReturnsInventoryItemDtoArrayFromCache()
         {
             // Arrange
-            this.memoryCache.Setup(mc => mc.Get<InventoryItemDto[]>(It.IsAny<string>())).Returns(this.inventory);
+            memoryCache.Setup(mc => mc.Get<InventoryItemDto[]>(It.IsAny<string>())).Returns(this.inventory);
 
             // Act
-            InventoryItemDto[] inventory = this.itemService.GetInventory();
+            InventoryItemDto[] inventory = itemService.GetInventory();
 
             // Assert
             inventory.Should().BeEquivalentTo(this.inventory);
@@ -194,11 +196,11 @@
         public void GetItemByCode_NotCached_ReturnsItemDetailsDtoMappedFromRepository()
         {
             // Arrange
-            this.memoryCache.Setup(mc => mc.Get<ItemDetailsDto>(It.IsAny<string>())).Returns((ItemDetailsDto)null);
-            this.itemRepository.Setup(ir => ir.GetById(ITEM_ID)).Returns(this.item);
+            memoryCache.Setup(mc => mc.Get<ItemDetailsDto>(It.IsAny<string>())).Returns((ItemDetailsDto)null);
+            itemRepository.Setup(ir => ir.GetById(ITEM_ID)).Returns(item);
 
             // Act
-            ItemDetailsDto itemDetailsDto = this.itemService.GetById(ITEM_ID);
+            ItemDetailsDto itemDetailsDto = itemService.GetById(ITEM_ID);
 
             // Assert
             itemDetailsDto.Should().Be(this.itemDetailsDto);
@@ -208,11 +210,11 @@
         public void GetItemByCode_Cached_ReturnsItemDetailsDtoFromCache()
         {
             // Arrange
-            this.memoryCache.Setup(mc => mc.Get<ItemDetailsDto>(It.IsAny<string>())).Returns(this.itemDetailsDto);
-            this.itemRepository.Setup(ir => ir.GetById(ITEM_ID)).Returns(this.item);
+            memoryCache.Setup(mc => mc.Get<ItemDetailsDto>(It.IsAny<string>())).Returns(this.itemDetailsDto);
+            itemRepository.Setup(ir => ir.GetById(ITEM_ID)).Returns(item);
 
             // Act
-            ItemDetailsDto itemDetailsDto = this.itemService.GetById(ITEM_ID);
+            ItemDetailsDto itemDetailsDto = itemService.GetById(ITEM_ID);
 
             // Assert
             itemDetailsDto.Should().BeEquivalentTo(this.itemDetailsDto);
@@ -222,11 +224,11 @@
         public void GetItemByCode_NonExistingItem_ThrowsNotFoundException()
         {
             // Arrange
-            this.memoryCache.Setup(mc => mc.Get<ItemDetailsDto>(It.IsAny<string>())).Returns((ItemDetailsDto) null);
-            this.itemRepository.Setup(ir => ir.GetById(ITEM_ID)).Returns((Item) null);
+            memoryCache.Setup(mc => mc.Get<ItemDetailsDto>(It.IsAny<string>())).Returns((ItemDetailsDto)null);
+            itemRepository.Setup(ir => ir.GetById(ITEM_ID)).Returns((Item)null);
 
             // Act
-            Action action = () => this.itemService.GetById(ITEM_ID);
+            Action action = () => itemService.GetById(ITEM_ID);
 
             // Assert
             action.Should().Throw<NotFoundException>();
@@ -236,16 +238,16 @@
         public async Task CreateAsync_UploadImageAsyncWhenOperationCanceled_ThrowsOperationCanceledException()
         {
             // Arrange
-            this.createItemDto.Image = new Mock<IFormFile>().Object;
+            createItemDto.Image = new Mock<IFormFile>().Object;
 
             CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
             cancellationTokenSource.Cancel();
             CancellationToken cancellationToken = cancellationTokenSource.Token;
 
-            this.imageService.Setup(s => s.UploadAsync(It.IsAny<IFormFile>(), cancellationToken)).ThrowsAsync(new OperationCanceledException());
+            imageService.Setup(s => s.UploadAsync(It.IsAny<IFormFile>(), cancellationToken)).ThrowsAsync(new OperationCanceledException());
 
             // Act
-            Func<Task> task = async () => await itemService.CreateAsync(this.createItemDto, cancellationToken);
+            Func<Task> task = async () => await itemService.CreateAsync(createItemDto, cancellationToken);
 
             // Assert
             await task.Should().ThrowAsync<OperationCanceledException>();
@@ -259,10 +261,10 @@
             cancellationTokenSource.Cancel();
             CancellationToken cancellationToken = cancellationTokenSource.Token;
 
-            this.itemRepository.Setup(s => s.CreateAsync(It.IsAny<Item>(), cancellationToken)).ThrowsAsync(new OperationCanceledException());
+            itemRepository.Setup(s => s.CreateAsync(It.IsAny<Item>(), cancellationToken)).ThrowsAsync(new OperationCanceledException());
 
             // Act
-            Func<Task> task = async () => await itemService.CreateAsync(this.createItemDto, cancellationToken);
+            Func<Task> task = async () => await itemService.CreateAsync(createItemDto, cancellationToken);
 
             // Assert
             await task.Should().ThrowAsync<OperationCanceledException>();
@@ -272,11 +274,11 @@
         public async Task CreateAsync_ValidItem_DoesNotThrowException()
         {
             // Arrange
-            this.createItemDto.Quantity = ITEM_QUANTITY_COMBINED;
-            this.item.QuantityCombined = ITEM_QUANTITY_COMBINED;
+            createItemDto.Quantity = ITEM_QUANTITY_COMBINED;
+            item.QuantityCombined = ITEM_QUANTITY_COMBINED;
 
             // Act
-            Func<Task> task = async () => await itemService.CreateAsync(this.createItemDto, It.IsAny<CancellationToken>());
+            Func<Task> task = async () => await itemService.CreateAsync(createItemDto, It.IsAny<CancellationToken>());
 
             // Assert
             await task.Should().NotThrowAsync();
@@ -290,11 +292,11 @@
             cancellationTokenSource.Cancel();
             CancellationToken cancellationToken = cancellationTokenSource.Token;
 
-            this.orderRepository.Setup(or => or.GetPendingOrdersTotalItemQuantityByItemIdAsync(It.IsAny<string>(), cancellationToken))
+            orderRepository.Setup(or => or.GetPendingOrdersTotalItemQuantityByItemIdAsync(It.IsAny<string>(), cancellationToken))
                                 .ThrowsAsync(new OperationCanceledException());
 
             // Act
-            Func<Task> task = async () => await this.itemService.UpdateAsync(ITEM_ID, this.updateItemDto, cancellationToken);
+            Func<Task> task = async () => await itemService.UpdateAsync(ITEM_ID, updateItemDto, cancellationToken);
 
             // Assert
             await task.Should().ThrowAsync<OperationCanceledException>();
@@ -308,11 +310,11 @@
             cancellationTokenSource.Cancel();
             CancellationToken cancellationToken = cancellationTokenSource.Token;
 
-            this.itemLoanRepository.Setup(ilr => ilr.GetItemLoansTotalQuantityForItemAsync(It.IsAny<string>(), cancellationToken))
+            itemLoanRepository.Setup(ilr => ilr.GetItemLoansTotalQuantityForItemAsync(It.IsAny<string>(), cancellationToken))
                                 .ThrowsAsync(new OperationCanceledException());
 
             // Act
-            Func<Task> task = async () => await this.itemService.UpdateAsync(ITEM_ID, this.updateItemDto, cancellationToken);
+            Func<Task> task = async () => await itemService.UpdateAsync(ITEM_ID, updateItemDto, cancellationToken);
 
             // Assert
             await task.Should().ThrowAsync<OperationCanceledException>();
@@ -326,11 +328,11 @@
             cancellationTokenSource.Cancel();
             CancellationToken cancellationToken = cancellationTokenSource.Token;
 
-            this.itemRepository.Setup(ir => ir.GetItemImagePublicIdAsync(It.IsAny<string>(), cancellationToken))
+            itemRepository.Setup(ir => ir.GetItemImagePublicIdAsync(It.IsAny<string>(), cancellationToken))
                                 .ThrowsAsync(new OperationCanceledException());
 
             // Act
-            Func<Task> task = async () => await this.itemService.UpdateAsync(ITEM_ID, this.updateItemDto, cancellationToken);
+            Func<Task> task = async () => await itemService.UpdateAsync(ITEM_ID, updateItemDto, cancellationToken);
 
             // Assert
             await task.Should().ThrowAsync<OperationCanceledException>();
@@ -340,18 +342,18 @@
         public async Task UpdateAsync_UploadAsyncWhenOperationCanceled_ThrowsOperationCanceledException()
         {
             // Arrange
-            this.updateItemDto.Image = new Mock<IFormFile>().Object;
-            this.updateItemDto.QuantityForSale = ITEM_QUANTITY_FOR_SALE;
+            updateItemDto.Image = new Mock<IFormFile>().Object;
+            updateItemDto.QuantityForSale = ITEM_QUANTITY_FOR_SALE;
 
             CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
             cancellationTokenSource.Cancel();
             CancellationToken cancellationToken = cancellationTokenSource.Token;
 
-            this.orderRepository.Setup(or => or.GetPendingOrdersTotalItemQuantityByItemIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()));
-            this.imageService.Setup(s => s.UploadAsync(It.IsAny<IFormFile>(), cancellationToken)).ThrowsAsync(new OperationCanceledException());
+            orderRepository.Setup(or => or.GetPendingOrdersTotalItemQuantityByItemIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()));
+            imageService.Setup(s => s.UploadAsync(It.IsAny<IFormFile>(), cancellationToken)).ThrowsAsync(new OperationCanceledException());
 
             // Act
-            Func<Task> task = async () => await this.itemService.UpdateAsync(ITEM_ID, this.updateItemDto, cancellationToken);
+            Func<Task> task = async () => await itemService.UpdateAsync(ITEM_ID, updateItemDto, cancellationToken);
 
             // Assert
             await task.Should().ThrowAsync<OperationCanceledException>();
@@ -361,21 +363,21 @@
         public async Task UpdateAsync_UpdateAsyncInImageServiceWhenOperationCanceled_ThrowsOperationCanceledException()
         {
             // Arrange
-            this.updateItemDto.Image = new Mock<IFormFile>().Object;
-            this.updateItemDto.ImageChanges = true;
-            this.updateItemDto.QuantityForSale = 1;
+            updateItemDto.Image = new Mock<IFormFile>().Object;
+            updateItemDto.ImageChanges = true;
+            updateItemDto.QuantityForSale = 1;
 
             CancellationTokenSource cancellationTokenSource = new CancellationTokenSource();
             cancellationTokenSource.Cancel();
             CancellationToken cancellationToken = cancellationTokenSource.Token;
 
-            this.orderRepository.Setup(or => or.GetPendingOrdersTotalItemQuantityByItemIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()));
-            this.itemRepository.Setup(ir => ir.GetItemImagePublicIdAsync(It.IsAny<string>(), cancellationToken)).ReturnsAsync(ITEM_IMAGE_PUBLIC_ID);
-            this.imageService.Setup(s => s.UpdateAsync(ITEM_IMAGE_PUBLIC_ID, It.IsAny<IFormFile>(), cancellationToken))
+            orderRepository.Setup(or => or.GetPendingOrdersTotalItemQuantityByItemIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()));
+            itemRepository.Setup(ir => ir.GetItemImagePublicIdAsync(It.IsAny<string>(), cancellationToken)).ReturnsAsync(ITEM_IMAGE_PUBLIC_ID);
+            imageService.Setup(s => s.UpdateAsync(CLOUDINARY_IMAGE_DIRECTORY + ITEM_IMAGE_PUBLIC_ID, It.IsAny<IFormFile>(), cancellationToken))
                                 .ThrowsAsync(new OperationCanceledException());
 
             // Act
-            Func<Task> task = async () => await this.itemService.UpdateAsync(ITEM_ID, this.updateItemDto, cancellationToken);
+            Func<Task> task = async () => await itemService.UpdateAsync(ITEM_ID, updateItemDto, cancellationToken);
 
             // Assert
             await task.Should().ThrowAsync<OperationCanceledException>();
@@ -385,13 +387,13 @@
         public async Task UpdateAsync_PendingOrdersTotalItemQuantityGreaterThanOrEqualToNewQuantityCombined_ThrowsArgumentException()
         {
             // Arrange
-            this.updateItemDto.Quantity = ITEM_QUANTITY_COMBINED;
-            this.item.QuantityCombined = ITEM_QUANTITY_COMBINED;
-            this.orderRepository.Setup(or => or.GetPendingOrdersTotalItemQuantityByItemIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync((short) 2);
-            this.itemLoanRepository.Setup(ilr => ilr.GetItemLoansTotalQuantityForItemAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync((short) 0);
+            updateItemDto.Quantity = ITEM_QUANTITY_COMBINED;
+            item.QuantityCombined = ITEM_QUANTITY_COMBINED;
+            orderRepository.Setup(or => or.GetPendingOrdersTotalItemQuantityByItemIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync((short)2);
+            itemLoanRepository.Setup(ilr => ilr.GetItemLoansTotalQuantityForItemAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync((short)0);
 
             // Act
-            Func<Task> task = async () => await this.itemService.UpdateAsync(ITEM_ID, this.updateItemDto, It.IsAny<CancellationToken>());
+            Func<Task> task = async () => await itemService.UpdateAsync(ITEM_ID, updateItemDto, It.IsAny<CancellationToken>());
 
             // Assert
             await task.Should().ThrowAsync<ArgumentException>();
@@ -401,13 +403,13 @@
         public async Task UpdateAsync_ItemLoansTotalQuantityForItemGreaterThanOrEqualToNewQuantityCombined_ThrowsArgumentException()
         {
             // Arrange
-            this.updateItemDto.Quantity = ITEM_QUANTITY_COMBINED;
-            this.item.QuantityCombined = ITEM_QUANTITY_COMBINED;
-            this.orderRepository.Setup(or => or.GetPendingOrdersTotalItemQuantityByItemIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync((short) 2);
-            this.itemLoanRepository.Setup(ilr => ilr.GetItemLoansTotalQuantityForItemAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync((short) 0);
+            updateItemDto.Quantity = ITEM_QUANTITY_COMBINED;
+            item.QuantityCombined = ITEM_QUANTITY_COMBINED;
+            orderRepository.Setup(or => or.GetPendingOrdersTotalItemQuantityByItemIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync((short)2);
+            itemLoanRepository.Setup(ilr => ilr.GetItemLoansTotalQuantityForItemAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync((short)0);
 
             // Act
-            Func<Task> task = async () => await this.itemService.UpdateAsync(ITEM_ID, this.updateItemDto, It.IsAny<CancellationToken>());
+            Func<Task> task = async () => await itemService.UpdateAsync(ITEM_ID, updateItemDto, It.IsAny<CancellationToken>());
 
             // Assert
             await task.Should().ThrowAsync<ArgumentException>();
@@ -417,13 +419,13 @@
         public async Task UpdateAsync_PendingOrdersTotalItemQuantityAndItemLoansTotalQuantityAreZeros_DoesNotThrowException()
         {
             // Arrange
-            this.updateItemDto.Quantity = ITEM_QUANTITY_COMBINED;
-            this.item.QuantityCombined = ITEM_QUANTITY_COMBINED;
-            this.orderRepository.Setup(or => or.GetPendingOrdersTotalItemQuantityByItemIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync((short) 0);
-            this.itemLoanRepository.Setup(ilr => ilr.GetItemLoansTotalQuantityForItemAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync((short) 0);
+            updateItemDto.Quantity = ITEM_QUANTITY_COMBINED;
+            item.QuantityCombined = ITEM_QUANTITY_COMBINED;
+            orderRepository.Setup(or => or.GetPendingOrdersTotalItemQuantityByItemIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync((short)0);
+            itemLoanRepository.Setup(ilr => ilr.GetItemLoansTotalQuantityForItemAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync((short)0);
 
             // Act
-            Func<Task> task = async () => await this.itemService.UpdateAsync(ITEM_ID, this.updateItemDto, It.IsAny<CancellationToken>());
+            Func<Task> task = async () => await itemService.UpdateAsync(ITEM_ID, updateItemDto, It.IsAny<CancellationToken>());
 
             // Assert
             await task.Should().NotThrowAsync();
@@ -433,10 +435,10 @@
         public async Task DeleteAsync_IsLoanWithItemAsync_ThrowsInvalidOperationException()
         {
             // Arrange
-            this.itemLoanRepository.Setup(ilr => ilr.IsLoanWithItemAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(true);
+            itemLoanRepository.Setup(ilr => ilr.IsLoanWithItemAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).ReturnsAsync(true);
 
             // Act
-            Func<Task> task = async () => await this.itemService.DeleteAsync(ITEM_ID, It.IsAny<CancellationToken>());
+            Func<Task> task = async () => await itemService.DeleteAsync(ITEM_ID, It.IsAny<CancellationToken>());
 
             // Assert
             await task.Should().ThrowAsync<InvalidOperationException>();
@@ -450,10 +452,10 @@
             cancellationTokenSource.Cancel();
             CancellationToken cancellationToken = cancellationTokenSource.Token;
 
-            this.itemLoanRepository.Setup(ilr => ilr.IsLoanWithItemAsync(It.IsAny<string>(), cancellationToken)).ThrowsAsync(new OperationCanceledException());
+            itemLoanRepository.Setup(ilr => ilr.IsLoanWithItemAsync(It.IsAny<string>(), cancellationToken)).ThrowsAsync(new OperationCanceledException());
 
             // Act
-            Func<Task> task = async () => await this.itemService.DeleteAsync(ITEM_ID, cancellationToken);
+            Func<Task> task = async () => await itemService.DeleteAsync(ITEM_ID, cancellationToken);
 
             // Assert
             await task.Should().ThrowAsync<OperationCanceledException>();
@@ -467,11 +469,11 @@
             cancellationTokenSource.Cancel();
             CancellationToken cancellationToken = cancellationTokenSource.Token;
 
-            this.itemLoanRepository.Setup(ilr => ilr.IsLoanWithItemAsync(It.IsAny<string>(), cancellationToken)).ReturnsAsync(false);
-            this.itemRepository.Setup(ir => ir.GetItemImagePublicIdAsync(It.IsAny<string>(), cancellationToken)).ThrowsAsync(new OperationCanceledException());
+            itemLoanRepository.Setup(ilr => ilr.IsLoanWithItemAsync(It.IsAny<string>(), cancellationToken)).ReturnsAsync(false);
+            itemRepository.Setup(ir => ir.GetItemImagePublicIdAsync(It.IsAny<string>(), cancellationToken)).ThrowsAsync(new OperationCanceledException());
 
             // Act
-            Func<Task> task = async () => await this.itemService.DeleteAsync(ITEM_ID, cancellationToken);
+            Func<Task> task = async () => await itemService.DeleteAsync(ITEM_ID, cancellationToken);
 
             // Assert
             await task.Should().ThrowAsync<OperationCanceledException>();
@@ -485,13 +487,13 @@
             cancellationTokenSource.Cancel();
             CancellationToken cancellationToken = cancellationTokenSource.Token;
 
-            this.itemLoanRepository.Setup(ilr => ilr.IsLoanWithItemAsync(It.IsAny<string>(), cancellationToken)).ReturnsAsync(false);
-            this.itemRepository.Setup(ir => ir.GetItemImagePublicIdAsync(It.IsAny<string>(), cancellationToken)).ReturnsAsync(ITEM_IMAGE_PUBLIC_ID);
-            this.orderRepository.Setup(ir => ir.DeclineAllPendingOrdersWithDeletedItemAsync(It.IsAny<string>(), cancellationToken))
+            itemLoanRepository.Setup(ilr => ilr.IsLoanWithItemAsync(It.IsAny<string>(), cancellationToken)).ReturnsAsync(false);
+            itemRepository.Setup(ir => ir.GetItemImagePublicIdAsync(It.IsAny<string>(), cancellationToken)).ReturnsAsync(ITEM_IMAGE_PUBLIC_ID);
+            orderRepository.Setup(ir => ir.DeclineAllPendingOrdersWithDeletedItemAsync(It.IsAny<string>(), cancellationToken))
                                 .ThrowsAsync(new OperationCanceledException());
 
             // Act
-            Func<Task> task = async () => await this.itemService.DeleteAsync(ITEM_ID, cancellationToken);
+            Func<Task> task = async () => await itemService.DeleteAsync(ITEM_ID, cancellationToken);
 
             // Assert
             await task.Should().ThrowAsync<OperationCanceledException>();
@@ -503,7 +505,7 @@
             // Arrange
 
             // Act
-            Func<Task> task = async () => await this.itemService.DeleteAsync(ITEM_ID, It.IsAny<CancellationToken>());
+            Func<Task> task = async () => await itemService.DeleteAsync(ITEM_ID, It.IsAny<CancellationToken>());
 
             // Assert
             task.Should().NotThrowAsync();

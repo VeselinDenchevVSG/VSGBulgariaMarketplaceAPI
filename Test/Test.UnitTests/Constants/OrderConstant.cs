@@ -1,4 +1,4 @@
-﻿namespace Test.Constants
+﻿namespace Test.UnitTests.Constants
 {
     internal static class OrderConstant
     {

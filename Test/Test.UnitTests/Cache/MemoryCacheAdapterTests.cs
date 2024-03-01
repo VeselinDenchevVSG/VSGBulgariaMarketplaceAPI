@@ -1,4 +1,4 @@
-﻿namespace Test.CacheTests
+﻿namespace Test.UnitTests.Cache
 {
     using FluentAssertions;
     using FluentAssertions.Execution;
@@ -16,9 +16,9 @@
         private IMemoryCacheAdapter cacheAdapter;
 
         [SetUp]
-        public void SetUp() 
+        public void SetUp()
         {
-            this.cacheAdapter = new MemoryCacheAdapter(new MemoryCache(new MemoryCacheOptions()));
+            cacheAdapter = new MemoryCacheAdapter(new MemoryCache(new MemoryCacheOptions()));
         }
 
         [Test]
@@ -26,10 +26,10 @@
         {
             // Arrange
             object setTest = new();
-            this.cacheAdapter.Set(TEST_CACHE_KEY, setTest);
+            cacheAdapter.Set(TEST_CACHE_KEY, setTest);
 
             // Act
-            object getTest = this.cacheAdapter.Get(TEST_CACHE_KEY);
+            object getTest = cacheAdapter.Get(TEST_CACHE_KEY);
 
             // Assert
             using (new AssertionScope())
@@ -45,7 +45,7 @@
             // Arrange
 
             // Act
-            object test = this.cacheAdapter.Get(TEST_CACHE_KEY);
+            object test = cacheAdapter.Get(TEST_CACHE_KEY);
 
             // Assert
             test.Should().BeNull();
@@ -56,10 +56,10 @@
         {
             // Arrange
             object setTest = new();
-            this.cacheAdapter.Set(TEST_CACHE_KEY, setTest);
+            cacheAdapter.Set(TEST_CACHE_KEY, setTest);
 
             // Act
-            bool exists = this.cacheAdapter.TryGetValue(TEST_CACHE_KEY, out object tryGetTest);
+            bool exists = cacheAdapter.TryGetValue(TEST_CACHE_KEY, out object tryGetTest);
 
             // Assert
             using (new AssertionScope())
@@ -76,7 +76,7 @@
             // Arrange
 
             // Act
-            bool exists = this.cacheAdapter.TryGetValue(TEST_CACHE_KEY, out object test);
+            bool exists = cacheAdapter.TryGetValue(TEST_CACHE_KEY, out object test);
 
             // Assert
             using (new AssertionScope())
@@ -90,13 +90,13 @@
         public void MemoryCacheAdapter_Clear_ClearsCache()
         {
             // Arrange
-            this.cacheAdapter.Set(TEST_1_CACHE_KEY, new object());
-            this.cacheAdapter.Set(TEST_2_CACHE_KEY, new object());
+            cacheAdapter.Set(TEST_1_CACHE_KEY, new object());
+            cacheAdapter.Set(TEST_2_CACHE_KEY, new object());
 
             // Act
-            this.cacheAdapter.Clear();
-            object test1 = this.cacheAdapter.Get(TEST_1_CACHE_KEY);
-            object test2 = this.cacheAdapter.Get(TEST_2_CACHE_KEY);
+            cacheAdapter.Clear();
+            object test1 = cacheAdapter.Get(TEST_1_CACHE_KEY);
+            object test2 = cacheAdapter.Get(TEST_2_CACHE_KEY);
 
             // Assert
             using (new AssertionScope())
@@ -111,7 +111,7 @@
         {
             // Arrange
             object createEntryTest = new();
-            using (var cacheEntry = this.cacheAdapter.CreateEntry(TEST_CACHE_KEY))
+            using (var cacheEntry = cacheAdapter.CreateEntry(TEST_CACHE_KEY))
             {
                 // Setting the value of the cache entry
                 cacheEntry.Value = createEntryTest;
@@ -133,7 +133,7 @@
             }
 
             // Act
-            object getTest = this.cacheAdapter.Get(TEST_CACHE_KEY);
+            object getTest = cacheAdapter.Get(TEST_CACHE_KEY);
 
             // Assert
             using (new AssertionScope())
@@ -147,11 +147,11 @@
         public void MemoryCacheAdapter_Remove_RemovesItem()
         {
             // Arrange
-            this.cacheAdapter.Set(TEST_CACHE_KEY, new object());
-            this.cacheAdapter.Remove(TEST_CACHE_KEY);
+            cacheAdapter.Set(TEST_CACHE_KEY, new object());
+            cacheAdapter.Remove(TEST_CACHE_KEY);
 
             // Act
-            object test = this.cacheAdapter.Get(TEST_CACHE_KEY);
+            object test = cacheAdapter.Get(TEST_CACHE_KEY);
 
             // Assert
             test.Should().BeNull();
@@ -161,10 +161,10 @@
         public void MemoryCacheAdapter_AfterDispose_ThrowsObjectDisposedException()
         {
             // Arrange
-            this.cacheAdapter.Dispose();
+            cacheAdapter.Dispose();
 
             // Act
-            Action action = () => this.cacheAdapter.Get(TEST_CACHE_KEY);
+            Action action = () => cacheAdapter.Get(TEST_CACHE_KEY);
 
             // Assert
             action.Should().Throw<ObjectDisposedException>();
