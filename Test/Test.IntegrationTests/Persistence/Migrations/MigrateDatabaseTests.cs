@@ -30,11 +30,11 @@
 
         public sealed class TableColumnInfo
         {
-            public string TableName { get; set; }
+            public required string TableName { get; set; }
 
-            public string ColumnName { get; set; }
+            public required string ColumnName { get; set; }
 
-            public string DataType { get; set; }
+            public required string DataType { get; set; }
 
             [NullValues("NULL")]
             public string? ConstraintType { get; set; }
@@ -69,10 +69,10 @@
         {
             // Arrange
             string filePath = ConstructFileInDatabaseFolderPath(TABLE_COLUMNS_CSV_FILE_NAME);
-            var tableColumnsFromFile = await ReadCsvHelper.GetListFromCsvFileAsync<TableColumnInfo>(filePath, true);
+            var tableColumnsFromFile = ReadCsvHelper.GetListFromCsvFile<TableColumnInfo>(filePath, true);
 
             filePath = ConstructFileInDatabaseFolderPath(VERSION_INFO_CSV_FILE_NAME);
-            var versionInfoFromFile = await ReadCsvHelper.GetListFromCsvFileAsync<VersionInfo>(filePath, true);
+            var versionInfoFromFile = ReadCsvHelper.GetListFromCsvFile<VersionInfo>(filePath, true);
 
             // Act
             string tableColumnsSql = string.Format(SELECT_TABLE_COLUMNS_SQL_QUERY_TEMPLATE, databaseHelper.integrationTestsDatabaseName);
@@ -85,7 +85,7 @@
                 versionInfoFromDatabaseInitial = (await connection.QueryAsync<VersionInfo>(SELECT_VERSION_INFO_SQL_QUERY)).ToList();
             }
 
-            // We dispose the current http client so we can recreate it and test if migrations are already applied
+            // We dispose the current HTTP client so we can recreate it and test if migrations are already applied
             httpClient.Dispose();
             httpClient = factory.CreateClient();
 

@@ -29,7 +29,7 @@
 
             // Act
             bool isDatabaseCreated = false;
-            string name = null;
+            string? name = null;
             await using (SqlConnection connection = new(this.databaseHelper.masterConnectionString))
             {
                 var records = await connection.QueryAsync(CHECK_IF_DATABASE_EXISTS_SQL_QUERY, parameters);

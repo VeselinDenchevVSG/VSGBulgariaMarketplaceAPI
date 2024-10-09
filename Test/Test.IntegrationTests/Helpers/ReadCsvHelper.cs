@@ -7,7 +7,7 @@
 
     internal static class ReadCsvHelper
     {
-        internal async static Task<List<T>> GetListFromCsvFileAsync<T>(string filePath, bool hasHeaderRecord)
+        internal static List<T> GetListFromCsvFile<T>(string filePath, bool hasHeaderRecord)
         {
             CsvConfiguration configuration = new(CultureInfo.InvariantCulture)
             {
@@ -16,7 +16,9 @@
 
             using StreamReader streamReader = new(filePath);
             using CsvReader csvReader = new(streamReader, configuration);
-            var records = await csvReader.GetRecordsAsync<T>().ToListAsync();
+            List<T> records = csvReader.GetRecordsAsync<T>()
+                                       .ToBlockingEnumerable()
+                                       .ToList();
 
             return records;
         }
