@@ -15,6 +15,7 @@
         }
 
         [OneTimeTearDown]
-        public async Task RunAfterAllTests() => await databaseHelper.DropIntegrationTestsDatabaseAsync();
+        public async Task RunAfterAllTests()
+            => await this.databaseHelper.DropIntegrationTestsDatabaseIfExistsAsync();
     }
 }
