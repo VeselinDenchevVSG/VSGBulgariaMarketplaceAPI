@@ -6,7 +6,7 @@
     using FluentAssertions.Execution;
     using Microsoft.Data.SqlClient;
 
-    using Test.IntegrationTests.Utils;
+    using Test.IntegrationTests.Extensions;
 
     using VSGBulgariaMarketplace.Application.Models.Image.Interfaces;
     using VSGBulgariaMarketplace.Application.Models.Item.Interfaces;
@@ -232,7 +232,6 @@
             };
 
             bool isDeleted = false;
-            string sql = "SELECT 1 FROM Items WHERE Id = @Id";
             await using (SqlConnection connection = new(this.databaseHelper.integrationTestsConnectionString))
             {
                 await this.itemRepository.CreateAsync(createdItem, default);
@@ -248,6 +247,8 @@
                 {
                     // In case it fails
                 }
+
+                string sql = "SELECT 1 FROM Items WHERE Id = @Id";
                 isDeleted = !(await connection.ExecuteScalarAsync<bool>(sql, new { Id = createdItem.Id }));
             }
 
@@ -332,7 +333,7 @@
                 Description = null,
                 Location = Location.Home
             };
-            Item[] itemsWithNullOrZeroQuantityForSale = new[] { itemWithNullQuantityForSale, itemWithZeroQuantityForSale };
+            Item[] itemsWithNullOrZeroQuantityForSale = [ itemWithNullQuantityForSale, itemWithZeroQuantityForSale ];
 
             Item item1WithQuantityForSaleGreaterThanZero = new()
             {
@@ -466,8 +467,8 @@
                 itemToBeCreated.Should().BeEquivalentTo(createdItem, options => options.Excluding(i => i.CreatedAtUtc)
                                                                                        .Excluding(i => i.ModifiedAtUtc));
                 itemToBeCreated.CreatedAtUtc.Should().Be(itemToBeCreated.ModifiedAtUtc);
-                DateTimeUtil.RoundToNearestSecond(itemToBeCreated.CreatedAtUtc).Should().Be(DateTimeUtil.RoundToNearestSecond(createdItem!.CreatedAtUtc));
-                DateTimeUtil.RoundToNearestSecond(itemToBeCreated.ModifiedAtUtc).Should().Be(DateTimeUtil.RoundToNearestSecond(createdItem.ModifiedAtUtc));
+                itemToBeCreated.CreatedAtUtc.RoundToNearestSecond().Should().Be(createdItem!.CreatedAtUtc.RoundToNearestSecond());
+                itemToBeCreated.ModifiedAtUtc.RoundToNearestSecond().Should().Be(createdItem.ModifiedAtUtc.RoundToNearestSecond());
                 createdItem.CreatedAtUtc.Should().BeBefore(utcNow);
                 createdItem.CreatedAtUtc.Should().Be(createdItem.ModifiedAtUtc);
             }
@@ -502,7 +503,8 @@
             ArgumentNullException.ThrowIfNull(createdItem);
             itemToBeUpdated.Id = createdItem.Id;
 
-            Thread.Sleep(1); // Wait for 1ms so we are sure createdItem.ModifiedAtUtc and updatedItem.ModifiedAtUtc are different
+            // Wait for 1ms so we are sure createdItem.ModifiedAtUtc and updatedItem.ModifiedAtUtc are different
+            Thread.Sleep(1);
 
             // Act
             IEnumerable<Item> itemsAfterUpdate;
@@ -547,7 +549,7 @@
             }
         }
 
-        private void AssertGetById(Item itemBeforeCreation, Item itemAfterCreation, bool beEquivalent)
+        private void AssertGetById(Item itemBeforeCreation, Item? itemAfterCreation, bool beEquivalent)
         {
             using AssertionScope assertionScope = new();
             var itemAfterCreationShould = itemAfterCreation.Should();
