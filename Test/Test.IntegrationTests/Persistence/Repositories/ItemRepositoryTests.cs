@@ -7,6 +7,7 @@
     using Microsoft.Data.SqlClient;
 
     using Test.IntegrationTests.Extensions;
+    using Test.IntegrationTests.Persistence.Factories;
 
     using VSGBulgariaMarketplace.Application.Models.Image.Interfaces;
     using VSGBulgariaMarketplace.Application.Models.Item.Interfaces;
@@ -41,14 +42,14 @@
         {
             if (isItemLoanCreated)
             {
-                await base.TruncateTableAsync(ITEM_LOANS_TABLE_NAME);
+                await base.DeleteFromTableAsync(ITEM_LOANS_TABLE_NAME);
                 isItemLoanCreated = false;
             }
 
-            await base.TruncateTableAsync(ITEMS_TABLE_NAME);
+            await base.DeleteFromTableAsync(ITEMS_TABLE_NAME);
             if (isImageCreated)
             {
-                await base.TruncateTableAsync(CLOUDINARY_IMAGES_TABLE_NAME);
+                await base.DeleteFromTableAsync(CLOUDINARY_IMAGES_TABLE_NAME);
                 isImageCreated = false;
             }
 
@@ -58,19 +59,7 @@
         public async Task CreateAsync_WithNullProperties_CreatesItem()
         {
             // Arrange
-            Item itemToBeCreated = new()
-            {
-                Code = "test",
-                Name = "test",
-                ImagePublicId = null,
-                Price = null,
-                Category = Category.Misc,
-                QuantityCombined = 1,
-                QuantityForSale = null,
-                AvailableQuantity = null,
-                Description = null,
-                Location = Location.Home
-            };
+            Item itemToBeCreated = ItemFactory.GetItemWithNullProperties();
 
             await this.CreateAsyncCreatesItemBaseAsync(itemToBeCreated);
         }
@@ -91,19 +80,7 @@
             }
             isImageCreated = true;
 
-            Item itemToBeCreated = new()
-            {
-                Code = "test",
-                Name = "test",
-                ImagePublicId = image.Id,
-                Price = 123.45m,
-                Category = Category.Misc,
-                QuantityCombined = 3,
-                QuantityForSale = 1,
-                AvailableQuantity = 1,
-                Description = "test",
-                Location = Location.Home
-            };
+            Item itemToBeCreated = ItemFactory.GetItemWithNotNullProperties(image.Id);
 
             await this.CreateAsyncCreatesItemBaseAsync(itemToBeCreated);
         }
@@ -114,8 +91,8 @@
             // Arrange
             Item itemToBeCreated = new()
             {
-                Code = "test",
-                Name = "test",
+                Code = Guid.NewGuid().ToString(),
+                Name = Guid.NewGuid().ToString(),
                 Price = null,
                 Category = Category.Misc,
                 QuantityCombined = 2,
@@ -126,8 +103,8 @@
             };
             Item itemToBeUpdated = new()
             {
-                Code = "updated",
-                Name = "updated",
+                Code = Guid.NewGuid().ToString(),
+                Name = Guid.NewGuid().ToString(),
                 Price = 123.45m,
                 Category = Category.OfficeTools,
                 QuantityCombined = 3,
@@ -146,8 +123,8 @@
             // Arrange
             Item itemToBeCreated = new()
             {
-                Code = "test",
-                Name = "test",
+                Code = Guid.NewGuid().ToString(),
+                Name = Guid.NewGuid().ToString(),
                 Price = 123.45m,
                 Category = Category.Misc,
                 QuantityCombined = 3,
@@ -158,8 +135,8 @@
             };
             Item itemToBeUpdated = new()
             {
-                Code = "updated",
-                Name = "updated",
+                Code = Guid.NewGuid().ToString(),
+                Name = Guid.NewGuid().ToString(),
                 Price = null,
                 Category = Category.OfficeTools,
                 QuantityCombined = 2,
@@ -210,8 +187,8 @@
             // Arrange
             Item createdItem = new()
             {
-                Code = "test",
-                Name = "test",
+                Code = Guid.NewGuid().ToString(),
+                Name = Guid.NewGuid().ToString(),
                 ImagePublicId = null,
                 Price = 123.45m,
                 Category = Category.Misc,
@@ -262,8 +239,8 @@
             // Arrange
             Item createdItem = new()
             {
-                Code = "test",
-                Name = "test",
+                Code = Guid.NewGuid().ToString(),
+                Name = Guid.NewGuid().ToString(),
                 ImagePublicId = null,
                 Price = 123.45m,
                 Category = Category.Misc,
@@ -311,8 +288,8 @@
             // Arrange
             Item itemWithNullQuantityForSale = new()
             {
-                Code = "test1",
-                Name = "test1",
+                Code = Guid.NewGuid().ToString(),
+                Name = Guid.NewGuid().ToString(),
                 Price = null,
                 Category = Category.Misc,
                 QuantityCombined = 1,
@@ -323,8 +300,8 @@
             };
             Item itemWithZeroQuantityForSale = new()
             {
-                Code = "test2",
-                Name = "test2",
+                Code = Guid.NewGuid().ToString(),
+                Name = Guid.NewGuid().ToString(),
                 Price = 123.45m,
                 Category = Category.Misc,
                 QuantityCombined = 3,
@@ -333,12 +310,12 @@
                 Description = null,
                 Location = Location.Home
             };
-            Item[] itemsWithNullOrZeroQuantityForSale = [ itemWithNullQuantityForSale, itemWithZeroQuantityForSale ];
+            Item[] itemsWithNullOrZeroQuantityForSale = [itemWithNullQuantityForSale, itemWithZeroQuantityForSale];
 
             Item item1WithQuantityForSaleGreaterThanZero = new()
             {
-                Code = "test3",
-                Name = "test3",
+                Code = Guid.NewGuid().ToString(),
+                Name = Guid.NewGuid().ToString(),
                 Price = null,
                 Category = Category.Misc,
                 QuantityCombined = 3,
@@ -349,8 +326,8 @@
             };
             Item item2WithQuantityForSaleGreaterThanZero = new()
             {
-                Code = "test4",
-                Name = "test4",
+                Code = Guid.NewGuid().ToString(),
+                Name = Guid.NewGuid().ToString(),
                 Price = 123.45m,
                 Category = Category.Misc,
                 QuantityCombined = 3,
@@ -455,7 +432,10 @@
                 itemsAfterCreation = await connection.QueryAsync<Item>(sql);
             }
 
-            DateTime utcNow = DateTime.UtcNow;
+            // Wait for 1ms so we are sure createdItem.CreatedAtUtc and utcNow are different
+            Thread.Sleep(1);
+
+            var utcNow = DateTime.UtcNow;
 
             Item? createdItem = itemsAfterCreation.MaxBy(i => i.CreatedAtUtc);
 
@@ -464,8 +444,8 @@
             using (new AssertionScope())
             {
                 itemsAfterCreation.Count().Should().Be(itemsBeforeCreation.Count() + 1);
-                itemToBeCreated.Should().BeEquivalentTo(createdItem, options => options.Excluding(i => i.CreatedAtUtc)
-                                                                                       .Excluding(i => i.ModifiedAtUtc));
+                itemToBeCreated.Should().BeEquivalentTo(createdItem, options => options.Excluding(i => i!.CreatedAtUtc)
+                                                                                       .Excluding(i => i!.ModifiedAtUtc));
                 itemToBeCreated.CreatedAtUtc.Should().Be(itemToBeCreated.ModifiedAtUtc);
                 itemToBeCreated.CreatedAtUtc.RoundToNearestSecond().Should().Be(createdItem!.CreatedAtUtc.RoundToNearestSecond());
                 itemToBeCreated.ModifiedAtUtc.RoundToNearestSecond().Should().Be(createdItem.ModifiedAtUtc.RoundToNearestSecond());

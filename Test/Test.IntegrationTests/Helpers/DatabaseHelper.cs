@@ -39,7 +39,7 @@
         internal void CreateIntegrationTestsDatabase() => 
             DatabaseCreator.Create(this.configuration, INTEGRATION_TESTS_CONNECTION_STRING_NAME, MASTER_CONNECTION_STRING_NAME);
 
-        internal async Task DropIntegrationTestsDatabaseIfExistsAsync()
+        internal async Task DropIntegrationTestsDatabaseAsync()
         {
             SqlConnection.ClearAllPools();
 
@@ -47,7 +47,9 @@
 
             try
             {
-                await connection.QueryAsync($"DROP DATABASE {this.integrationTestsDatabaseName}");
+                await connection.QueryAsync(@$"
+                    ALTER DATABASE {this.integrationTestsDatabaseName} SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+                    DROP DATABASE {this.integrationTestsDatabaseName}");
             }
             catch (SqlException)
             {

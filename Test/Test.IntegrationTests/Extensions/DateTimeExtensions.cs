@@ -2,8 +2,16 @@
 
 public static class DateTimeExtensions
 {
+    public static DateTime? RoundToNearestSecond(this DateTime? nullableDateTime)
+    {
+        if (nullableDateTime is null) return null;
+
+        return RoundToNearestSecond(nullableDateTime.Value);
+    }
+
     public static DateTime RoundToNearestSecond(this DateTime dateTime)
-        => new(
+    {
+        return new(
             dateTime.Year,
             dateTime.Month,
             dateTime.Day,
@@ -12,4 +20,5 @@ public static class DateTimeExtensions
             dateTime.Second,
             // Preserve the DateTimeKind (Local, Utc, or Unspecified)
             dateTime.Kind);
+    }
 }

@@ -21,7 +21,7 @@
             this.unitOfWork = new UnitOfWork(this.databaseHelper.configuration, INTEGRATION_TESTS_CONNECTION_STRING_NAME);
         }
 
-        protected async Task TruncateTableAsync(string tableName)
+        protected async Task DeleteFromTableAsync(string tableName)
         {
             await using SqlConnection connection = new(this.databaseHelper.integrationTestsConnectionString);
             await connection.QueryAsync($"DELETE FROM {tableName}");

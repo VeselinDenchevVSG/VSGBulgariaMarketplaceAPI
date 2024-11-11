@@ -19,7 +19,7 @@
 
         [TearDown]
         public async Task DropIntegrationTestsDatabaseAsync() 
-            => await this.databaseHelper.DropIntegrationTestsDatabaseIfExistsAsync();
+            => await this.databaseHelper.DropIntegrationTestsDatabaseAsync();
 
         [Test]
         public async Task Create_CreatesDatabase()

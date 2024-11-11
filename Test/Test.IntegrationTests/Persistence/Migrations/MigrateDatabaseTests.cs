@@ -61,7 +61,7 @@
         public async Task DisposeHttpClientAndDropIntegrationTestsDatabase()
         {
             this.httpClient.Dispose();
-            await this.databaseHelper.DropIntegrationTestsDatabaseIfExistsAsync();
+            await this.databaseHelper.DropIntegrationTestsDatabaseAsync();
         }
 
         [Test]
